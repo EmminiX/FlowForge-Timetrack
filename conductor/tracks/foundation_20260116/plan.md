@@ -14,9 +14,9 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Environment & Scaffolding' (Protocol in workflow.md) [checkpoint: 03da382]
 
 ## Phase 2: Database Layer
-- [ ] Task: Database Configuration
-    - [ ] Configure `tauri.conf.json` to enable the SQL plugin.
-    - [ ] Create `src/lib/db.ts` service to handle database connection.
+- [x] Task: Database Configuration 945d93b
+    - [x] Configure `tauri.conf.json` to enable the SQL plugin.
+    - [x] Create `src/lib/db.ts` service to handle database connection.
 - [ ] Task: Schema Migration
     - [ ] Write SQL migration script for `clients`, `projects`, `time_entries`, `invoices`, `invoice_line_items`, and `settings` tables.
     - [ ] Implement migration execution logic in `src/lib/db.ts` or on app startup.
