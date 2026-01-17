@@ -32,10 +32,10 @@
 - [x] Task: Font Scaling System a78c28a
     - [x] Create `useFontSize` hook/store to manage font scaling factor (e.g., 0.75x to 2x).
     - [x] Implement logic to apply this scale (e.g., modifying `root` font-size or using a CSS variable for base size).
-- [ ] Task: Main Layout Component
-    - [ ] Create `Sidebar` component with navigation links (Dashboard, Clients, Projects, Settings).
-    - [ ] Create `Header` component.
-    - [ ] Create `Layout` component that wraps the content area.
+- [x] Task: Main Layout Component c0193c3
+    - [x] Create `Sidebar` component with navigation links (Dashboard, Clients, Projects, Settings).
+    - [x] Create `Header` component.
+    - [x] Create `Layout` component that wraps the content area.
 - [ ] Task: Router Setup
     - [ ] Configure `react-router-dom` with placeholder pages for Dashboard, Clients, etc.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Core UI Architecture' (Protocol in workflow.md)
