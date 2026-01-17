@@ -6,7 +6,7 @@
     - [x] Configure `tsconfig.json` for strict mode.
     - [x] Install and configure ESLint and Prettier.
     - [x] Commit initial project structure.
-- [ ] Task: Install Core Dependencies
+- [~] Task: Install Core Dependencies
     - [ ] Install `tailwindcss`, `postcss`, `autoprefixer` and init tailwind config.
     - [ ] Install `lucide-react`, `clsx`, `tailwind-merge`.
     - [ ] Install `zustand`, `react-router-dom`, `react-hook-form`, `zod`.
