@@ -36,6 +36,6 @@
     - [x] Create `Sidebar` component with navigation links (Dashboard, Clients, Projects, Settings).
     - [x] Create `Header` component.
     - [x] Create `Layout` component that wraps the content area.
-- [ ] Task: Router Setup
-    - [ ] Configure `react-router-dom` with placeholder pages for Dashboard, Clients, etc.
+- [x] Task: Router Setup 074244d
+    - [x] Configure `react-router-dom` with placeholder pages for Dashboard, Clients, etc.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Core UI Architecture' (Protocol in workflow.md)
