@@ -25,10 +25,10 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Database Layer' (Protocol in workflow.md) [checkpoint: da55230]
 
 ## Phase 3: Core UI Architecture
-- [ ] Task: Theme System
-    - [ ] Define CSS variables for colors in `src/styles/globals.css`.
-    - [ ] Create `useTheme` hook and/or store in Zustand to manage Light/Dark/System preference.
-    - [ ] Implement class toggling on the `<html>` or `<body>` tag.
+- [x] Task: Theme System ae39c87
+    - [x] Define CSS variables for colors in `src/styles/globals.css`.
+    - [x] Create `useTheme` hook and/or store in Zustand to manage Light/Dark/System preference.
+    - [x] Implement class toggling on the `<html>` or `<body>` tag.
 - [ ] Task: Font Scaling System
     - [ ] Create `useFontSize` hook/store to manage font scaling factor (e.g., 0.75x to 2x).
     - [ ] Implement logic to apply this scale (e.g., modifying `root` font-size or using a CSS variable for base size).
