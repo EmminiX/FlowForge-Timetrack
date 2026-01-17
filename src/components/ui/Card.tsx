@@ -11,9 +11,12 @@ export function Card({ children, padding = 'md', hover = false, className, ...pr
     const paddings = {
         none: '',
         sm: 'p-3',
-        md: 'p-4',
+        md: '', // Use CSS variable for md
         lg: 'p-6',
     };
+
+    // Use CSS variable for default (md) padding
+    const style = padding === 'md' ? { padding: 'var(--card-padding, 1rem)' } : undefined;
 
     return (
         <div
@@ -23,6 +26,7 @@ export function Card({ children, padding = 'md', hover = false, className, ...pr
                 hover && 'transition-shadow hover:shadow-md cursor-pointer',
                 className
             )}
+            style={style}
             {...props}
         >
             {children}

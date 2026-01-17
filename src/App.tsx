@@ -7,23 +7,26 @@ import { Projects } from './pages/Projects';
 import { TimeEntries } from './pages/TimeEntries';
 import { Invoices } from './pages/Invoices';
 import { Settings } from './pages/Settings';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="clients" element={<Clients />} />
-          <Route path="projects" element={<Projects />} />
-          <Route path="time-entries" element={<TimeEntries />} />
-          <Route path="invoices" element={<Invoices />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-      {/* Debug panel - only visible during development */}
-      <DebugPanel />
-    </BrowserRouter>
+    <SettingsProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="clients" element={<Clients />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="time-entries" element={<TimeEntries />} />
+            <Route path="invoices" element={<Invoices />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+        </Routes>
+        {/* Debug panel - only visible during development */}
+        <DebugPanel />
+      </BrowserRouter>
+    </SettingsProvider>
   );
 }
 

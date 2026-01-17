@@ -84,3 +84,38 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* Density scaling system */
+:root {
+  --density-scale: 1;
+  --spacing-xs: calc(0.25rem * var(--density-scale));
+  --spacing-sm: calc(0.5rem * var(--density-scale));
+  --spacing-md: calc(1rem * var(--density-scale));
+  --spacing-lg: calc(1.5rem * var(--density-scale));
+  --spacing-xl: calc(2rem * var(--density-scale));
+}
+
+/* Density-aware components */
+[data-density="compact"] {
+  --card-padding: 0.75rem;
+  --button-padding-y: 0.375rem;
+  --button-padding-x: 0.75rem;
+  --input-padding: 0.375rem 0.5rem;
+  --gap-default: 0.5rem;
+}
+
+[data-density="comfortable"] {
+  --card-padding: 1rem;
+  --button-padding-y: 0.5rem;
+  --button-padding-x: 1rem;
+  --input-padding: 0.5rem 0.75rem;
+  --gap-default: 0.75rem;
+}
+
+[data-density="spacious"] {
+  --card-padding: 1.5rem;
+  --button-padding-y: 0.75rem;
+  --button-padding-x: 1.25rem;
+  --input-padding: 0.75rem 1rem;
+  --gap-default: 1rem;
+}

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save } from 'lucide-react';
-import type { AppSettings, Theme, FontSize, AnimationPreference } from '../types';
-import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS, FONT_SIZE_SCALE } from '../types';
+import type { AppSettings, Theme, FontSize, AnimationPreference, Density } from '../types';
+import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS } from '../types';
 import { settingsService } from '../services';
+import { useSettings } from '../contexts/SettingsContext';
 import { Button, Input, Textarea, Card, CardTitle, CardContent, CardDescription } from '../components/ui';
 import clsx from 'clsx';
 
@@ -15,6 +16,8 @@ export function Settings() {
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
+  const { applyTheme, applyFontSize, applyDensity, reloadSettings } = useSettings();
+
   // Load settings
   useEffect(() => {
     settingsService.load()
@@ -26,6 +29,11 @@ export function Settings() {
   const updateSetting = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
     setHasChanges(true);
+
+    // Apply visual changes immediately
+    if (key === 'theme') applyTheme(value as Theme);
+    if (key === 'fontSize') applyFontSize(value as FontSize);
+    if (key === 'density') applyDensity(value as Density);
   };
 
   const handleSave = async () => {
@@ -33,35 +41,14 @@ export function Settings() {
     try {
       await settingsService.setMany(settings);
       setHasChanges(false);
-
-      // Apply theme immediately
-      applyTheme(settings.theme);
-      applyFontSize(settings.fontSize);
+      // Reload settings in context to sync globally
+      await reloadSettings();
     } finally {
       setSaving(false);
     }
   };
 
-  const applyTheme = (theme: Theme) => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else if (theme === 'light') {
-      root.classList.remove('dark');
-    } else {
-      // System
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-    }
-  };
 
-  const applyFontSize = (fontSize: FontSize) => {
-    const scale = FONT_SIZE_SCALE[fontSize];
-    document.documentElement.style.fontSize = `${scale * 16}px`;
-  };
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
     { id: 'general', label: 'General', icon: <Bell className="w-4 h-4" /> },
@@ -215,6 +202,9 @@ export function Settings() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Density</label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Adjusts spacing and padding throughout the app.
+                </p>
                 <div className="flex gap-2">
                   {DENSITY_OPTIONS.map((option) => (
                     <button
