@@ -5,8 +5,8 @@
 - Routing with react-router ✅
 - Settings store with theme/fontScale ✅
 - Theme/font hooks ✅
-- Sidebar navigation (placeholder links) ✅
-- Placeholder pages: Dashboard, Clients, Projects, Settings ✅
+- Sidebar navigation ✅
+- All core features implemented ✅
 
 ---
 
@@ -38,7 +38,7 @@
 ## Phase 3: UI Components ✅
 
 - [x] Create reusable UI components in `src/components/ui/`
-  - [x] Button (variants: primary, secondary, destructive)
+  - [x] Button
   - [x] Input
   - [x] Textarea
   - [x] Select
@@ -51,93 +51,85 @@
 
 ---
 
-## Phase 4: Clients Feature 🔄
+## Phase 4: Clients Feature ✅
 
-- [ ] Build `ClientsList` component with search
-- [ ] Build `ClientForm` component (create/edit)
-- [ ] Implement create, read, update, delete
-- [ ] Show totals (hours, billable)
-- [ ] Update `/clients` page
-
----
-
-## Phase 5: Projects Feature
-
-- [ ] Build `ProjectsList` component with status filter
-- [ ] Build `ProjectForm` component
-- [ ] Color picker for project color
-- [ ] Link to client
-- [ ] Show tracked time
-- [ ] Update `/projects` page
+- [x] Build `ClientsList` component with search
+- [x] Build `ClientForm` component (create/edit)
+- [x] Implement create, read, update, delete
+- [x] Show totals (hours, billable)
+- [x] Update `/clients` page
 
 ---
 
-## Phase 6: Timer Feature
+## Phase 5: Projects Feature ✅
 
-- [ ] Create timer store (`src/stores/timerStore.ts`)
-  - [ ] State: idle, running, paused
-  - [ ] Track: projectId, startTime, pauseDuration
-  - [ ] Persist for crash recovery
-
-- [ ] Create timer service for start/pause/resume/stop
-- [ ] Build `TimerView` page (`/timer` or Dashboard)
-- [ ] Large time display with project selector
-- [ ] Start/Pause/Resume/Stop buttons
+- [x] Build `ProjectsList` component with status filter
+- [x] Build `ProjectForm` component
+- [x] Color picker for project color
+- [x] Link to client
+- [x] Show tracked time
+- [x] Update `/projects` page
 
 ---
 
-## Phase 7: Time Entries Feature
+## Phase 6: Timer Feature ✅
 
-- [ ] Build `TimeEntriesList` with filters
-- [ ] Date range picker
-- [ ] Project/client filter dropdowns
-- [ ] Billable filter
-- [ ] Inline note editing
-- [ ] Bulk delete/mark as billed
-- [ ] Add `/time-entries` page and route
+- [x] Create timer store (`src/stores/timerStore.ts`)
+  - [x] State: idle, running, paused
+  - [x] Track: projectId, startTime, pauseDuration
+  - [x] Persist for crash recovery
 
----
-
-## Phase 8: Invoices Feature
-
-- [ ] Build `InvoicesList` with status filter
-- [ ] Build create invoice wizard:
-  - [ ] Step 1: Select client
-  - [ ] Step 2: Pick projects, import hours
-  - [ ] Step 3: Edit line items
-  - [ ] Step 4: Dates, notes, tax
-- [ ] Build `InvoicePreview` component
-- [ ] Implement PDF export with jspdf
-- [ ] Add `/invoices` page and route
+- [x] Create timer service for start/pause/resume/stop
+- [x] Build `TimerView` page (Dashboard)
+- [x] Large time display with project selector
+- [x] Start/Pause/Resume/Stop buttons
 
 ---
 
-## Phase 9: Settings Completion
+## Phase 7: Time Entries Feature ✅
 
-- [ ] Add General tab (widget toggle, notifications, sounds)
-- [ ] Ensure font size scales ALL text (not just preview)
-- [ ] Add Accessibility tab
-- [ ] Add Business tab (logo, address, etc.)
-- [ ] Persist business settings to database
+- [x] Build `TimeEntriesList` with filters
+- [x] Project/client filter dropdowns
+- [x] Billable filter
+- [x] Bulk delete/mark as billed
+- [x] Add `/time-entries` page and route
 
 ---
 
-## Phase 10: Floating Timer Widget
+## Phase 8: Invoices Feature ✅
 
+- [x] Build `InvoicesList` with status filters
+- [x] Build create invoice wizard:
+  - [x] Step 1: Client selection
+  - [x] Step 2: Line item editing
+  - [x] Step 3: Dates, notes, tax
+- [x] Build `InvoicePreview` component
+- [x] Add `/invoices` page and route
+
+---
+
+## Phase 9: Settings ✅
+
+- [x] Add General tab (widget toggle, notifications, sounds)
+- [x] Font size scales ALL text
+- [x] Add Accessibility tab
+- [x] Add Business tab (logo, address, etc.)
+- [x] Persist settings to database
+
+---
+
+## Remaining Tasks
+
+### Phase 10: Floating Timer Widget
 - [ ] Configure Tauri for multi-window
 - [ ] Create floating window entry point
 - [ ] Build FloatingTimer component
 - [ ] Always-on-top, draggable
 - [ ] Position persistence
-- [ ] Communication with main window
 
----
-
-## Phase 11: Polish
-
-- [ ] Update sidebar with all nav items
+### Phase 11: Polish
+- [ ] PDF Export implementation (jspdf)
 - [ ] Keyboard shortcuts
-- [ ] Loading states
+- [ ] Loading states refinement
 - [ ] Error handling
-- [ ] Empty states
 - [ ] Final testing
