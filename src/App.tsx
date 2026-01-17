@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
+import { DebugPanel } from './components/debug/DebugPanel';
 import { Dashboard } from './pages/Dashboard';
 import { Clients } from './pages/Clients';
 import { Projects } from './pages/Projects';
@@ -20,6 +21,8 @@ function App() {
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
+      {/* Debug panel - only visible during development */}
+      <DebugPanel />
     </BrowserRouter>
   );
 }

@@ -1,6 +1,7 @@
 // TimeEntry CRUD service
 
 import { getDb } from '../lib/db';
+import { timeEntryLogger } from '../lib/logger';
 import type {
     TimeEntry,
     TimeEntryWithProject,
@@ -26,6 +27,7 @@ export interface TimeEntryFilters {
 }
 
 export const timeEntryService = {
+
     // Get all time entries with project info
     async getAll(filters?: TimeEntryFilters): Promise<TimeEntryWithProject[]> {
         const db = await getDb();
@@ -128,32 +130,45 @@ export const timeEntryService = {
 
     // Get unbilled entries for a project
     async getUnbilledByProject(projectId: string): Promise<TimeEntry[]> {
-        const db = await getDb();
-        const result = await db.select<TimeEntry[]>(`
-      SELECT 
-        id,
-        project_id as projectId,
-        start_time as startTime,
-        end_time as endTime,
-        pause_duration as pauseDuration,
-        notes,
-        is_billable as isBillable,
-        is_billed as isBilled,
-        created_at as createdAt
-      FROM time_entries
-      WHERE project_id = $1 
-        AND is_billable = 1 
-        AND is_billed = 0
-        AND end_time IS NOT NULL
-      ORDER BY start_time ASC
-    `, [projectId]);
+        timeEntryLogger.debug('getUnbilledByProject called', { projectId });
+        try {
+            const db = await getDb();
+            const result = await db.select<TimeEntry[]>(`
+          SELECT 
+            id,
+            project_id as projectId,
+            start_time as startTime,
+            end_time as endTime,
+            pause_duration as pauseDuration,
+            notes,
+            is_billable as isBillable,
+            is_billed as isBilled,
+            created_at as createdAt
+          FROM time_entries
+          WHERE project_id = $1 
+            AND is_billable = 1 
+            AND is_billed = 0
+            AND end_time IS NOT NULL
+          ORDER BY start_time ASC
+        `, [projectId]);
 
-        return result.map(entry => ({
-            ...entry,
-            isBillable: Boolean(entry.isBillable),
-            isBilled: Boolean(entry.isBilled),
-        }));
+            timeEntryLogger.info('getUnbilledByProject completed', {
+                projectId,
+                count: result.length,
+                entries: result.map(e => ({ id: e.id, isBillable: e.isBillable, isBilled: e.isBilled, endTime: e.endTime }))
+            });
+
+            return result.map(entry => ({
+                ...entry,
+                isBillable: Boolean(entry.isBillable),
+                isBilled: Boolean(entry.isBilled),
+            }));
+        } catch (error) {
+            timeEntryLogger.error('getUnbilledByProject failed', error, { projectId });
+            throw error;
+        }
     },
+
 
     // Get by ID
     async getById(id: string): Promise<TimeEntry | null> {
@@ -185,69 +200,86 @@ export const timeEntryService = {
 
     // Create (start a timer)
     async create(input: CreateTimeEntryInput): Promise<TimeEntry> {
-        const db = await getDb();
-        const id = generateId();
-        const timestamp = now();
+        timeEntryLogger.info('create called', { projectId: input.projectId });
+        try {
+            const db = await getDb();
+            const id = generateId();
+            const timestamp = now();
 
-        await db.execute(`
-      INSERT INTO time_entries (id, project_id, start_time, end_time, pause_duration, notes, is_billable, is_billed, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    `, [
-            id,
-            input.projectId,
-            input.startTime,
-            input.endTime || null,
-            input.pauseDuration || 0,
-            input.notes || '',
-            input.isBillable ? 1 : 0,
-            input.isBilled ? 1 : 0,
-            timestamp,
-        ]);
+            await db.execute(`
+          INSERT INTO time_entries (id, project_id, start_time, end_time, pause_duration, notes, is_billable, is_billed, created_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `, [
+                id,
+                input.projectId,
+                input.startTime,
+                input.endTime || null,
+                input.pauseDuration || 0,
+                input.notes || '',
+                input.isBillable ? 1 : 0,
+                input.isBilled ? 1 : 0,
+                timestamp,
+            ]);
 
-        return {
-            id,
-            projectId: input.projectId,
-            startTime: input.startTime,
-            endTime: input.endTime || null,
-            pauseDuration: input.pauseDuration || 0,
-            notes: input.notes || '',
-            isBillable: input.isBillable ?? true,
-            isBilled: input.isBilled ?? false,
-            createdAt: timestamp,
-        };
+            timeEntryLogger.info('create successful', { id });
+            return {
+                id,
+                projectId: input.projectId,
+                startTime: input.startTime,
+                endTime: input.endTime || null,
+                pauseDuration: input.pauseDuration || 0,
+                notes: input.notes || '',
+                isBillable: input.isBillable ?? true,
+                isBilled: input.isBilled ?? false,
+                createdAt: timestamp,
+            };
+        } catch (error) {
+            timeEntryLogger.error('create failed', error, { input });
+            throw error;
+        }
     },
 
     // Update
     async update(id: string, input: UpdateTimeEntryInput): Promise<TimeEntry | null> {
-        const db = await getDb();
-        const existing = await this.getById(id);
-        if (!existing) return null;
+        timeEntryLogger.info('update called', { id });
+        try {
+            const db = await getDb();
+            const existing = await this.getById(id);
+            if (!existing) {
+                timeEntryLogger.warn('update: entry not found', { id });
+                return null;
+            }
 
-        const updated = {
-            ...existing,
-            ...input,
-        };
+            const updated = {
+                ...existing,
+                ...input,
+            };
 
-        await db.execute(`
-      UPDATE time_entries SET
-        start_time = $1,
-        end_time = $2,
-        pause_duration = $3,
-        notes = $4,
-        is_billable = $5,
-        is_billed = $6
-      WHERE id = $7
-    `, [
-            updated.startTime,
-            updated.endTime,
-            updated.pauseDuration,
-            updated.notes,
-            updated.isBillable ? 1 : 0,
-            updated.isBilled ? 1 : 0,
-            id,
-        ]);
+            await db.execute(`
+          UPDATE time_entries SET
+            start_time = $1,
+            end_time = $2,
+            pause_duration = $3,
+            notes = $4,
+            is_billable = $5,
+            is_billed = $6
+          WHERE id = $7
+        `, [
+                updated.startTime,
+                updated.endTime,
+                updated.pauseDuration,
+                updated.notes,
+                updated.isBillable ? 1 : 0,
+                updated.isBilled ? 1 : 0,
+                id,
+            ]);
 
-        return updated;
+            timeEntryLogger.info('update successful', { id });
+            return updated;
+        } catch (error) {
+            timeEntryLogger.error('update failed', error, { id, input });
+            throw error;
+        }
     },
 
     // Mark entries as billed
@@ -262,9 +294,16 @@ export const timeEntryService = {
 
     // Delete
     async delete(id: string): Promise<boolean> {
-        const db = await getDb();
-        await db.execute('DELETE FROM time_entries WHERE id = $1', [id]);
-        return true;
+        timeEntryLogger.info('delete called', { id });
+        try {
+            const db = await getDb();
+            await db.execute('DELETE FROM time_entries WHERE id = $1', [id]);
+            timeEntryLogger.info('delete successful', { id });
+            return true;
+        } catch (error) {
+            timeEntryLogger.error('delete failed', error, { id });
+            throw error;
+        }
     },
 
     // Bulk delete

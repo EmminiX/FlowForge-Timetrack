@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Plus, Search, FileText, Eye, Download, Trash2 } from 'lucide-react';
 import type { InvoiceWithDetails, Client } from '../../types';
 import { INVOICE_STATUS_OPTIONS, generateInvoiceNumber, calculateInvoiceTotals } from '../../types';
 import { invoiceService, clientService, projectService, timeEntryService } from '../../services';
+import { invoiceLogger } from '../../lib/logger';
 import { Button, Card, EmptyState, ConfirmDialog, StatusBadge, Select, Modal, ModalFooter, Input, Textarea } from '../../components/ui';
 
 export function InvoicesList() {
@@ -243,15 +244,23 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
     const handleLoadHours = async () => {
         if (!clientId) return;
 
+        invoiceLogger.info('handleLoadHours called', { clientId });
+
         // Get projects for this client
         const projects = await projectService.getByClientId(clientId);
+        invoiceLogger.debug('Found projects for client', { clientId, projectCount: projects.length, projects: projects.map(p => ({ id: p.id, name: p.name })) });
+
         const client = clients.find((c) => c.id === clientId);
         const hourlyRate = client?.hourlyRate || 0;
+        invoiceLogger.debug('Client hourly rate', { hourlyRate });
 
         const items: typeof lineItems = [];
 
         for (const project of projects) {
+            invoiceLogger.debug('Fetching unbilled entries for project', { projectId: project.id, projectName: project.name });
             const unbilled = await timeEntryService.getUnbilledByProject(project.id);
+            invoiceLogger.debug('Unbilled entries found', { projectId: project.id, count: unbilled.length });
+
             if (unbilled.length === 0) continue;
 
             // Calculate total hours for this project
@@ -262,6 +271,8 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
             }, 0);
 
             const hours = totalSeconds / 3600;
+            invoiceLogger.debug('Total hours calculated', { projectId: project.id, hours });
+
             if (hours > 0) {
                 items.push({
                     description: `${project.name} - ${hours.toFixed(2)} hours`,
@@ -270,6 +281,8 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
                 });
             }
         }
+
+        invoiceLogger.info('handleLoadHours completed', { itemCount: items.length, items });
 
         if (items.length > 0) {
             setLineItems(items);
@@ -485,6 +498,90 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
         });
     };
 
+    const handleExportPDF = () => {
+        invoiceLogger.info('Exporting invoice to PDF', { invoiceNumber: invoice.invoiceNumber });
+
+        // Create a printable version of the invoice
+        const printContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Invoice ${invoice.invoiceNumber}</title>
+                <style>
+                    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+                    h1 { font-size: 24px; margin-bottom: 20px; }
+                    .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+                    .client-info { color: #666; }
+                    .invoice-meta { text-align: right; }
+                    .status { display: inline-block; padding: 4px 12px; border-radius: 4px; background: #e0e0e0; font-size: 12px; text-transform: uppercase; }
+                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+                    th { background: #f5f5f5; }
+                    .text-right { text-align: right; }
+                    .totals { width: 250px; margin-left: auto; }
+                    .totals .row { display: flex; justify-content: space-between; padding: 8px 0; }
+                    .totals .total { border-top: 2px solid #333; font-weight: bold; }
+                    .notes { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+                    @media print { body { padding: 0; } }
+                </style>
+            </head>
+            <body>
+                <h1>INVOICE</h1>
+                <div class="header">
+                    <div class="client-info">
+                        <strong>Bill To:</strong><br/>
+                        ${invoice.clientName}<br/>
+                        ${invoice.clientAddress ? invoice.clientAddress.replace(/\n/g, '<br/>') : ''}
+                    </div>
+                    <div class="invoice-meta">
+                        <div><strong>Invoice #:</strong> ${invoice.invoiceNumber}</div>
+                        <div><strong>Issue Date:</strong> ${formatDate(invoice.issueDate)}</div>
+                        <div><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</div>
+                        <div class="status">${invoice.status}</div>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-right">Qty</th>
+                            <th class="text-right">Price</th>
+                            <th class="text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${invoice.lineItems.map(item => `
+                            <tr>
+                                <td>${item.description}</td>
+                                <td class="text-right">${item.quantity}</td>
+                                <td class="text-right">$${item.unitPrice.toFixed(2)}</td>
+                                <td class="text-right">$${(item.quantity * item.unitPrice).toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="totals">
+                    <div class="row"><span>Subtotal:</span><span>$${invoice.subtotal.toFixed(2)}</span></div>
+                    <div class="row"><span>Tax (${(invoice.taxRate * 100).toFixed(1)}%):</span><span>$${invoice.taxAmount.toFixed(2)}</span></div>
+                    <div class="row total"><span>Total:</span><span>$${invoice.total.toFixed(2)}</span></div>
+                </div>
+                ${invoice.notes ? `<div class="notes"><strong>Notes:</strong><br/>${invoice.notes}</div>` : ''}
+            </body>
+            </html>
+        `;
+
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            // Give it a moment to render, then print
+            setTimeout(() => {
+                printWindow.print();
+            }, 250);
+        }
+    };
+
     return (
         <Modal isOpen={true} onClose={onClose} title={invoice.invoiceNumber} size="lg">
             <div className="space-y-4 text-sm">
@@ -554,7 +651,7 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
 
             <ModalFooter>
                 <Button variant="outline" onClick={onClose}>Close</Button>
-                <Button>
+                <Button onClick={handleExportPDF}>
                     <Download className="w-4 h-4" />
                     Export PDF
                 </Button>

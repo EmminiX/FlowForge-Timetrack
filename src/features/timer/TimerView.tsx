@@ -81,7 +81,7 @@ export function TimerView() {
 
         setSaving(true);
         try {
-            await timeEntryService.create({
+            const entryData = {
                 projectId: result.projectId,
                 startTime: result.startTime,
                 endTime: new Date().toISOString(),
@@ -89,7 +89,9 @@ export function TimerView() {
                 notes: '',
                 isBillable: true,
                 isBilled: false,
-            });
+            };
+            console.log('[Timer] Creating time entry with data:', entryData);
+            await timeEntryService.create(entryData);
         } catch (err) {
             console.error('Failed to save time entry:', err);
         } finally {
