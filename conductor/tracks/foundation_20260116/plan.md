@@ -22,7 +22,7 @@
     - [x] Implement migration execution logic in `src/lib/db.ts` or on app startup.
 - [x] Task: Verify Database ef66817
     - [x] Write a simple test/script to verify tables are created successfully.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Database Layer' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Database Layer' (Protocol in workflow.md) [checkpoint: da55230]
 
 ## Phase 3: Core UI Architecture
 - [ ] Task: Theme System
