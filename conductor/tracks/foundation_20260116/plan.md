@@ -29,9 +29,9 @@
     - [x] Define CSS variables for colors in `src/styles/globals.css`.
     - [x] Create `useTheme` hook and/or store in Zustand to manage Light/Dark/System preference.
     - [x] Implement class toggling on the `<html>` or `<body>` tag.
-- [ ] Task: Font Scaling System
-    - [ ] Create `useFontSize` hook/store to manage font scaling factor (e.g., 0.75x to 2x).
-    - [ ] Implement logic to apply this scale (e.g., modifying `root` font-size or using a CSS variable for base size).
+- [x] Task: Font Scaling System a78c28a
+    - [x] Create `useFontSize` hook/store to manage font scaling factor (e.g., 0.75x to 2x).
+    - [x] Implement logic to apply this scale (e.g., modifying `root` font-size or using a CSS variable for base size).
 - [ ] Task: Main Layout Component
     - [ ] Create `Sidebar` component with navigation links (Dashboard, Clients, Projects, Settings).
     - [ ] Create `Header` component.
