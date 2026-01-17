@@ -20,8 +20,8 @@
 - [x] Task: Schema Migration c50f414
     - [x] Write SQL migration script for `clients`, `projects`, `time_entries`, `invoices`, `invoice_line_items`, and `settings` tables.
     - [x] Implement migration execution logic in `src/lib/db.ts` or on app startup.
-- [ ] Task: Verify Database
-    - [ ] Write a simple test/script to verify tables are created successfully.
+- [x] Task: Verify Database ef66817
+    - [x] Write a simple test/script to verify tables are created successfully.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Database Layer' (Protocol in workflow.md)
 
 ## Phase 3: Core UI Architecture
