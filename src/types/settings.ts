@@ -1,0 +1,67 @@
+// Application settings types
+
+export type Theme = 'light' | 'dark' | 'system';
+export type FontSize = 'small' | 'medium' | 'large' | 'extraLarge';
+export type Density = 'compact' | 'comfortable' | 'spacious';
+export type AnimationPreference = 'enabled' | 'disabled' | 'system';
+
+export interface AppSettings {
+    // General
+    showFloatingWidget: boolean;
+    enableNotifications: boolean;
+    enableSoundFeedback: boolean;
+
+    // Appearance
+    theme: Theme;
+    fontSize: FontSize;
+    density: Density;
+
+    // Accessibility
+    animationPreference: AnimationPreference;
+
+    // Business (for invoices)
+    businessName: string;
+    businessAddress: string;
+    businessEmail: string;
+    businessPhone: string;
+    businessLogo: string | null; // base64 or file path
+    defaultTaxRate: number;
+    paymentTerms: string;
+}
+
+export const DEFAULT_SETTINGS: AppSettings = {
+    showFloatingWidget: true,
+    enableNotifications: true,
+    enableSoundFeedback: true,
+    theme: 'system',
+    fontSize: 'medium',
+    density: 'comfortable',
+    animationPreference: 'system',
+    businessName: '',
+    businessAddress: '',
+    businessEmail: '',
+    businessPhone: '',
+    businessLogo: null,
+    defaultTaxRate: 0,
+    paymentTerms: 'Payment is due within 30 days of invoice date.',
+};
+
+export const FONT_SIZE_SCALE: Record<FontSize, number> = {
+    small: 0.85,
+    medium: 1.0,
+    large: 1.15,
+    extraLarge: 1.3,
+};
+
+export const FONT_SIZE_OPTIONS: { value: FontSize; label: string }[] = [
+    { value: 'small', label: 'Small' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'large', label: 'Large' },
+    { value: 'extraLarge', label: 'Extra Large' },
+];
+
+export const DENSITY_OPTIONS: { value: Density; label: string }[] = [
+    { value: 'compact', label: 'Compact' },
+    { value: 'comfortable', label: 'Comfortable' },
+    { value: 'spacious', label: 'Spacious' },
+];
