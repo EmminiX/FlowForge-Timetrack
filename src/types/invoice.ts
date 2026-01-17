@@ -28,6 +28,7 @@ export interface InvoiceWithDetails extends Invoice {
     clientEmail: string;
     clientPhone: string;
     clientAddress: string;
+    clientVatNumber: string;
     lineItems: InvoiceLineItem[];
     subtotal: number;
     taxAmount: number;

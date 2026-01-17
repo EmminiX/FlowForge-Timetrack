@@ -24,6 +24,7 @@ export interface AppSettings {
     businessAddress: string;
     businessEmail: string;
     businessPhone: string;
+    businessVatNumber: string;
     businessLogo: string | null; // base64 or file path
     defaultTaxRate: number;
     paymentTerms: string;
@@ -41,6 +42,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     businessAddress: '',
     businessEmail: '',
     businessPhone: '',
+    businessVatNumber: '',
     businessLogo: null,
     defaultTaxRate: 0,
     paymentTerms: 'Payment is due within 30 days of invoice date.',

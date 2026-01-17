@@ -39,7 +39,8 @@ export const invoiceService = {
         c.name as clientName,
         c.email as clientEmail,
         c.phone as clientPhone,
-        c.address as clientAddress
+        c.address as clientAddress,
+        c.vat_number as clientVatNumber
       FROM invoices i
       JOIN clients c ON c.id = i.client_id
     `;
@@ -85,7 +86,8 @@ export const invoiceService = {
         c.name as clientName,
         c.email as clientEmail,
         c.phone as clientPhone,
-        c.address as clientAddress
+        c.address as clientAddress,
+        c.vat_number as clientVatNumber
       FROM invoices i
       JOIN clients c ON c.id = i.client_id
       WHERE i.id = $1

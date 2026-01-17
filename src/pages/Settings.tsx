@@ -380,6 +380,13 @@ export function Settings() {
               </div>
 
               <Input
+                label="VAT Number"
+                value={settings.businessVatNumber}
+                onChange={(e) => updateSetting('businessVatNumber', e.target.value)}
+                placeholder="e.g., GB123456789"
+              />
+
+              <Input
                 label="Default Tax Rate (%)"
                 type="number"
                 value={settings.defaultTaxRate * 100}

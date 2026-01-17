@@ -6,6 +6,7 @@ export interface Client {
   email: string;
   address: string;
   phone: string;
+  vatNumber: string;
   hourlyRate: number;
   notes: string;
   createdAt: string; // ISO date

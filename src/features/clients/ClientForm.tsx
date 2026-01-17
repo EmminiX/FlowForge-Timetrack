@@ -22,6 +22,7 @@ export function ClientForm({
         email: '',
         address: '',
         phone: '',
+        vatNumber: '',
         hourlyRate: 0,
         notes: '',
     });
@@ -37,6 +38,7 @@ export function ClientForm({
                 email: initialData?.email || '',
                 address: initialData?.address || '',
                 phone: initialData?.phone || '',
+                vatNumber: initialData?.vatNumber || '',
                 hourlyRate: initialData?.hourlyRate || 0,
                 notes: initialData?.notes || '',
             });
@@ -137,6 +139,14 @@ export function ClientForm({
                     onChange={(e) => handleChange('address', e.target.value)}
                     placeholder="Full billing address"
                     rows={3}
+                />
+
+                <Input
+                    label="VAT Number"
+                    value={formData.vatNumber}
+                    onChange={(e) => handleChange('vatNumber', e.target.value)}
+                    placeholder="e.g., GB123456789"
+                    helperText="Used for invoicing purposes"
                 />
 
                 <Input

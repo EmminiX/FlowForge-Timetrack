@@ -561,6 +561,10 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
                 doc.text(settings.businessPhone, 15, y);
                 y += 4;
             }
+            if (settings?.businessVatNumber) {
+                doc.text(`VAT: ${settings.businessVatNumber}`, 15, y);
+                y += 4;
+            }
 
             // Invoice details (right side)
             const rightX = pageWidth - 60;
@@ -614,6 +618,10 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
             }
             if (invoice.clientPhone) {
                 doc.text(invoice.clientPhone, 15, y);
+                y += 4;
+            }
+            if (invoice.clientVatNumber) {
+                doc.text(`VAT: ${invoice.clientVatNumber}`, 15, y);
                 y += 4;
             }
             y += 10;
@@ -764,6 +772,9 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
                                 {settings.businessPhone && (
                                     <p className="text-muted-foreground text-xs">{settings.businessPhone}</p>
                                 )}
+                                {settings.businessVatNumber && (
+                                    <p className="text-muted-foreground text-xs">VAT: {settings.businessVatNumber}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -776,6 +787,9 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
                         <p className="text-muted-foreground">{invoice.clientName}</p>
                         {invoice.clientAddress && (
                             <p className="text-muted-foreground whitespace-pre-line">{invoice.clientAddress}</p>
+                        )}
+                        {invoice.clientVatNumber && (
+                            <p className="text-muted-foreground">VAT: {invoice.clientVatNumber}</p>
                         )}
                     </div>
                     <div className="text-right">
