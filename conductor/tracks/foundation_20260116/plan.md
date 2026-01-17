@@ -1,11 +1,11 @@
 # Implementation Plan - Track: Project Foundation
 
 ## Phase 1: Environment & Scaffolding
-- [ ] Task: Initialize Tauri Project
-    - [ ] Initialize Tauri 2 app with `pnpm create tauri-app` (React/TypeScript).
-    - [ ] Configure `tsconfig.json` for strict mode.
-    - [ ] Install and configure ESLint and Prettier.
-    - [ ] Commit initial project structure.
+- [x] Task: Initialize Tauri Project 9f90034
+    - [x] Initialize Tauri 2 app with `pnpm create tauri-app` (React/TypeScript).
+    - [x] Configure `tsconfig.json` for strict mode.
+    - [x] Install and configure ESLint and Prettier.
+    - [x] Commit initial project structure.
 - [ ] Task: Install Core Dependencies
     - [ ] Install `tailwindcss`, `postcss`, `autoprefixer` and init tailwind config.
     - [ ] Install `lucide-react`, `clsx`, `tailwind-merge`.
