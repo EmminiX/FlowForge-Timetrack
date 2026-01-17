@@ -1,0 +1,8 @@
+{
+  "track_id": "foundation_20260116",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-16T00:00:00Z",
+  "updated_at": "2026-01-16T00:00:00Z",
+  "description": "Project Foundation: Initialize the Tauri 2 app, set up the SQLite database schema, and implement the core architecture including global state management, theming, and the base UI layout."
+}
