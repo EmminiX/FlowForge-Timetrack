@@ -294,6 +294,59 @@ export function Settings() {
               This information appears on your generated invoices.
             </CardDescription>
             <CardContent className="space-y-4">
+              {/* Logo Upload */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Business Logo
+                </label>
+                {settings.businessLogo ? (
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={settings.businessLogo}
+                      alt="Business Logo"
+                      className="w-24 h-24 object-contain border border-border rounded-lg p-2 bg-background"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => updateSetting('businessLogo', null)}
+                    >
+                      Remove Logo
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Building2 className="w-8 h-8 text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-medium text-primary">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 1MB</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          if (file.size > 1024 * 1024) {
+                            alert('File size must be less than 1MB');
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const base64 = event.target?.result as string;
+                            updateSetting('businessLogo', base64);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+
               <Input
                 label="Business Name"
                 value={settings.businessName}

@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, FileText, Eye, Download, Trash2 } from 'lucide-react';
-import type { InvoiceWithDetails, Client } from '../../types';
+import type { InvoiceWithDetails, Client, AppSettings } from '../../types';
 import { INVOICE_STATUS_OPTIONS, generateInvoiceNumber, calculateInvoiceTotals } from '../../types';
-import { invoiceService, clientService, projectService, timeEntryService } from '../../services';
+import { invoiceService, clientService, projectService, timeEntryService, settingsService } from '../../services';
 import { invoiceLogger } from '../../lib/logger';
 import { Button, Card, EmptyState, ConfirmDialog, StatusBadge, Select, Modal, ModalFooter, Input, Textarea } from '../../components/ui';
 
@@ -490,102 +490,236 @@ interface InvoicePreviewProps {
 }
 
 function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
+    const [settings, setSettings] = useState<AppSettings | null>(null);
+    const [exporting, setExporting] = useState(false);
+
+    useEffect(() => {
+        settingsService.load().then(setSettings).catch(console.error);
+    }, []);
+
     const formatDate = (isoString: string) => {
-        return new Date(isoString).toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-        });
+        try {
+            return new Date(isoString).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+            });
+        } catch {
+            return 'Invalid Date';
+        }
     };
 
-    const handleExportPDF = () => {
+    const handleExportPDF = async () => {
         invoiceLogger.info('Exporting invoice to PDF', { invoiceNumber: invoice.invoiceNumber });
+        setExporting(true);
 
-        // Create a printable version of the invoice
-        const printContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Invoice ${invoice.invoiceNumber}</title>
-                <style>
-                    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-                    h1 { font-size: 24px; margin-bottom: 20px; }
-                    .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
-                    .client-info { color: #666; }
-                    .invoice-meta { text-align: right; }
-                    .status { display: inline-block; padding: 4px 12px; border-radius: 4px; background: #e0e0e0; font-size: 12px; text-transform: uppercase; }
-                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-                    th { background: #f5f5f5; }
-                    .text-right { text-align: right; }
-                    .totals { width: 250px; margin-left: auto; }
-                    .totals .row { display: flex; justify-content: space-between; padding: 8px 0; }
-                    .totals .total { border-top: 2px solid #333; font-weight: bold; }
-                    .notes { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-                    @media print { body { padding: 0; } }
-                </style>
-            </head>
-            <body>
-                <h1>INVOICE</h1>
-                <div class="header">
-                    <div class="client-info">
-                        <strong>Bill To:</strong><br/>
-                        ${invoice.clientName}<br/>
-                        ${invoice.clientAddress ? invoice.clientAddress.replace(/\n/g, '<br/>') : ''}
-                    </div>
-                    <div class="invoice-meta">
-                        <div><strong>Invoice #:</strong> ${invoice.invoiceNumber}</div>
-                        <div><strong>Issue Date:</strong> ${formatDate(invoice.issueDate)}</div>
-                        <div><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</div>
-                        <div class="status">${invoice.status}</div>
-                    </div>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th class="text-right">Qty</th>
-                            <th class="text-right">Price</th>
-                            <th class="text-right">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${invoice.lineItems.map(item => `
-                            <tr>
-                                <td>${item.description}</td>
-                                <td class="text-right">${item.quantity}</td>
-                                <td class="text-right">$${item.unitPrice.toFixed(2)}</td>
-                                <td class="text-right">$${(item.quantity * item.unitPrice).toFixed(2)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <div class="totals">
-                    <div class="row"><span>Subtotal:</span><span>$${invoice.subtotal.toFixed(2)}</span></div>
-                    <div class="row"><span>Tax (${(invoice.taxRate * 100).toFixed(1)}%):</span><span>$${invoice.taxAmount.toFixed(2)}</span></div>
-                    <div class="row total"><span>Total:</span><span>$${invoice.total.toFixed(2)}</span></div>
-                </div>
-                ${invoice.notes ? `<div class="notes"><strong>Notes:</strong><br/>${invoice.notes}</div>` : ''}
-            </body>
-            </html>
-        `;
+        try {
+            // Import jspdf dynamically
+            const { jsPDF } = await import('jspdf');
 
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-            printWindow.focus();
-            // Give it a moment to render, then print
-            setTimeout(() => {
-                printWindow.print();
-            }, 250);
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            let y = 20;
+
+            // Logo (if set)
+            if (settings?.businessLogo) {
+                try {
+                    doc.addImage(settings.businessLogo, 'PNG', 15, y, 40, 20);
+                    y += 25;
+                } catch (e) {
+                    invoiceLogger.warn('Failed to add logo to PDF', { error: e });
+                }
+            }
+
+            // Business Info Header (left side)
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('INVOICE', 15, y);
+            y += 10;
+
+            if (settings?.businessName) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text(settings.businessName, 15, y);
+                y += 5;
+            }
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            if (settings?.businessAddress) {
+                const addressLines = settings.businessAddress.split('\n');
+                addressLines.forEach(line => {
+                    doc.text(line, 15, y);
+                    y += 4;
+                });
+            }
+            if (settings?.businessEmail) {
+                doc.text(settings.businessEmail, 15, y);
+                y += 4;
+            }
+            if (settings?.businessPhone) {
+                doc.text(settings.businessPhone, 15, y);
+                y += 4;
+            }
+
+            // Invoice details (right side)
+            const rightX = pageWidth - 60;
+            let rightY = 20;
+            if (settings?.businessLogo) rightY += 25;
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Invoice #: ${invoice.invoiceNumber}`, rightX, rightY);
+            rightY += 6;
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Issue Date: ${formatDate(invoice.issueDate)}`, rightX, rightY);
+            rightY += 5;
+            doc.text(`Due Date: ${formatDate(invoice.dueDate)}`, rightX, rightY);
+            rightY += 5;
+            doc.text(`Status: ${invoice.status.toUpperCase()}`, rightX, rightY);
+
+            y = Math.max(y, rightY) + 15;
+
+            // Bill To section
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Bill To:', 15, y);
+            y += 6;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text(invoice.clientName, 15, y);
+            y += 5;
+            if (invoice.clientAddress) {
+                const clientLines = invoice.clientAddress.split('\n');
+                clientLines.forEach(line => {
+                    doc.text(line, 15, y);
+                    y += 4;
+                });
+            }
+            y += 10;
+
+            // Table Header
+            doc.setFillColor(240, 240, 240);
+            doc.rect(15, y - 4, pageWidth - 30, 8, 'F');
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Description', 17, y);
+            doc.text('Qty', pageWidth - 75, y, { align: 'right' });
+            doc.text('Price', pageWidth - 50, y, { align: 'right' });
+            doc.text('Amount', pageWidth - 17, y, { align: 'right' });
+            y += 8;
+
+            // Table Body
+            doc.setFont('helvetica', 'normal');
+            invoice.lineItems.forEach(item => {
+                doc.text(item.description.substring(0, 50), 17, y);
+                doc.text(item.quantity.toString(), pageWidth - 75, y, { align: 'right' });
+                doc.text(`$${item.unitPrice.toFixed(2)}`, pageWidth - 50, y, { align: 'right' });
+                doc.text(`$${(item.quantity * item.unitPrice).toFixed(2)}`, pageWidth - 17, y, { align: 'right' });
+                y += 6;
+            });
+
+            // Totals
+            y += 5;
+            doc.setDrawColor(200, 200, 200);
+            doc.line(pageWidth - 80, y, pageWidth - 15, y);
+            y += 8;
+
+            doc.text('Subtotal:', pageWidth - 60, y);
+            doc.text(`$${invoice.subtotal.toFixed(2)}`, pageWidth - 17, y, { align: 'right' });
+            y += 6;
+
+            doc.text(`Tax (${(invoice.taxRate * 100).toFixed(1)}%):`, pageWidth - 60, y);
+            doc.text(`$${invoice.taxAmount.toFixed(2)}`, pageWidth - 17, y, { align: 'right' });
+            y += 6;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('Total:', pageWidth - 60, y);
+            doc.text(`$${invoice.total.toFixed(2)}`, pageWidth - 17, y, { align: 'right' });
+            y += 15;
+
+            // Notes
+            if (invoice.notes) {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.text('Notes:', 15, y);
+                y += 5;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                const noteLines = doc.splitTextToSize(invoice.notes, pageWidth - 30);
+                doc.text(noteLines, 15, y);
+                y += noteLines.length * 4 + 5;
+            }
+
+            // Payment Terms
+            if (settings?.paymentTerms) {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.text('Payment Terms:', 15, y);
+                y += 5;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                const termLines = doc.splitTextToSize(settings.paymentTerms, pageWidth - 30);
+                doc.text(termLines, 15, y);
+            }
+
+            // Get PDF as bytes
+            const pdfOutput = doc.output('arraybuffer');
+
+            // Open native save dialog
+            const { save } = await import('@tauri-apps/plugin-dialog');
+            const { writeFile } = await import('@tauri-apps/plugin-fs');
+
+            const filePath = await save({
+                defaultPath: `${invoice.invoiceNumber}.pdf`,
+                filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+            });
+
+            if (filePath) {
+                await writeFile(filePath, new Uint8Array(pdfOutput));
+                invoiceLogger.info('PDF saved successfully', { path: filePath });
+            }
+        } catch (error) {
+            invoiceLogger.error('Failed to export PDF', error);
+            console.error('Failed to export PDF:', error);
+        } finally {
+            setExporting(false);
         }
     };
 
     return (
         <Modal isOpen={true} onClose={onClose} title={invoice.invoiceNumber} size="lg">
             <div className="space-y-4 text-sm">
-                {/* Header */}
+                {/* Business Header */}
+                {settings && (settings.businessName || settings.businessLogo) && (
+                    <div className="pb-4 border-b border-border">
+                        <div className="flex items-start gap-4">
+                            {settings.businessLogo && (
+                                <img
+                                    src={settings.businessLogo}
+                                    alt="Business Logo"
+                                    className="w-16 h-16 object-contain"
+                                />
+                            )}
+                            <div>
+                                {settings.businessName && (
+                                    <p className="font-bold text-lg text-foreground">{settings.businessName}</p>
+                                )}
+                                {settings.businessAddress && (
+                                    <p className="text-muted-foreground whitespace-pre-line text-xs">{settings.businessAddress}</p>
+                                )}
+                                {settings.businessEmail && (
+                                    <p className="text-muted-foreground text-xs">{settings.businessEmail}</p>
+                                )}
+                                {settings.businessPhone && (
+                                    <p className="text-muted-foreground text-xs">{settings.businessPhone}</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Invoice Info Row */}
                 <div className="flex justify-between">
                     <div>
                         <p className="font-medium text-foreground">Bill To:</p>
@@ -647,11 +781,18 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
                         <p className="text-muted-foreground whitespace-pre-line">{invoice.notes}</p>
                     </div>
                 )}
+
+                {settings?.paymentTerms && (
+                    <div className="pt-4 border-t border-border">
+                        <p className="font-medium">Payment Terms:</p>
+                        <p className="text-muted-foreground whitespace-pre-line">{settings.paymentTerms}</p>
+                    </div>
+                )}
             </div>
 
             <ModalFooter>
                 <Button variant="outline" onClick={onClose}>Close</Button>
-                <Button onClick={handleExportPDF}>
+                <Button onClick={handleExportPDF} loading={exporting}>
                     <Download className="w-4 h-4" />
                     Export PDF
                 </Button>
@@ -659,3 +800,4 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
         </Modal>
     );
 }
+

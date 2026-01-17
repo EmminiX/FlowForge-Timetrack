@@ -62,13 +62,14 @@ export function DebugPanel() {
     };
 
     const formatTime = (date: Date) => {
-        return date.toLocaleTimeString('en-US', {
+        const base = date.toLocaleTimeString('en-US', {
             hour12: false,
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            fractionalSecondDigits: 3,
         });
+        const ms = date.getMilliseconds().toString().padStart(3, '0');
+        return `${base}.${ms}`;
     };
 
     // Floating trigger button
@@ -201,9 +202,9 @@ export function DebugPanel() {
                                                 {entry.message}
                                             </span>
                                         </div>
-                                        {entry.data && (
+                                        {entry.data !== undefined && entry.data !== null && (
                                             <pre className="mt-1 ml-[88px] text-muted-foreground overflow-x-auto">
-                                                {JSON.stringify(entry.data, null, 2)}
+                                                {JSON.stringify(entry.data as Record<string, unknown>, null, 2)}
                                             </pre>
                                         )}
                                         {entry.stack && (

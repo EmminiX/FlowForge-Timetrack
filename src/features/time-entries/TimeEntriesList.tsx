@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Trash2, Clock, Calendar } from 'lucide-react';
+import { Search, Trash2, Clock, Calendar, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import type { TimeEntryWithProject } from '../../types';
 import { formatDurationShort, calculateDuration } from '../../types';
 import { timeEntryService, projectService, clientService } from '../../services';
@@ -21,6 +21,9 @@ export function TimeEntriesList() {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [deletingEntries, setDeletingEntries] = useState<TimeEntryWithProject[] | null>(null);
     const [submitting, setSubmitting] = useState(false);
+
+    // Billed section visibility
+    const [showBilledSection, setShowBilledSection] = useState(true);
 
     const loadData = async () => {
         try {
@@ -67,6 +70,15 @@ export function TimeEntriesList() {
         return result;
     }, [entries, projectFilter, clientFilter, billableFilter]);
 
+    // Split into unbilled and billed
+    const unbilledEntries = useMemo(() =>
+        filteredEntries.filter((e) => !e.isBilled),
+        [filteredEntries]);
+
+    const billedEntries = useMemo(() =>
+        filteredEntries.filter((e) => e.isBilled),
+        [filteredEntries]);
+
     const projectOptions = [
         { value: '', label: 'All Projects' },
         ...projects.map((p) => ({ value: p.id, label: p.name })),
@@ -83,11 +95,20 @@ export function TimeEntriesList() {
         { value: 'unbillable', label: 'Non-billable' },
     ];
 
-    const handleSelectAll = () => {
-        if (selectedIds.size === filteredEntries.length) {
-            setSelectedIds(new Set());
+    const handleSelectAll = (entriesGroup: TimeEntryWithProject[]) => {
+        const allIds = entriesGroup.map((e) => e.id);
+        const allSelected = allIds.every((id) => selectedIds.has(id));
+
+        if (allSelected) {
+            // Deselect all in this group
+            const newSelected = new Set(selectedIds);
+            allIds.forEach((id) => newSelected.delete(id));
+            setSelectedIds(newSelected);
         } else {
-            setSelectedIds(new Set(filteredEntries.map((e) => e.id)));
+            // Select all in this group
+            const newSelected = new Set(selectedIds);
+            allIds.forEach((id) => newSelected.add(id));
+            setSelectedIds(newSelected);
         }
     };
 
@@ -151,6 +172,72 @@ export function TimeEntriesList() {
         const selected = filteredEntries.filter((e) => selectedIds.has(e.id));
         return selected.reduce((sum, e) => sum + calculateDuration(e), 0);
     }, [filteredEntries, selectedIds]);
+
+    // Render a time entry card
+    const renderEntry = (entry: TimeEntryWithProject) => (
+        <Card
+            key={entry.id}
+            className="flex items-center gap-4 p-4"
+            onClick={() => handleSelect(entry.id)}
+            hover
+        >
+            <input
+                type="checkbox"
+                checked={selectedIds.has(entry.id)}
+                onChange={() => handleSelect(entry.id)}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded border-border"
+            />
+
+            {/* Project color */}
+            <div
+                className="w-2 h-10 rounded-full flex-shrink-0"
+                style={{ backgroundColor: entry.projectColor }}
+            />
+
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                    <span className="font-medium text-foreground truncate">
+                        {entry.projectName}
+                    </span>
+                    {entry.isBilled ? (
+                        <Badge variant="success" size="sm" className="gap-1">
+                            <CheckCircle className="w-3 h-3" />
+                            Billed
+                        </Badge>
+                    ) : entry.isBillable ? (
+                        <Badge variant="info" size="sm">Billable</Badge>
+                    ) : null}
+                </div>
+                {entry.clientName && (
+                    <p className="text-sm text-muted-foreground truncate">
+                        {entry.clientName}
+                    </p>
+                )}
+                {entry.notes && (
+                    <p className="text-sm text-muted-foreground truncate mt-1">
+                        {entry.notes}
+                    </p>
+                )}
+            </div>
+
+            <div className="text-right text-sm">
+                <div className="flex items-center gap-1 text-muted-foreground">
+                    <Calendar className="w-3 h-3" />
+                    {formatDate(entry.startTime)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                    {formatTime(entry.startTime)} - {entry.endTime ? formatTime(entry.endTime) : 'Running'}
+                </div>
+            </div>
+
+            <div className="text-right min-w-[60px]">
+                <p className="font-mono font-medium text-foreground">
+                    {formatDurationShort(calculateDuration(entry))}
+                </p>
+            </div>
+        </Card>
+    );
 
     if (loading) {
         return (
@@ -231,80 +318,71 @@ export function TimeEntriesList() {
                     description="Try adjusting your filters."
                 />
             ) : (
-                <div className="space-y-2">
-                    {/* Select all header */}
-                    <div className="flex items-center gap-3 px-4 py-2 text-sm text-muted-foreground">
-                        <input
-                            type="checkbox"
-                            checked={selectedIds.size === filteredEntries.length && filteredEntries.length > 0}
-                            onChange={handleSelectAll}
-                            className="rounded border-border"
-                        />
-                        <span className="flex-1">Select all ({filteredEntries.length} entries)</span>
-                    </div>
+                <div className="space-y-8">
+                    {/* Unbilled Section */}
+                    {unbilledEntries.length > 0 && (
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-3 px-4 py-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={unbilledEntries.every((e) => selectedIds.has(e.id)) && unbilledEntries.length > 0}
+                                    onChange={() => handleSelectAll(unbilledEntries)}
+                                    className="rounded border-border"
+                                />
+                                <span className="font-semibold text-foreground">
+                                    Unbilled ({unbilledEntries.length})
+                                </span>
+                                <span className="text-muted-foreground">
+                                    {formatDurationShort(unbilledEntries.reduce((sum, e) => sum + calculateDuration(e), 0))}
+                                </span>
+                            </div>
 
-                    {filteredEntries.map((entry) => (
-                        <Card
-                            key={entry.id}
-                            className="flex items-center gap-4 p-4"
-                            onClick={() => handleSelect(entry.id)}
-                            hover
-                        >
-                            <input
-                                type="checkbox"
-                                checked={selectedIds.has(entry.id)}
-                                onChange={() => handleSelect(entry.id)}
-                                onClick={(e) => e.stopPropagation()}
-                                className="rounded border-border"
-                            />
+                            <div className="space-y-2">
+                                {unbilledEntries.map(renderEntry)}
+                            </div>
+                        </div>
+                    )}
 
-                            {/* Project color */}
-                            <div
-                                className="w-2 h-10 rounded-full flex-shrink-0"
-                                style={{ backgroundColor: entry.projectColor }}
-                            />
-
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-medium text-foreground truncate">
-                                        {entry.projectName}
-                                    </span>
-                                    {entry.isBillable && !entry.isBilled && (
-                                        <Badge variant="info" size="sm">Billable</Badge>
+                    {/* Billed Section */}
+                    {billedEntries.length > 0 && (
+                        <div className="space-y-2">
+                            <button
+                                onClick={() => setShowBilledSection(!showBilledSection)}
+                                className="flex items-center gap-3 px-4 py-2 text-sm w-full hover:bg-muted/50 rounded-lg transition-colors"
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={billedEntries.every((e) => selectedIds.has(e.id)) && billedEntries.length > 0}
+                                    onChange={(e) => {
+                                        e.stopPropagation();
+                                        handleSelectAll(billedEntries);
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="rounded border-border"
+                                />
+                                <span className="font-semibold text-foreground flex items-center gap-2">
+                                    <CheckCircle className="w-4 h-4 text-green-500" />
+                                    Billed ({billedEntries.length})
+                                </span>
+                                <span className="text-muted-foreground">
+                                    {formatDurationShort(billedEntries.reduce((sum, e) => sum + calculateDuration(e), 0))}
+                                </span>
+                                <span className="ml-auto">
+                                    {showBilledSection ? (
+                                        <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                                    ) : (
+                                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
                                     )}
-                                    {entry.isBilled && (
-                                        <Badge variant="default" size="sm">Billed</Badge>
-                                    )}
-                                </div>
-                                {entry.clientName && (
-                                    <p className="text-sm text-muted-foreground truncate">
-                                        {entry.clientName}
-                                    </p>
-                                )}
-                                {entry.notes && (
-                                    <p className="text-sm text-muted-foreground truncate mt-1">
-                                        {entry.notes}
-                                    </p>
-                                )}
-                            </div>
+                                </span>
+                            </button>
 
-                            <div className="text-right text-sm">
-                                <div className="flex items-center gap-1 text-muted-foreground">
-                                    <Calendar className="w-3 h-3" />
-                                    {formatDate(entry.startTime)}
+                            {showBilledSection && (
+                                <div className="space-y-2">
+                                    {billedEntries.map(renderEntry)}
                                 </div>
-                                <div className="text-xs text-muted-foreground">
-                                    {formatTime(entry.startTime)} - {entry.endTime ? formatTime(entry.endTime) : 'Running'}
-                                </div>
-                            </div>
-
-                            <div className="text-right min-w-[60px]">
-                                <p className="font-mono font-medium text-foreground">
-                                    {formatDurationShort(calculateDuration(entry))}
-                                </p>
-                            </div>
-                        </Card>
-                    ))}
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -322,3 +400,4 @@ export function TimeEntriesList() {
         </div>
     );
 }
+
