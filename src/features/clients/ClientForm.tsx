@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Client, CreateClientInput } from '../../types';
 import { Button, Input, Textarea, Modal, ModalFooter } from '../../components/ui';
 
@@ -18,15 +18,32 @@ export function ClientForm({
     loading = false,
 }: ClientFormProps) {
     const [formData, setFormData] = useState<CreateClientInput>({
-        name: initialData?.name || '',
-        email: initialData?.email || '',
-        address: initialData?.address || '',
-        phone: initialData?.phone || '',
-        hourlyRate: initialData?.hourlyRate || 0,
-        notes: initialData?.notes || '',
+        name: '',
+        email: '',
+        address: '',
+        phone: '',
+        hourlyRate: 0,
+        notes: '',
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [submitError, setSubmitError] = useState<string | null>(null);
+
+    // Reset form when modal opens/closes or initialData changes
+    useEffect(() => {
+        if (isOpen) {
+            setFormData({
+                name: initialData?.name || '',
+                email: initialData?.email || '',
+                address: initialData?.address || '',
+                phone: initialData?.phone || '',
+                hourlyRate: initialData?.hourlyRate || 0,
+                notes: initialData?.notes || '',
+            });
+            setErrors({});
+            setSubmitError(null);
+        }
+    }, [isOpen, initialData]);
 
     const handleChange = (field: keyof CreateClientInput, value: string | number) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -34,6 +51,7 @@ export function ClientForm({
         if (errors[field]) {
             setErrors((prev) => ({ ...prev, [field]: '' }));
         }
+        setSubmitError(null);
     };
 
     const validate = (): boolean => {
@@ -60,8 +78,13 @@ export function ClientForm({
 
         if (!validate()) return;
 
-        await onSubmit(formData);
-        onClose();
+        try {
+            await onSubmit(formData);
+            // Don't call onClose here - parent handles closing on success
+        } catch (err) {
+            console.error('Failed to save client:', err);
+            setSubmitError(err instanceof Error ? err.message : 'Failed to save client. Please try again.');
+        }
     };
 
     const isEditing = !!initialData;
@@ -74,6 +97,12 @@ export function ClientForm({
             size="lg"
         >
             <form onSubmit={handleSubmit} className="space-y-4">
+                {submitError && (
+                    <div className="p-3 rounded-lg bg-destructive/10 border border-destructive text-destructive text-sm">
+                        {submitError}
+                    </div>
+                )}
+
                 <Input
                     label="Name *"
                     value={formData.name}

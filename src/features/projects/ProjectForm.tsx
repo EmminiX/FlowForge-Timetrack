@@ -21,14 +21,15 @@ export function ProjectForm({
 }: ProjectFormProps) {
     const [clients, setClients] = useState<Client[]>([]);
     const [formData, setFormData] = useState<CreateProjectInput>({
-        name: initialData?.name || '',
-        description: initialData?.description || '',
-        clientId: initialData?.clientId || null,
-        status: initialData?.status || 'active',
-        color: initialData?.color || DEFAULT_PROJECT_COLORS[0],
+        name: '',
+        description: '',
+        clientId: null,
+        status: 'active',
+        color: DEFAULT_PROJECT_COLORS[0],
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     // Load clients for dropdown
     useEffect(() => {
@@ -46,6 +47,7 @@ export function ProjectForm({
                 color: initialData?.color || DEFAULT_PROJECT_COLORS[0],
             });
             setErrors({});
+            setSubmitError(null);
         }
     }, [isOpen, initialData]);
 
@@ -54,6 +56,7 @@ export function ProjectForm({
         if (errors[field]) {
             setErrors((prev) => ({ ...prev, [field]: '' }));
         }
+        setSubmitError(null);
     };
 
     const validate = (): boolean => {
@@ -72,8 +75,13 @@ export function ProjectForm({
 
         if (!validate()) return;
 
-        await onSubmit(formData);
-        onClose();
+        try {
+            await onSubmit(formData);
+            // Don't call onClose here - parent handles closing on success
+        } catch (err) {
+            console.error('Failed to save project:', err);
+            setSubmitError(err instanceof Error ? err.message : 'Failed to save project. Please try again.');
+        }
     };
 
     const isEditing = !!initialData;
@@ -96,6 +104,12 @@ export function ProjectForm({
             size="lg"
         >
             <form onSubmit={handleSubmit} className="space-y-4">
+                {submitError && (
+                    <div className="p-3 rounded-lg bg-destructive/10 border border-destructive text-destructive text-sm">
+                        {submitError}
+                    </div>
+                )}
+
                 <Input
                     label="Name *"
                     value={formData.name}

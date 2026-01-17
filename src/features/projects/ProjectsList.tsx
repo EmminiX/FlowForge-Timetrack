@@ -11,6 +11,7 @@ export function ProjectsList() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
 
     // Modal states
     const [showForm, setShowForm] = useState(false);
@@ -21,10 +22,13 @@ export function ProjectsList() {
     const loadProjects = async () => {
         try {
             setLoading(true);
+            setError(null);
             const data = await projectService.getAllWithStats();
+            console.log('Loaded projects:', data);
             setProjects(data);
         } catch (err) {
             console.error('Failed to load projects:', err);
+            setError(err instanceof Error ? err.message : 'Failed to load projects');
         } finally {
             setLoading(false);
         }
@@ -58,9 +62,14 @@ export function ProjectsList() {
     const handleCreate = async (data: CreateProjectInput) => {
         setSubmitting(true);
         try {
-            await projectService.create(data);
+            console.log('Creating project with data:', data);
+            const result = await projectService.create(data);
+            console.log('Created project:', result);
             await loadProjects();
             setShowForm(false);
+        } catch (err) {
+            console.error('Failed to create project:', err);
+            throw err;
         } finally {
             setSubmitting(false);
         }
@@ -70,9 +79,13 @@ export function ProjectsList() {
         if (!editingProject) return;
         setSubmitting(true);
         try {
+            console.log('Updating project:', editingProject.id, data);
             await projectService.update(editingProject.id, data);
             await loadProjects();
             setEditingProject(null);
+        } catch (err) {
+            console.error('Failed to update project:', err);
+            throw err;
         } finally {
             setSubmitting(false);
         }
@@ -85,6 +98,9 @@ export function ProjectsList() {
             await projectService.delete(deletingProject.id);
             await loadProjects();
             setDeletingProject(null);
+        } catch (err) {
+            console.error('Failed to delete project:', err);
+            setError(err instanceof Error ? err.message : 'Failed to delete project');
         } finally {
             setSubmitting(false);
         }
@@ -118,6 +134,19 @@ export function ProjectsList() {
                     New Project
                 </Button>
             </div>
+
+            {/* Error message */}
+            {error && (
+                <div className="p-4 rounded-lg bg-destructive/10 border border-destructive text-destructive">
+                    {error}
+                    <button
+                        onClick={() => setError(null)}
+                        className="ml-2 underline"
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            )}
 
             {/* Filters */}
             {projects.length > 0 && (

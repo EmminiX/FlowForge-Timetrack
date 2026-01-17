@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, Type, LayoutGrid, Building2, Save } from 'lucide-react';
-import type { AppSettings, Theme, FontSize, Density, AnimationPreference } from '../types';
+import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save } from 'lucide-react';
+import type { AppSettings, Theme, FontSize, AnimationPreference } from '../types';
 import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS, FONT_SIZE_SCALE } from '../types';
 import { settingsService } from '../services';
 import { Button, Input, Textarea, Card, CardTitle, CardContent, CardDescription } from '../components/ui';

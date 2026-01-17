@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Search, Trash2, Clock, Calendar } from 'lucide-react';
 import type { TimeEntryWithProject } from '../../types';
 import { formatDurationShort, calculateDuration } from '../../types';
-import { timeEntryService, projectService, clientService, type TimeEntryFilters } from '../../services';
+import { timeEntryService, projectService, clientService } from '../../services';
 import type { Project, Client } from '../../types';
 import { Button, Card, EmptyState, ConfirmDialog, Select, Badge } from '../../components/ui';
 

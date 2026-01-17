@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Play, Pause, Square, Timer } from 'lucide-react';
+import { Play, Pause, Square } from 'lucide-react';
 import { useTimerStore } from '../../stores/timerStore';
 import { projectService, timeEntryService } from '../../services';
 import type { Project } from '../../types';

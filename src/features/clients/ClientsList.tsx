@@ -9,6 +9,7 @@ export function ClientsList() {
     const [clients, setClients] = useState<ClientWithStats[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     // Modal states
     const [showForm, setShowForm] = useState(false);
@@ -20,10 +21,13 @@ export function ClientsList() {
     const loadClients = async () => {
         try {
             setLoading(true);
+            setError(null);
             const data = await clientService.getAllWithStats();
+            console.log('Loaded clients:', data);
             setClients(data);
         } catch (err) {
             console.error('Failed to load clients:', err);
+            setError(err instanceof Error ? err.message : 'Failed to load clients');
         } finally {
             setLoading(false);
         }
@@ -48,9 +52,15 @@ export function ClientsList() {
     const handleCreate = async (data: CreateClientInput) => {
         setSubmitting(true);
         try {
-            await clientService.create(data);
+            console.log('Creating client with data:', data);
+            const result = await clientService.create(data);
+            console.log('Created client:', result);
             await loadClients();
             setShowForm(false);
+        } catch (err) {
+            console.error('Failed to create client:', err);
+            // Rethrow so the form can display the error
+            throw err;
         } finally {
             setSubmitting(false);
         }
@@ -60,9 +70,13 @@ export function ClientsList() {
         if (!editingClient) return;
         setSubmitting(true);
         try {
+            console.log('Updating client:', editingClient.id, data);
             await clientService.update(editingClient.id, data);
             await loadClients();
             setEditingClient(null);
+        } catch (err) {
+            console.error('Failed to update client:', err);
+            throw err;
         } finally {
             setSubmitting(false);
         }
@@ -75,6 +89,9 @@ export function ClientsList() {
             await clientService.delete(deletingClient.id);
             await loadClients();
             setDeletingClient(null);
+        } catch (err) {
+            console.error('Failed to delete client:', err);
+            setError(err instanceof Error ? err.message : 'Failed to delete client');
         } finally {
             setSubmitting(false);
         }
@@ -110,6 +127,19 @@ export function ClientsList() {
                     New Client
                 </Button>
             </div>
+
+            {/* Error message */}
+            {error && (
+                <div className="p-4 rounded-lg bg-destructive/10 border border-destructive text-destructive">
+                    {error}
+                    <button
+                        onClick={() => setError(null)}
+                        className="ml-2 underline"
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            )}
 
             {/* Search */}
             {clients.length > 0 && (

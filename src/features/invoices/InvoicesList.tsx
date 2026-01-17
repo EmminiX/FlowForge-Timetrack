@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, FileText, Eye, Download, Trash2 } from 'lucide-react';
-import type { InvoiceWithDetails, CreateInvoiceInput, Client } from '../../types';
+import type { InvoiceWithDetails, Client } from '../../types';
 import { INVOICE_STATUS_OPTIONS, generateInvoiceNumber, calculateInvoiceTotals } from '../../types';
 import { invoiceService, clientService, projectService, timeEntryService } from '../../services';
 import { Button, Card, EmptyState, ConfirmDialog, StatusBadge, Select, Modal, ModalFooter, Input, Textarea } from '../../components/ui';

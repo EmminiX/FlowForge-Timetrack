@@ -4,18 +4,18 @@ import { getDb } from '../lib/db';
 import type { Project, ProjectWithStats, CreateProjectInput, UpdateProjectInput } from '../types';
 
 function generateId(): string {
-    return crypto.randomUUID();
+  return crypto.randomUUID();
 }
 
 function now(): string {
-    return new Date().toISOString();
+  return new Date().toISOString();
 }
 
 export const projectService = {
-    // Get all projects
-    async getAll(): Promise<Project[]> {
-        const db = await getDb();
-        const result = await db.select<Project[]>(`
+  // Get all projects
+  async getAll(): Promise<Project[]> {
+    const db = await getDb();
+    const result = await db.select<Project[]>(`
       SELECT 
         id, 
         client_id as clientId,
@@ -28,13 +28,13 @@ export const projectService = {
       FROM projects
       ORDER BY name ASC
     `);
-        return result;
-    },
+    return result;
+  },
 
-    // Get all projects with stats
-    async getAllWithStats(): Promise<ProjectWithStats[]> {
-        const db = await getDb();
-        const result = await db.select<ProjectWithStats[]>(`
+  // Get all projects with stats
+  async getAllWithStats(): Promise<ProjectWithStats[]> {
+    const db = await getDb();
+    const result = await db.select<ProjectWithStats[]>(`
       SELECT 
         p.id, 
         p.client_id as clientId,
@@ -61,13 +61,13 @@ export const projectService = {
       GROUP BY p.id
       ORDER BY p.name ASC
     `);
-        return result;
-    },
+    return result;
+  },
 
-    // Get projects by client ID
-    async getByClientId(clientId: string): Promise<Project[]> {
-        const db = await getDb();
-        const result = await db.select<Project[]>(`
+  // Get projects by client ID
+  async getByClientId(clientId: string): Promise<Project[]> {
+    const db = await getDb();
+    const result = await db.select<Project[]>(`
       SELECT 
         id, 
         client_id as clientId,
@@ -81,13 +81,13 @@ export const projectService = {
       WHERE client_id = $1
       ORDER BY name ASC
     `, [clientId]);
-        return result;
-    },
+    return result;
+  },
 
-    // Get active projects only (for timer dropdown)
-    async getActive(): Promise<Project[]> {
-        const db = await getDb();
-        const result = await db.select<Project[]>(`
+  // Get active projects only (for timer dropdown)
+  async getActive(): Promise<Project[]> {
+    const db = await getDb();
+    const result = await db.select<Project[]>(`
       SELECT 
         id, 
         client_id as clientId,
@@ -101,13 +101,13 @@ export const projectService = {
       WHERE status = 'active'
       ORDER BY name ASC
     `);
-        return result;
-    },
+    return result;
+  },
 
-    // Get project by ID
-    async getById(id: string): Promise<Project | null> {
-        const db = await getDb();
-        const result = await db.select<Project[]>(`
+  // Get project by ID
+  async getById(id: string): Promise<Project | null> {
+    const db = await getDb();
+    const result = await db.select<Project[]>(`
       SELECT 
         id, 
         client_id as clientId,
@@ -120,54 +120,63 @@ export const projectService = {
       FROM projects
       WHERE id = $1
     `, [id]);
-        return result[0] || null;
-    },
+    return result[0] || null;
+  },
 
-    // Create a new project
-    async create(input: CreateProjectInput): Promise<Project> {
-        const db = await getDb();
-        const id = generateId();
-        const timestamp = now();
+  // Create a new project
+  async create(input: CreateProjectInput): Promise<Project> {
+    console.log('projectService.create called with:', input);
+    try {
+      const db = await getDb();
+      console.log('Got database connection');
+      const id = generateId();
+      const timestamp = now();
 
-        await db.execute(`
+      console.log('Executing INSERT for project:', id);
+      await db.execute(`
       INSERT INTO projects (id, client_id, name, description, status, color, created_at, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     `, [
-            id,
-            input.clientId || null,
-            input.name,
-            input.description || '',
-            input.status || 'active',
-            input.color || '#007AFF',
-            timestamp,
-            timestamp,
-        ]);
+        id,
+        input.clientId || null,
+        input.name,
+        input.description || '',
+        input.status || 'active',
+        input.color || '#007AFF',
+        timestamp,
+        timestamp,
+      ]);
+      console.log('INSERT successful for project:', id);
 
-        return {
-            id,
-            clientId: input.clientId || null,
-            name: input.name,
-            description: input.description || '',
-            status: input.status || 'active',
-            color: input.color || '#007AFF',
-            createdAt: timestamp,
-            updatedAt: timestamp,
-        };
-    },
+      return {
+        id,
+        clientId: input.clientId || null,
+        name: input.name,
+        description: input.description || '',
+        status: input.status || 'active',
+        color: input.color || '#007AFF',
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      };
+    } catch (err) {
+      console.error('projectService.create failed:', err);
+      throw err;
+    }
+  },
 
-    // Update a project
-    async update(id: string, input: UpdateProjectInput): Promise<Project | null> {
-        const db = await getDb();
-        const existing = await this.getById(id);
-        if (!existing) return null;
+  // Update a project
+  async update(id: string, input: UpdateProjectInput): Promise<Project | null> {
+    const db = await getDb();
+    const existing = await this.getById(id);
+    if (!existing) return null;
 
-        const updated = {
-            ...existing,
-            ...input,
-            updatedAt: now(),
-        };
+    const updated = {
+      ...existing,
+      ...input,
+      updatedAt: now(),
+    };
 
-        await db.execute(`
+    await db.execute(`
       UPDATE projects SET
         client_id = $1,
         name = $2,
@@ -177,22 +186,22 @@ export const projectService = {
         updated_at = $6
       WHERE id = $7
     `, [
-            updated.clientId,
-            updated.name,
-            updated.description,
-            updated.status,
-            updated.color,
-            updated.updatedAt,
-            id,
-        ]);
+      updated.clientId,
+      updated.name,
+      updated.description,
+      updated.status,
+      updated.color,
+      updated.updatedAt,
+      id,
+    ]);
 
-        return updated;
-    },
+    return updated;
+  },
 
-    // Delete a project
-    async delete(id: string): Promise<boolean> {
-        const db = await getDb();
-        await db.execute('DELETE FROM projects WHERE id = $1', [id]);
-        return true;
-    },
+  // Delete a project
+  async delete(id: string): Promise<boolean> {
+    const db = await getDb();
+    await db.execute('DELETE FROM projects WHERE id = $1', [id]);
+    return true;
+  },
 };
