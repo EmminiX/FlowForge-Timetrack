@@ -1,11 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import { getDb } from "./lib/db";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
+  const [tables, setTables] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function checkDb() {
+      try {
+        const db = await getDb();
+        const result = await db.select<{ name: string }[]>(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+        );
+        setTables(result.map((r) => r.name));
+      } catch (err) {
+        console.error("DB Error:", err);
+      }
+    }
+    checkDb();
+  }, []);
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -44,6 +61,15 @@ function App() {
         <button type="submit">Greet</button>
       </form>
       <p>{greetMsg}</p>
+
+      <div className="p-4 border mt-4">
+        <h3>Database Tables:</h3>
+        <ul>
+          {tables.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+      </div>
     </main>
   );
 }
