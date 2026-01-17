@@ -3,6 +3,8 @@ import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { Clients } from './pages/Clients';
 import { Projects } from './pages/Projects';
+import { TimeEntries } from './pages/TimeEntries';
+import { Invoices } from './pages/Invoices';
 import { Settings } from './pages/Settings';
 
 function App() {
@@ -13,6 +15,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="clients" element={<Clients />} />
           <Route path="projects" element={<Projects />} />
+          <Route path="time-entries" element={<TimeEntries />} />
+          <Route path="invoices" element={<Invoices />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>

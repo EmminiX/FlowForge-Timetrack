@@ -1,3 +1,5 @@
+import { TimerView } from '../features/timer';
+
 export function Dashboard() {
-  return <div>Dashboard Placeholder</div>;
+  return <TimerView />;
 }
