@@ -1,3 +1,5 @@
+import { ProjectsList } from '../features/projects';
+
 export function Projects() {
-  return <div>Projects Placeholder</div>;
+  return <ProjectsList />;
 }

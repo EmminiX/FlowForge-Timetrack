@@ -1,3 +1,5 @@
+import { ClientsList } from '../features/clients';
+
 export function Clients() {
-  return <div>Clients Placeholder</div>;
+  return <ClientsList />;
 }
