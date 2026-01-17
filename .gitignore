@@ -1,5 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+*.local
+
+# Tauri build outputs
+src-tauri/target/
+src-tauri/WixTools/
+src-tauri/Cargo.lock
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,18 +20,44 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database files (local dev)
+*.db
+*.sqlite
+*.sqlite3
+
+# Test coverage
+coverage/
+
+# Temp files
+*.tmp
+*.temp
+.temp/
+.cache/
+
+# Conductor (Gemini CLI)
+conductor/
