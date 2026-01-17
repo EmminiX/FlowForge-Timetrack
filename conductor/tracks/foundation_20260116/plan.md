@@ -6,11 +6,11 @@
     - [x] Configure `tsconfig.json` for strict mode.
     - [x] Install and configure ESLint and Prettier.
     - [x] Commit initial project structure.
-- [~] Task: Install Core Dependencies
-    - [ ] Install `tailwindcss`, `postcss`, `autoprefixer` and init tailwind config.
-    - [ ] Install `lucide-react`, `clsx`, `tailwind-merge`.
-    - [ ] Install `zustand`, `react-router-dom`, `react-hook-form`, `zod`.
-    - [ ] Install `@tauri-apps/plugin-sql` and `@tauri-apps/api`.
+- [x] Task: Install Core Dependencies 735f868
+    - [x] Install `tailwindcss`, `postcss`, `autoprefixer` and init tailwind config.
+    - [x] Install `lucide-react`, `clsx`, `tailwind-merge`.
+    - [x] Install `zustand`, `react-router-dom`, `react-hook-form`, `zod`.
+    - [x] Install `@tauri-apps/plugin-sql` and `@tauri-apps/api`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Environment & Scaffolding' (Protocol in workflow.md)
 
 ## Phase 2: Database Layer
