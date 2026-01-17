@@ -567,6 +567,18 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
             let rightY = 20;
             if (settings?.businessLogo) rightY += 25;
 
+            // Calculate due date if invalid
+            let displayDueDate = formatDate(invoice.dueDate);
+            if (displayDueDate === 'Invalid Date' && invoice.issueDate) {
+                const issueDate = new Date(invoice.issueDate);
+                const dueDate = new Date(issueDate);
+                dueDate.setDate(issueDate.getDate() + 30);
+                displayDueDate = formatDate(dueDate.toISOString());
+            }
+
+            // Determine status display
+            const displayStatus = invoice.status === 'draft' ? 'ISSUED' : invoice.status.toUpperCase();
+
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.text(`Invoice #: ${invoice.invoiceNumber}`, rightX, rightY);
@@ -574,9 +586,9 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
             doc.setFont('helvetica', 'normal');
             doc.text(`Issue Date: ${formatDate(invoice.issueDate)}`, rightX, rightY);
             rightY += 5;
-            doc.text(`Due Date: ${formatDate(invoice.dueDate)}`, rightX, rightY);
+            doc.text(`Due Date: ${displayDueDate}`, rightX, rightY);
             rightY += 5;
-            doc.text(`Status: ${invoice.status.toUpperCase()}`, rightX, rightY);
+            doc.text(`Status: ${displayStatus}`, rightX, rightY);
 
             y = Math.max(y, rightY) + 15;
 
@@ -595,6 +607,14 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
                     doc.text(line, 15, y);
                     y += 4;
                 });
+            }
+            if (invoice.clientEmail) {
+                doc.text(invoice.clientEmail, 15, y);
+                y += 4;
+            }
+            if (invoice.clientPhone) {
+                doc.text(invoice.clientPhone, 15, y);
+                y += 4;
             }
             y += 10;
 
@@ -666,22 +686,52 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
             // Get PDF as bytes
             const pdfOutput = doc.output('arraybuffer');
 
-            // Open native save dialog
-            const { save } = await import('@tauri-apps/plugin-dialog');
-            const { writeFile } = await import('@tauri-apps/plugin-fs');
+            // Check if we're in Tauri environment
+            const isTauri = '__TAURI__' in window || '__TAURI_INTERNALS__' in window;
 
-            const filePath = await save({
-                defaultPath: `${invoice.invoiceNumber}.pdf`,
-                filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
-            });
+            if (isTauri) {
+                // Open native save dialog
+                const { save } = await import('@tauri-apps/plugin-dialog');
+                const { writeFile } = await import('@tauri-apps/plugin-fs');
 
-            if (filePath) {
-                await writeFile(filePath, new Uint8Array(pdfOutput));
-                invoiceLogger.info('PDF saved successfully', { path: filePath });
+                invoiceLogger.debug('Opening save dialog...');
+                const filePath = await save({
+                    defaultPath: `${invoice.invoiceNumber}.pdf`,
+                    filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+                });
+
+                invoiceLogger.debug('Save dialog returned', { filePath });
+
+                if (filePath) {
+                    invoiceLogger.debug('Writing file...', { path: filePath, size: pdfOutput.byteLength });
+                    try {
+                        await writeFile(filePath, new Uint8Array(pdfOutput));
+                        invoiceLogger.info('PDF saved successfully', { path: filePath });
+                        alert(`Invoice saved to:\n${filePath}`);
+                    } catch (writeError) {
+                        invoiceLogger.error('writeFile failed', writeError);
+                        throw writeError;
+                    }
+                } else {
+                    invoiceLogger.info('Save dialog cancelled');
+                }
+            } else {
+                // Fallback for browser: download via blob
+                invoiceLogger.info('Not in Tauri environment, using browser download');
+                const blob = new Blob([pdfOutput], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${invoice.invoiceNumber}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             }
         } catch (error) {
             invoiceLogger.error('Failed to export PDF', error);
             console.error('Failed to export PDF:', error);
+            alert(`Failed to export PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
         } finally {
             setExporting(false);
         }

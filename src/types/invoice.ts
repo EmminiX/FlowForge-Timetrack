@@ -26,6 +26,7 @@ export interface InvoiceLineItem {
 export interface InvoiceWithDetails extends Invoice {
     clientName: string;
     clientEmail: string;
+    clientPhone: string;
     clientAddress: string;
     lineItems: InvoiceLineItem[];
     subtotal: number;
