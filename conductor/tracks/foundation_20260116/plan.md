@@ -11,7 +11,7 @@
     - [x] Install `lucide-react`, `clsx`, `tailwind-merge`.
     - [x] Install `zustand`, `react-router-dom`, `react-hook-form`, `zod`.
     - [x] Install `@tauri-apps/plugin-sql` and `@tauri-apps/api`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Environment & Scaffolding' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Environment & Scaffolding' (Protocol in workflow.md) [checkpoint: 03da382]
 
 ## Phase 2: Database Layer
 - [ ] Task: Database Configuration
