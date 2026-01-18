@@ -26,7 +26,7 @@ This phase focuses on updating all user-facing text elements within the applicat
 
 - [ ] Task: Conductor - User Manual Verification 'UI Rebranding' (Protocol in workflow.md)
 
-## Phase 2: Documentation Overhaul
+## Phase 2: Documentation Overhaul [checkpoint: e6bd40f]
 This phase addresses the requirement for a neurodivergent-friendly README and updating the project documentation.
 
 - [x] Task: Revise README.md 38bffd4
