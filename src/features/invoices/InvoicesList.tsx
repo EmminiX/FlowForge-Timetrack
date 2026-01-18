@@ -39,18 +39,14 @@ export function InvoicesList() {
     }, [statusFilter]);
 
     const handleDelete = async () => {
-        console.log('[Invoice] handleDelete called', { deletingInvoice });
         if (!deletingInvoice) return;
         setSubmitting(true);
         try {
-            console.log('[Invoice] Calling invoiceService.delete...');
             await invoiceService.delete(deletingInvoice.id);
-            console.log('[Invoice] Delete successful, reloading data...');
             await loadData();
-            console.log('[Invoice] Data reloaded, closing dialog...');
             setDeletingInvoice(null);
         } catch (error) {
-            console.error('[Invoice] Delete failed:', error);
+            console.error('Failed to delete invoice:', error);
         } finally {
             setSubmitting(false);
         }
