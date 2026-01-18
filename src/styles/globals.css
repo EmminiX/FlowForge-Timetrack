@@ -481,3 +481,136 @@
     background-position: -200% 0;
   }
 }
+
+/* Floating Timer Widget Styles */
+.widget-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  background: var(--background);
+  color: var(--foreground);
+  border-radius: 0px;
+  border: 1px solid;
+  border-color: var(--border);
+  backdrop-filter: blur(12px);
+  user-select: none;
+  cursor: grab;
+  box-sizing: border-box;
+  margin: 0;
+  overflow: hidden;
+}
+
+.widget-container:active {
+  cursor: grabbing;
+}
+
+.widget-idle {
+  justify-content: center;
+  border-color: rgba(100, 116, 139, 0.3);
+  padding: 0;
+}
+
+.widget-idle-text {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.widget-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  margin-right: -2px;
+}
+
+.widget-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 0;
+  margin-right: 2px;
+}
+
+.widget-time {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.widget-project {
+  font-size: 10px;
+  color: var(--muted-foreground);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  opacity: 1;
+}
+
+.widget-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(37, 99, 235, 0.1);
+  color: rgb(37, 99, 235);
+  /* Blue 600 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dark .widget-button {
+  background: rgba(59, 130, 246, 0.15);
+  color: rgb(147, 197, 253);
+  /* Blue 300 */
+}
+
+.widget-button:hover {
+  background: rgba(37, 99, 235, 0.2);
+  transform: scale(1.05);
+}
+
+.dark .widget-button:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.widget-button:active {
+  transform: scale(0.95);
+}
+
+.widget-button-stop {
+  background: rgba(220, 38, 38, 0.1);
+  color: rgb(220, 38, 38);
+  /* Red 600 */
+}
+
+.dark .widget-button-stop {
+  background: rgba(239, 68, 68, 0.15);
+  color: rgb(252, 165, 165);
+  /* Red 300 */
+}
+
+.widget-button-stop:hover {
+  background: rgba(220, 38, 38, 0.2);
+}
+
+.dark .widget-button-stop:hover {
+  background: rgba(239, 68, 68, 0.3);
+}

@@ -7,6 +7,7 @@ import { Projects } from './pages/Projects';
 import { TimeEntries } from './pages/TimeEntries';
 import { Invoices } from './pages/Invoices';
 import { Settings } from './pages/Settings';
+import { Widget } from './pages/Widget';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
@@ -14,6 +15,10 @@ function App() {
     <SettingsProvider>
       <BrowserRouter>
         <Routes>
+          {/* Widget window - standalone route */}
+          <Route path="/widget" element={<Widget />} />
+
+          {/* Main app routes */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="clients" element={<Clients />} />

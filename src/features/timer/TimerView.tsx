@@ -1,10 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Play, Pause, Square } from 'lucide-react';
-import { useTimerStore } from '../../stores/timerStore';
-import { projectService, timeEntryService } from '../../services';
-import type { Project } from '../../types';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Play, Pause, Square, Coffee } from 'lucide-react';
+import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';
+import { projectService, timeEntryService, settingsService } from '../../services';
+import type { Project, AppSettings } from '../../types';
 import { formatDuration } from '../../types';
 import { Button, Select, Card } from '../../components/ui';
+import { playBreakSound, playWorkResumeSound } from '../../lib/sounds';
+import { notifyBreakTime } from '../../lib/notifications';
 import clsx from 'clsx';
 
 export function TimerView() {
@@ -18,12 +20,24 @@ export function TimerView() {
         resume,
         stop,
         getElapsedSeconds,
-    } = useTimerStore();
+    } = useTimerWithEffects();
 
     const [projects, setProjects] = useState<Project[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<string>('');
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [saving, setSaving] = useState(false);
+
+    // Pomodoro state
+    const [settings, setSettings] = useState<AppSettings | null>(null);
+    const [breakNotified, setBreakNotified] = useState(false);
+    const [showBreakReminder, setShowBreakReminder] = useState(false);
+    const [isOnBreak, setIsOnBreak] = useState(false);
+    const [breakSecondsRemaining, setBreakSecondsRemaining] = useState(0);
+
+    // Load settings
+    useEffect(() => {
+        settingsService.load().then(setSettings).catch(console.error);
+    }, []);
 
     // Load active projects
     useEffect(() => {
@@ -34,6 +48,9 @@ export function TimerView() {
     useEffect(() => {
         if (timerState === 'idle') {
             setElapsedSeconds(0);
+            setBreakNotified(false);
+            setShowBreakReminder(false);
+            setIsOnBreak(false);
             return;
         }
 
@@ -45,6 +62,57 @@ export function TimerView() {
         const interval = setInterval(updateElapsed, 1000);
         return () => clearInterval(interval);
     }, [timerState, getElapsedSeconds]);
+
+    // Pomodoro break reminder check
+    useEffect(() => {
+        if (!settings?.pomodoroEnabled || timerState !== 'running' || breakNotified) return;
+
+        const workSeconds = (settings.pomodoroWorkMinutes || 25) * 60;
+
+        if (elapsedSeconds >= workSeconds) {
+            setBreakNotified(true);
+            setShowBreakReminder(true);
+
+            if (settings.enableSoundFeedback) {
+                playBreakSound();
+            }
+
+            if (settings.enableNotifications) {
+                notifyBreakTime(settings.pomodoroBreakMinutes || 5).catch(console.warn);
+            }
+        }
+    }, [elapsedSeconds, settings, timerState, breakNotified]);
+
+    // Break countdown timer
+    useEffect(() => {
+        if (!isOnBreak || breakSecondsRemaining <= 0) return;
+
+        const interval = setInterval(() => {
+            setBreakSecondsRemaining(prev => {
+                if (prev <= 1) {
+                    // Break ended!
+                    setIsOnBreak(false);
+                    setShowBreakReminder(false);
+
+                    if (settings?.enableSoundFeedback) {
+                        playWorkResumeSound();
+                    }
+
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [isOnBreak, breakSecondsRemaining, settings]);
+
+    // Start break countdown
+    const handleStartBreak = () => {
+        const breakMinutes = settings?.pomodoroBreakMinutes || 5;
+        setBreakSecondsRemaining(breakMinutes * 60);
+        setIsOnBreak(true);
+    };
 
     // Sync selected project with running timer
     useEffect(() => {
@@ -60,23 +128,23 @@ export function TimerView() {
         }));
     }, [projects]);
 
-    const handleStart = () => {
+    const handleStart = async () => {
         const project = projects.find((p) => p.id === selectedProjectId);
         if (!project) return;
 
-        start(project.id, project.name, project.color);
+        await start(project.id, project.name, project.color);
     };
 
-    const handlePause = () => {
-        pause();
+    const handlePause = async () => {
+        await pause();
     };
 
-    const handleResume = () => {
-        resume();
+    const handleResume = async () => {
+        await resume();
     };
 
     const handleStop = async () => {
-        const result = stop();
+        const result = await stop();
         if (!result) return;
 
         setSaving(true);
@@ -116,6 +184,55 @@ export function TimerView() {
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-foreground">Timer</h1>
             </div>
+
+            {/* Break Reminder Banner */}
+            {showBreakReminder && (
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <Coffee className="w-6 h-6 text-orange-500" />
+                            <div>
+                                {isOnBreak ? (
+                                    <>
+                                        <p className="font-medium text-orange-500">On Break</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Time remaining: <span className="font-mono font-medium">{formatDuration(breakSecondsRemaining)}</span>
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p className="font-medium text-orange-500">Time for a break!</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            You've been working for {settings?.pomodoroWorkMinutes || 25} minutes. Take a {settings?.pomodoroBreakMinutes || 5} minute break.
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            {!isOnBreak && (
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={handleStartBreak}
+                                >
+                                    Start Break
+                                </Button>
+                            )}
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                    setShowBreakReminder(false);
+                                    setIsOnBreak(false);
+                                }}
+                            >
+                                {isOnBreak ? 'Skip' : 'Dismiss'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <Card className="p-8 text-center">
                 {/* Status indicator */}

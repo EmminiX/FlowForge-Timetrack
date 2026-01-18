@@ -12,9 +12,25 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-app",
-        "width": 800,
-        "height": 600
+        "label": "main",
+        "title": "FlowForge",
+        "width": 1024,
+        "height": 768,
+        "minWidth": 800,
+        "minHeight": 600
+      },
+      {
+        "label": "widget",
+        "title": "Timer Widget",
+        "url": "/widget",
+        "width": 260,
+        "height": 44,
+        "alwaysOnTop": true,
+        "decorations": false,
+        "resizable": false,
+        "visible": false,
+        "transparent": true,
+        "skipTaskbar": true
       }
     ],
     "security": {

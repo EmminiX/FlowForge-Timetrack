@@ -1,3 +1,5 @@
+import { listen } from '@tauri-apps/api/event';
+
 // Settings context and provider for app-wide settings application
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import type { AppSettings, Theme, FontSize, AnimationPreference, Density } from '../types';
@@ -106,7 +108,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         loadAndApplySettings();
     }, [loadAndApplySettings]);
 
-    // Listen for system theme/animation changes
+    // Listen for system theme/animation changes and cross-window sync
     useEffect(() => {
         const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
         const motionMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -122,11 +124,27 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         themeMedia.addEventListener('change', handleTheme);
         motionMedia.addEventListener('change', handleMotion);
 
+        // Listen for settings changes from other windows
+        const unlistenSync = listen('settings-sync', () => {
+            loadAndApplySettings();
+        });
+
+        // Listen for realtime previews from other windows
+        const unlistenPreview = listen<{ key: keyof AppSettings; value: any }>('setting-preview', (event) => {
+            const { key, value } = event.payload;
+            if (key === 'theme') applyTheme(value as Theme);
+            if (key === 'fontSize') applyFontSize(value as FontSize);
+            if (key === 'density') applyDensity(value as Density);
+            if (key === 'animationPreference') applyAnimations(value as AnimationPreference);
+        });
+
         return () => {
             themeMedia.removeEventListener('change', handleTheme);
             motionMedia.removeEventListener('change', handleMotion);
+            unlistenSync.then(f => f());
+            unlistenPreview.then(f => f());
         };
-    }, [settings.theme, settings.animationPreference, applyTheme, applyAnimations]);
+    }, [settings.theme, settings.animationPreference, applyTheme, applyAnimations, loadAndApplySettings, applyDensity, applyFontSize]);
 
     return (
         <SettingsContext.Provider

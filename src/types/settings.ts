@@ -11,6 +11,11 @@ export interface AppSettings {
     enableNotifications: boolean;
     enableSoundFeedback: boolean;
 
+    // Pomodoro
+    pomodoroEnabled: boolean;
+    pomodoroWorkMinutes: number;
+    pomodoroBreakMinutes: number;
+
     // Appearance
     theme: Theme;
     fontSize: FontSize;
@@ -34,6 +39,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
     showFloatingWidget: true,
     enableNotifications: true,
     enableSoundFeedback: true,
+    pomodoroEnabled: false,
+    pomodoroWorkMinutes: 25,
+    pomodoroBreakMinutes: 5,
     theme: 'system',
     fontSize: 'medium',
     density: 'comfortable',

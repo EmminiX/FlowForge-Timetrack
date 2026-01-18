@@ -3,6 +3,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { useThemeEffect } from '../../hooks/useThemeEffect';
 import { useFontSizeEffect } from '../../hooks/useFontSizeEffect';
+import { TimerSync } from '../../features/timer/TimerSync';
 
 export function Layout() {
   // Initialize global effects here
@@ -11,6 +12,7 @@ export function Layout() {
 
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
+      <TimerSync />
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Header />

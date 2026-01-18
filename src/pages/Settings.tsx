@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save } from 'lucide-react';
+import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save, Clock } from 'lucide-react';
 import type { AppSettings, Theme, FontSize, Density } from '../types';
 import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS } from '../types';
 import { settingsService } from '../services';
 import { useSettings } from '../contexts/SettingsContext';
+import { toggleWidget } from '../lib/widgetWindow';
 import { Button, Input, Textarea, Card, CardTitle, CardContent, CardDescription } from '../components/ui';
 import clsx from 'clsx';
+
+import { emit } from '@tauri-apps/api/event';
 
 type TabId = 'general' | 'appearance' | 'accessibility' | 'business';
 
@@ -35,6 +38,8 @@ export function Settings() {
     if (key === 'fontSize') applyFontSize(value as FontSize);
     if (key === 'density') applyDensity(value as Density);
 
+    // Broadcast preview to other windows
+    emit('setting-preview', { key, value });
   };
 
   const handleSave = async () => {
@@ -44,6 +49,8 @@ export function Settings() {
       setHasChanges(false);
       // Reload settings in context to sync globally
       await reloadSettings();
+      // Broadcast change to other windows (like widget)
+      await emit('settings-sync');
     } finally {
       setSaving(false);
     }
@@ -106,7 +113,10 @@ export function Settings() {
                 label="Show Floating Timer Widget"
                 description="Display an always-on-top mini timer window"
                 checked={settings.showFloatingWidget}
-                onChange={(v) => updateSetting('showFloatingWidget', v)}
+                onChange={(v) => {
+                  updateSetting('showFloatingWidget', v);
+                  toggleWidget(v).catch(console.error);
+                }}
                 icon={<Bell className="w-5 h-5" />}
               />
             </CardContent>
@@ -133,6 +143,43 @@ export function Settings() {
                 onChange={(v) => updateSetting('enableSoundFeedback', v)}
                 icon={settings.enableSoundFeedback ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="space-y-4">
+              <ToggleSetting
+                label="Pomodoro Timer"
+                description="Get break reminders after working for a set duration"
+                checked={settings.pomodoroEnabled}
+                onChange={(v) => updateSetting('pomodoroEnabled', v)}
+                icon={<Clock className="w-5 h-5" />}
+              />
+
+              {settings.pomodoroEnabled && (
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Work Duration (minutes)</label>
+                    <Input
+                      type="number"
+                      value={settings.pomodoroWorkMinutes || ''}
+                      onChange={(e) => updateSetting('pomodoroWorkMinutes', e.target.value === '' ? 25 : parseInt(e.target.value))}
+                      min={1}
+                      max={120}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Break Duration (minutes)</label>
+                    <Input
+                      type="number"
+                      value={settings.pomodoroBreakMinutes || ''}
+                      onChange={(e) => updateSetting('pomodoroBreakMinutes', e.target.value === '' ? 5 : parseInt(e.target.value))}
+                      min={1}
+                      max={60}
+                    />
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
