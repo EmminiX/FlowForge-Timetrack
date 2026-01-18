@@ -25,3 +25,4 @@
 ## Development Tools
 - **Package Manager**: pnpm (implied from context/standard practice).
 - **Linting/Formatting**: ESLint and Prettier for code quality and style consistency.
+- **Testing**: Vitest and React Testing Library for unit and component testing.

@@ -1,6 +1,6 @@
 # Initial Concept
 
-Build the complete FlowForge application following the PRD.md and IMPLEMENTATION_CHECKLIST.md. The app is a Tauri 2 desktop application with React and TypeScript frontend.
+Build the complete FlowForge-Track application following the PRD.md and IMPLEMENTATION_CHECKLIST.md. The app is a Tauri 2 desktop application with React and TypeScript frontend.
 
 Key features in priority order:
 1. Project foundation (Tauri setup, database, theming, font scaling)
