@@ -23,6 +23,7 @@ export function Widget() {
         projectColor: '',
         elapsedSeconds: 0
     });
+    const [isBreakActive, setIsBreakActive] = useState(false);
 
     // Listen for state updates
     useEffect(() => {
@@ -40,10 +41,15 @@ export function Widget() {
             setTimerState(event.payload);
         });
 
+        const unlistenBreak = listen<{ active: boolean }>('timer-break-toggle', (event) => {
+            setIsBreakActive(event.payload.active);
+        });
+
         emit('timer-request-sync');
 
         return () => {
             unlisten.then(f => f());
+            unlistenBreak.then(f => f());
             // Optional: reset background on unmount if needed, but for a dedicated window it's fine
         };
     }, []);
@@ -80,10 +86,12 @@ export function Widget() {
 
     return (
         <div
-            className="widget-container"
+            className={`widget-container ${isBreakActive ? 'animate-flicker' : ''}`}
             style={{
-                borderColor: timerState.projectColor || '#007AFF',
-                boxShadow: `0 0 12px ${timerState.projectColor}15` // Subtle glow
+                borderColor: isBreakActive ? '#f97316' : (timerState.projectColor || '#007AFF'),
+                boxShadow: isBreakActive
+                    ? '0 0 12px rgba(249, 115, 22, 0.5)'
+                    : `0 0 12px ${timerState.projectColor}15`
             }}
             onMouseDown={handleDrag}
         >
@@ -96,11 +104,13 @@ export function Widget() {
             <div className="widget-content" style={{ pointerEvents: 'none' }}>
                 <span
                     className="widget-time"
-                    style={{ color: timerState.projectColor || '#007AFF' }}
+                    style={{ color: isBreakActive ? '#f97316' : (timerState.projectColor || '#007AFF') }}
                 >
                     {formatDuration(timerState.elapsedSeconds)}
                 </span>
-                <span className="widget-project">{timerState.projectName}</span>
+                <span className="widget-project">
+                    {isBreakActive ? 'Take a Break!' : timerState.projectName}
+                </span>
             </div>
 
             {/* Controls */}

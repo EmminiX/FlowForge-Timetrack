@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Play, Pause, Square, Coffee } from 'lucide-react';
+import { emit } from '@tauri-apps/api/event';
 import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';
 import { projectService, timeEntryService, settingsService } from '../../services';
 import type { Project, AppSettings } from '../../types';
 import { formatDuration } from '../../types';
 import { Button, Select, Card } from '../../components/ui';
 import { playBreakSound, playWorkResumeSound } from '../../lib/sounds';
-import { notifyBreakTime } from '../../lib/notifications';
 import clsx from 'clsx';
 
 export function TimerView() {
@@ -33,6 +33,7 @@ export function TimerView() {
     const [showBreakReminder, setShowBreakReminder] = useState(false);
     const [isOnBreak, setIsOnBreak] = useState(false);
     const [breakSecondsRemaining, setBreakSecondsRemaining] = useState(0);
+    const [lastBreakTime, setLastBreakTime] = useState(0);
 
     // Load settings
     useEffect(() => {
@@ -51,6 +52,7 @@ export function TimerView() {
             setBreakNotified(false);
             setShowBreakReminder(false);
             setIsOnBreak(false);
+            setLastBreakTime(0);
             return;
         }
 
@@ -69,19 +71,15 @@ export function TimerView() {
 
         const workSeconds = (settings.pomodoroWorkMinutes || 25) * 60;
 
-        if (elapsedSeconds >= workSeconds) {
+        if ((elapsedSeconds - lastBreakTime) >= workSeconds) {
             setBreakNotified(true);
             setShowBreakReminder(true);
 
             if (settings.enableSoundFeedback) {
                 playBreakSound();
             }
-
-            if (settings.enableNotifications) {
-                notifyBreakTime(settings.pomodoroBreakMinutes || 5).catch(console.warn);
-            }
         }
-    }, [elapsedSeconds, settings, timerState, breakNotified]);
+    }, [elapsedSeconds, settings, timerState, breakNotified, lastBreakTime]);
 
     // Break countdown timer
     useEffect(() => {
@@ -91,13 +89,9 @@ export function TimerView() {
             setBreakSecondsRemaining(prev => {
                 if (prev <= 1) {
                     // Break ended!
-                    setIsOnBreak(false);
-                    setShowBreakReminder(false);
-
                     if (settings?.enableSoundFeedback) {
                         playWorkResumeSound();
                     }
-
                     return 0;
                 }
                 return prev - 1;
@@ -107,11 +101,26 @@ export function TimerView() {
         return () => clearInterval(interval);
     }, [isOnBreak, breakSecondsRemaining, settings]);
 
+    // Emit break status to widget
+    useEffect(() => {
+        emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch(console.error);
+    }, [showBreakReminder, isOnBreak]);
+
     // Start break countdown
-    const handleStartBreak = () => {
+    const handleStartBreak = async () => {
+        await pause(); // Pause the work timer
         const breakMinutes = settings?.pomodoroBreakMinutes || 5;
         setBreakSecondsRemaining(breakMinutes * 60);
         setIsOnBreak(true);
+    };
+
+    // Manual Resume after break
+    const handleResumeWork = async () => {
+        await resume();
+        setIsOnBreak(false);
+        setShowBreakReminder(false);
+        setBreakNotified(false);
+        setLastBreakTime(elapsedSeconds); // Reset cycle
     };
 
     // Sync selected project with running timer
@@ -194,9 +203,14 @@ export function TimerView() {
                             <div>
                                 {isOnBreak ? (
                                     <>
-                                        <p className="font-medium text-orange-500">On Break</p>
+                                        <p className="font-medium text-orange-500">
+                                            {breakSecondsRemaining === 0 ? "Break Finished!" : "On Break"}
+                                        </p>
                                         <p className="text-sm text-muted-foreground">
-                                            Time remaining: <span className="font-mono font-medium">{formatDuration(breakSecondsRemaining)}</span>
+                                            {breakSecondsRemaining === 0
+                                                ? "Ready to resume working?"
+                                                : <span>Time remaining: <span className="font-mono font-medium">{formatDuration(breakSecondsRemaining)}</span></span>
+                                            }
                                         </p>
                                     </>
                                 ) : (
@@ -210,7 +224,17 @@ export function TimerView() {
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            {!isOnBreak && (
+                            {isOnBreak ? (
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={breakSecondsRemaining === 0 ? handleResumeWork : undefined}
+                                    disabled={breakSecondsRemaining > 0}
+                                    className={breakSecondsRemaining > 0 ? "opacity-50 cursor-not-allowed" : ""}
+                                >
+                                    Resume Work
+                                </Button>
+                            ) : (
                                 <Button
                                     variant="primary"
                                     size="sm"
@@ -225,9 +249,11 @@ export function TimerView() {
                                 onClick={() => {
                                     setShowBreakReminder(false);
                                     setIsOnBreak(false);
+                                    setBreakNotified(false);
+                                    setLastBreakTime(elapsedSeconds); // Reset cycle on dismiss
                                 }}
                             >
-                                {isOnBreak ? 'Skip' : 'Dismiss'}
+                                {isOnBreak ? 'Skip Break' : 'Dismiss'}
                             </Button>
                         </div>
                     </div>

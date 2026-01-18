@@ -250,6 +250,20 @@
   }
 }
 
+@keyframes flicker {
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
+  }
+
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 35px rgba(249, 115, 22, 1);
+  }
+}
+
 /* Animation Utility Classes */
 .animate-in {
   animation-duration: 200ms;
@@ -309,6 +323,12 @@
 
 .animate-bounce {
   animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-flicker {
+  animation: flicker 1.5s ease-in-out infinite;
+  border-color: #f97316 !important;
+  /* Orange-500 */
 }
 
 /* Duration modifiers */

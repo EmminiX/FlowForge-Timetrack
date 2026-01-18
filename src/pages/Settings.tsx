@@ -122,17 +122,6 @@ export function Settings() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent>
-              <ToggleSetting
-                label="Enable Notifications"
-                description="Show desktop notifications for timer events"
-                checked={settings.enableNotifications}
-                onChange={(v) => updateSetting('enableNotifications', v)}
-                icon={settings.enableNotifications ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
-              />
-            </CardContent>
-          </Card>
 
           <Card>
             <CardContent>
