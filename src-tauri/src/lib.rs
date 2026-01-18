@@ -10,9 +10,11 @@ fn greet(name: &str) -> String {
 // Get system idle time in seconds
 #[tauri::command]
 fn get_idle_time() -> u64 {
-    UserIdle::get_time()
+    let time = UserIdle::get_time()
         .map(|idle| idle.as_seconds())
-        .unwrap_or(0)
+        .unwrap_or(0);
+    // println!("Rust Idle Check: {}s", time);
+    time
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

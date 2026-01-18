@@ -46,7 +46,12 @@ export const shortcutService: ShortcutService = {
                 registeredKeys.push(key);
                 console.log(`[Shortcuts] Registered: ${key} -> ${action}`);
             } catch (error) {
-                console.error(`[Shortcuts] Failed to register ${key}:`, error);
+                // Ignore HMR race conditions where key is briefly unavailable
+                if (String(error).includes('RegisterEventHotKey failed')) {
+                    console.warn(`[Shortcuts] Skipped duplicate registration for ${key} (harmless in dev)`);
+                } else {
+                    console.error(`[Shortcuts] Failed to register ${key}:`, error);
+                }
             }
         }
 

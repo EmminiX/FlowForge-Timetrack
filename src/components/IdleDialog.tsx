@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useTimerStore } from '../stores/timerStore';
 import { Button, Card } from './ui';
-import { Clock, Trash2, Check, Edit3 } from 'lucide-react';
+import { Clock, Trash2, Check } from 'lucide-react';
 import { formatDuration } from '../types';
 
 interface IdleDialogProps {
@@ -11,41 +10,41 @@ interface IdleDialogProps {
 
 export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
     const timerResume = useTimerStore(state => state.resume);
-    const [adjustMinutes, setAdjustMinutes] = useState(
-        Math.floor(idleDuration / 60)
-    );
-    const [showAdjust, setShowAdjust] = useState(false);
 
     const handleDiscard = () => {
-        // Resume timer - idle time already excluded since we paused
-        timerResume();
+        const store = useTimerStore.getState();
+        if (store.state === 'running') {
+            // Timer already resumed (retroactive fix).
+            // We want to VALIDLY DISCARD the idle time (treat as break), so we ADD it to accumulatedPauseDuration.
+            console.log('[IdleDialog] Retroactive discard. Adding to pause:', idleDuration);
+            useTimerStore.setState({
+                accumulatedPauseDuration: store.accumulatedPauseDuration + idleDuration
+            });
+        } else {
+            // Standard Discard (Resume, counting break)
+            timerResume();
+        }
         onClose();
     };
 
     const handleKeepAll = () => {
-        // Resume and add back the idle time by adjusting accumulated pause
         const store = useTimerStore.getState();
-        const currentPause = store.accumulatedPauseDuration;
-        // Subtract idle duration from pause to effectively "keep" that time
-        useTimerStore.setState({
-            accumulatedPauseDuration: Math.max(0, currentPause - idleDuration),
-            state: 'running',
-            pauseStartTime: null
-        });
-        onClose();
-    };
+        console.log('[IdleDialog] Keep All. State:', store.state);
 
-    const handleAdjust = () => {
-        const adjustSeconds = adjustMinutes * 60;
-
-        const store = useTimerStore.getState();
-        const currentPause = store.accumulatedPauseDuration;
-        // Partially reduce pause duration to keep some of the time
-        useTimerStore.setState({
-            accumulatedPauseDuration: Math.max(0, currentPause - adjustSeconds),
-            state: 'running',
-            pauseStartTime: null
-        });
+        if (store.state === 'running') {
+            // Timer was already resumed manually (Discarded).
+            // Retroactively "Keep All" by removing the idle duration from accumulated pause.
+            console.log('[IdleDialog] Retroactively keeping all (running state). Subt:', idleDuration);
+            useTimerStore.setState({
+                accumulatedPauseDuration: Math.max(0, store.accumulatedPauseDuration - idleDuration)
+            });
+        } else {
+            // Standard Keep All
+            useTimerStore.setState({
+                state: 'running',
+                pauseStartTime: null
+            });
+        }
         onClose();
     };
 
@@ -68,56 +67,24 @@ export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
                     Your timer was paused while you were away. What would you like to do with this time?
                 </p>
 
-                {showAdjust ? (
-                    <div className="space-y-3">
-                        <label className="text-sm font-medium">
-                            Minutes to keep:
-                        </label>
-                        <input
-                            type="number"
-                            min={0}
-                            max={Math.ceil(idleDuration / 60)}
-                            value={adjustMinutes}
-                            onChange={(e) => setAdjustMinutes(Math.max(0, Number(e.target.value)))}
-                            className="w-full p-2 border border-border rounded-lg bg-background text-foreground"
-                        />
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => setShowAdjust(false)} className="flex-1">
-                                Cancel
-                            </Button>
-                            <Button onClick={handleAdjust} className="flex-1">
-                                Apply
-                            </Button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="space-y-2">
-                        <Button
-                            onClick={handleDiscard}
-                            variant="outline"
-                            className="w-full justify-start gap-3"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                            Discard idle time
-                        </Button>
-                        <Button
-                            onClick={handleKeepAll}
-                            variant="outline"
-                            className="w-full justify-start gap-3"
-                        >
-                            <Check className="w-4 h-4" />
-                            Keep all time
-                        </Button>
-                        <Button
-                            onClick={() => setShowAdjust(true)}
-                            variant="outline"
-                            className="w-full justify-start gap-3"
-                        >
-                            <Edit3 className="w-4 h-4" />
-                            Adjust manually
-                        </Button>
-                    </div>
-                )}
+                <div className="space-y-2">
+                    <Button
+                        onClick={handleDiscard}
+                        variant="outline"
+                        className="w-full justify-start gap-3"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                        Discard idle time
+                    </Button>
+                    <Button
+                        onClick={handleKeepAll}
+                        variant="outline"
+                        className="w-full justify-start gap-3"
+                    >
+                        <Check className="w-4 h-4" />
+                        Keep all time
+                    </Button>
+                </div>
             </Card>
         </div>
     );

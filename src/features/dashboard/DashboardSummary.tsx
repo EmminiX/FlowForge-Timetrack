@@ -4,26 +4,39 @@ import { TodaySummary } from './TodaySummary';
 import { WeeklyChart } from './WeeklyChart';
 import { QuickStats } from './QuickStats';
 
+import { listen } from '@tauri-apps/api/event';
+
 export function DashboardSummary() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const dashboardData = await dashboardService.getDashboardData();
-                setData(dashboardData);
-            } catch (error) {
-                console.error('Failed to load dashboard data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const loadData = async () => {
+        try {
+            const dashboardData = await dashboardService.getDashboardData();
+            setData(dashboardData);
+        } catch (error) {
+            console.error('Failed to load dashboard data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         loadData();
+
         // Refresh every minute to keep data current
         const interval = setInterval(loadData, 60000);
-        return () => clearInterval(interval);
+
+        // Listen for updates from timer stop
+        const unlisten = listen('time-entry-saved', () => {
+            console.log('[Dashboard] New time entry saved, refreshing data...');
+            loadData();
+        });
+
+        return () => {
+            clearInterval(interval);
+            unlisten.then(f => f());
+        };
     }, []);
 
     if (loading) {

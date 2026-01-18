@@ -165,6 +165,7 @@ export function TimerView() {
             };
             console.log('[Timer] Creating time entry with data:', entryData);
             await timeEntryService.create(entryData);
+            await emit('time-entry-saved');
         } catch (err) {
             console.error('Failed to save time entry:', err);
         } finally {
