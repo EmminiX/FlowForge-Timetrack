@@ -287,7 +287,7 @@ export function Settings() {
                 Neurodivergent-Friendly Design
               </CardTitle>
               <CardDescription className="text-blue-700 dark:text-blue-400">
-                FlowForge was designed with neurodivergent users in mind. Features include:
+                FlowForge-Track was designed with neurodivergent users in mind. Features include:
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>Large touch targets (minimum 44pt)</li>
                   <li>Clear labels with icons</li>
@@ -483,10 +483,10 @@ export function Settings() {
             <CardContent className="py-6">
               <div className="flex items-center gap-3 mb-2">
                 <Zap className="w-6 h-6 text-primary" />
-                <CardTitle className="text-xl">Welcome to FlowForge!</CardTitle>
+                <CardTitle className="text-xl">Welcome to FlowForge-Track!</CardTitle>
               </div>
               <CardDescription className="text-base">
-                FlowForge is your all-in-one time tracking and invoicing companion.
+                FlowForge-Track is your all-in-one time tracking and invoicing companion.
                 This guide will walk you through every feature step by step.
               </CardDescription>
             </CardContent>
@@ -526,7 +526,7 @@ export function Settings() {
           >
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                The floating widget is a small, always-on-top window that shows your timer status even when FlowForge is minimized.
+                The floating widget is a small, always-on-top window that shows your timer status even when FlowForge-Track is minimized.
               </p>
               <div>
                 <h4 className="font-medium mb-2">Widget Features</h4>
@@ -534,7 +534,7 @@ export function Settings() {
                   <li>• Shows current project name and elapsed time</li>
                   <li>• <strong>Play/Pause button:</strong> Control your timer</li>
                   <li>• <strong>Stop button:</strong> End the current session</li>
-                  <li>• <strong>Open App button:</strong> Bring FlowForge to focus</li>
+                  <li>• <strong>Open App button:</strong> Bring FlowForge-Track to focus</li>
                   <li>• <strong>Drag handle:</strong> Move the widget anywhere on screen</li>
                 </ul>
               </div>
@@ -685,7 +685,7 @@ export function Settings() {
           >
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                FlowForge makes invoicing easy by automatically importing your unbilled time entries.
+                FlowForge-Track makes invoicing easy by automatically importing your unbilled time entries.
               </p>
               <div>
                 <h4 className="font-medium mb-2">Step-by-Step Invoice Creation</h4>
@@ -825,7 +825,7 @@ export function Settings() {
                 🎉 You're All Set!
               </CardTitle>
               <CardDescription className="text-green-700 dark:text-green-400">
-                You now know everything FlowForge can do. Start tracking your time and creating invoices with ease!
+                You now know everything FlowForge-Track can do. Start tracking your time and creating invoices with ease!
               </CardDescription>
             </CardContent>
           </Card>
