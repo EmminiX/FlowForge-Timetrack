@@ -29,7 +29,7 @@ This phase focuses on updating all user-facing text elements within the applicat
 ## Phase 2: Documentation Overhaul
 This phase addresses the requirement for a neurodivergent-friendly README and updating the project documentation.
 
-- [ ] Task: Revise README.md
+- [x] Task: Revise README.md 38bffd4
     - [ ] Draft new content: Create a "Non-Technical User Guide" section.
     - [ ] Implement: Rewrite `README.md` using clear, direct language and the new brand name.
     - [ ] Review: Verify readability and tone against requirements.
