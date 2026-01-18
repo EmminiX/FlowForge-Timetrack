@@ -8,7 +8,7 @@ This phase focuses on updating all user-facing text elements within the applicat
     - [ ] Update title tag in `index.html`.
     - [ ] Verify `Main.tsx` or `App.tsx` for any dynamic title setting logic.
 
-- [ ] Task: Update Layout Components (Sidebar & Header)
+- [x] Task: Update Layout Components (Sidebar & Header) 5fe33e7
     - [ ] Write failing tests: Update/Create component tests for `Sidebar` and `Header` to assert they display "FlowForge-Track".
     - [ ] Implement: Update the text in `src/components/layout/Sidebar.tsx` and `src/components/layout/Header.tsx`.
     - [ ] Refactor: Ensure text is consistent with styling.
