@@ -44,7 +44,7 @@ function AppContent() {
           </Route>
         </Routes>
         {/* Debug panel - only visible during development */}
-        <DebugPanel />
+        {import.meta.env.DEV && <DebugPanel />}
       </BrowserRouter>
     </>
   );
