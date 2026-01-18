@@ -39,12 +39,18 @@ export function InvoicesList() {
     }, [statusFilter]);
 
     const handleDelete = async () => {
+        console.log('[Invoice] handleDelete called', { deletingInvoice });
         if (!deletingInvoice) return;
         setSubmitting(true);
         try {
+            console.log('[Invoice] Calling invoiceService.delete...');
             await invoiceService.delete(deletingInvoice.id);
+            console.log('[Invoice] Delete successful, reloading data...');
             await loadData();
+            console.log('[Invoice] Data reloaded, closing dialog...');
             setDeletingInvoice(null);
+        } catch (error) {
+            console.error('[Invoice] Delete failed:', error);
         } finally {
             setSubmitting(false);
         }
@@ -382,8 +388,8 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
                                 <Input
                                     type="number"
                                     placeholder="Qty"
-                                    value={item.quantity}
-                                    onChange={(e) => handleLineItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                                    value={item.quantity || ''}
+                                    onChange={(e) => handleLineItemChange(index, 'quantity', e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                     className="w-20"
                                     min={0}
                                     step={0.01}
@@ -391,8 +397,8 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
                                 <Input
                                     type="number"
                                     placeholder="Price"
-                                    value={item.unitPrice}
-                                    onChange={(e) => handleLineItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                                    value={item.unitPrice || ''}
+                                    onChange={(e) => handleLineItemChange(index, 'unitPrice', e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                     className="w-24"
                                     min={0}
                                     step={0.01}
@@ -441,8 +447,8 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
                     <Input
                         label="Tax Rate (%)"
                         type="number"
-                        value={taxRate}
-                        onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
+                        value={taxRate || ''}
+                        onChange={(e) => setTaxRate(e.target.value === '' ? 0 : parseFloat(e.target.value))}
                         min={0}
                         max={100}
                         step={0.1}

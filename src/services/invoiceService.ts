@@ -268,9 +268,19 @@ export const invoiceService = {
 
   // Delete invoice
   async delete(id: string): Promise<boolean> {
-    const db = await getDb();
-    await db.execute('DELETE FROM invoices WHERE id = $1', [id]);
-    return true;
+    console.log('[InvoiceService] delete called', { id });
+    try {
+      const db = await getDb();
+      // Delete line items first (in case of foreign key constraints)
+      await db.execute('DELETE FROM invoice_line_items WHERE invoice_id = $1', [id]);
+      console.log('[InvoiceService] line items deleted');
+      await db.execute('DELETE FROM invoices WHERE id = $1', [id]);
+      console.log('[InvoiceService] invoice deleted successfully');
+      return true;
+    } catch (error) {
+      console.error('[InvoiceService] delete failed:', error);
+      throw error;
+    }
   },
 
   // Get all invoices for generating next number

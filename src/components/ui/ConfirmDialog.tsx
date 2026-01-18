@@ -5,7 +5,7 @@ import { Modal, ModalFooter } from './Modal';
 export interface ConfirmDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: () => void;
+    onConfirm: () => void | Promise<void>;
     title: string;
     message: string;
     confirmLabel?: string;
@@ -25,13 +25,6 @@ export function ConfirmDialog({
     variant = 'default',
     loading = false,
 }: ConfirmDialogProps) {
-    const handleConfirm = () => {
-        onConfirm();
-        if (!loading) {
-            onClose();
-        }
-    };
-
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
             <div className="flex gap-4">
@@ -55,7 +48,7 @@ export function ConfirmDialog({
                 </Button>
                 <Button
                     variant={variant === 'danger' ? 'destructive' : 'primary'}
-                    onClick={handleConfirm}
+                    onClick={() => onConfirm()}
                     loading={loading}
                 >
                     {confirmLabel}
