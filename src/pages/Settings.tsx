@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save, Clock, RotateCcw, BookOpen, ChevronDown, ChevronUp, Timer, Users, Briefcase, FileText, Package, Zap, Coffee } from 'lucide-react';
+import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save, Clock, RotateCcw, BookOpen, ChevronDown, ChevronUp, Timer, Users, Briefcase, FileText, Package, Zap, Coffee, Keyboard, BarChart3, PauseCircle } from 'lucide-react';
 import type { AppSettings, Theme, FontSize, Density } from '../types';
 import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS } from '../types';
 import { settingsService } from '../services';
@@ -181,6 +181,46 @@ export function Settings() {
                     </Button>
                   </div>
                 </>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="space-y-4">
+              <ToggleSetting
+                label="Auto-Pause When Idle"
+                description="Automatically pause the timer when you step away from your computer"
+                checked={localSettings.enableIdleDetection}
+                onChange={(v) => handleAutoSave('enableIdleDetection', v)}
+                icon={<Clock className="w-5 h-5" />}
+              />
+
+              {localSettings.enableIdleDetection && (
+                <div className="pt-4 border-t border-border">
+                  <label className="block text-sm font-medium mb-2">Idle Threshold</label>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Minutes of inactivity before the timer pauses
+                  </p>
+                  <div className="flex gap-2">
+                    {[2, 5, 10, 15, 30].map((minutes) => (
+                      <button
+                        key={minutes}
+                        onClick={() => handleAutoSave('idleThresholdMinutes', minutes)}
+                        className={clsx(
+                          'px-4 py-2 rounded-lg border transition-colors',
+                          localSettings.idleThresholdMinutes === minutes
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'border-border hover:bg-muted'
+                        )}
+                      >
+                        {minutes}m
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    When you return, you'll be asked what to do with the idle time.
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -815,6 +855,75 @@ export function Settings() {
               </div>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm">
                 <strong>💡 Tip:</strong> All appearance changes save automatically – no need to click Save!
+              </div>
+            </div>
+          </GuideSection>
+
+          <GuideSection
+            icon={<Keyboard className="w-5 h-5" />}
+            title="Global Shortcuts"
+          >
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Control FlowForge-Track from anywhere, even when the app is in the background.
+              </p>
+              <div>
+                <h4 className="font-medium mb-2">Available Shortcuts</h4>
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• <strong>Cmd/Ctrl + Shift + S:</strong> Start or Resume timer</li>
+                  <li>• <strong>Cmd/Ctrl + Shift + P:</strong> Pause timer</li>
+                  <li>• <strong>Cmd/Ctrl + Shift + X:</strong> Stop timer and save entry</li>
+                  <li>• <strong>Cmd/Ctrl + Shift + W:</strong> Toggle floating widget</li>
+                  <li>• <strong>Cmd/Ctrl + Shift + M:</strong> Toggle sound feedback</li>
+                </ul>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm">
+                <strong>💡 Tip:</strong> These work globally! You don't need to have the FlowForge window focused.
+              </div>
+            </div>
+          </GuideSection>
+
+          <GuideSection
+            icon={<BarChart3 className="w-5 h-5" />}
+            title="Dashboard Analytics"
+          >
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Get visual insights into your productivity on the main dashboard.
+              </p>
+              <div>
+                <h4 className="font-medium mb-2">Features</h4>
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• <strong>Today's Summary:</strong> See exactly how your day is broken down by project.</li>
+                  <li>• <strong>Weekly Progress:</strong> Visual bar chart of your hours for the last 7 days.</li>
+                  <li>• <strong>Quick Stats:</strong> At-a-glance view of unbilled revenue and total weekly hours.</li>
+                </ul>
+              </div>
+            </div>
+          </GuideSection>
+
+          <GuideSection
+            icon={<PauseCircle className="w-5 h-5" />}
+            title="Automatic Idle Detection"
+          >
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Never worry about forgetting to pause your timer when you walk away.
+              </p>
+              <div>
+                <h4 className="font-medium mb-2">How It Works</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                  <li>If you stop moving your mouse/keyboard for a set time (default 5 mins), the timer pauses automatically.</li>
+                  <li>When you return, you'll be asked what to do with the time you were away.</li>
+                  <li>Options: <strong>Discard</strong> (remove idle time), <strong>Keep</strong> (add it to work), or <strong>Adjust</strong> manually.</li>
+                </ol>
+              </div>
+              <div>
+                <h4 className="font-medium mb-2">Configuration</h4>
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• Go to <strong>Settings → General</strong> to enable/disable.</li>
+                  <li>• Adjust the "Idle Threshold" to choose how long to wait before pausing (2-30 minutes).</li>
+                </ul>
               </div>
             </div>
           </GuideSection>

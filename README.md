@@ -9,7 +9,18 @@ It is designed to be easy to use, especially for people who prefer clear interfa
 - **Floating Timer**: A small window that stays on top so you always see your timer.
 - **Client & Project Management**: Organize your work easily.
 - **Offline Invoicing**: Create professional PDF invoices without needing the internet.
+- **Global Keyboard Shortcuts**: Control the timer (`Cmd+Shift+S/P/X`) from anywhere on your computer.
+- **Dashboard Analytics**: Visual breakdown of your daily and weekly progress.
+- **Smart Idle Detection**: Automatically pauses the timer when you walk away.
 - **Customizable**: Change the theme (Light/Dark) and font size to fit your needs.
+
+## ⚠️ Important Note for Mac Users
+
+To use **Global Keyboard Shortcuts**, you must grant Accessibility permissions:
+1. Go to **System Settings > Privacy & Security > Accessibility**
+2. Click the `+` button
+3. Add **FlowForge-Track** to the list
+4. Restart the app
 
 ## 🚀 For Non-Technical Users (Getting Started)
 

@@ -11,6 +11,10 @@ export interface AppSettings {
     enableNotifications: boolean;
     enableSoundFeedback: boolean;
 
+    // Idle Detection
+    enableIdleDetection: boolean;
+    idleThresholdMinutes: number;
+
     // Pomodoro
     pomodoroEnabled: boolean;
     pomodoroWorkMinutes: number;
@@ -43,6 +47,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     showFloatingWidget: true,
     enableNotifications: true,
     enableSoundFeedback: true,
+    enableIdleDetection: true,
+    idleThresholdMinutes: 5,
     pomodoroEnabled: false,
     pomodoroWorkMinutes: 25,
     pomodoroBreakMinutes: 5,

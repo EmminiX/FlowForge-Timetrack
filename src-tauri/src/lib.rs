@@ -1,9 +1,18 @@
 use tauri_plugin_sql::{Migration, MigrationKind};
+use user_idle::UserIdle;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+// Get system idle time in seconds
+#[tauri::command]
+fn get_idle_time() -> u64 {
+    UserIdle::get_time()
+        .map(|idle| idle.as_seconds())
+        .unwrap_or(0)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -88,7 +97,7 @@ pub fn run() {
         },
     ];
 
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(
             tauri_plugin_sql::Builder::new()
                 .add_migrations("sqlite:flowforge.db", migrations)
@@ -97,8 +106,17 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_notification::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .plugin(tauri_plugin_notification::init());
+
+    // Setup global shortcuts plugin on desktop platforms
+    // Note: Actual shortcut registration is done via JavaScript API
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_global_shortcut::Builder::new().build());
+    }
+
+    builder
+        .invoke_handler(tauri::generate_handler![greet, get_idle_time])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

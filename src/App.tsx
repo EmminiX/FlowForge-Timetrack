@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { DebugPanel } from './components/debug/DebugPanel';
+import { IdleMonitor } from './components/IdleMonitor';
 import { Dashboard } from './pages/Dashboard';
 import { Clients } from './pages/Clients';
 import { Projects } from './pages/Projects';
@@ -11,23 +12,21 @@ import { Settings } from './pages/Settings';
 import { Widget } from './pages/Widget';
 
 import { SettingsProvider } from './contexts/SettingsContext';
+import { useShortcuts } from './hooks/useShortcuts';
 
 import { useEffect } from 'react';
 import { useTimerStore } from './stores/timerStore';
 
-function App() {
-  // Reset timer on fresh app launch
-  useEffect(() => {
-    const isReload = sessionStorage.getItem('app_initialized');
-    if (!isReload) {
-      // Fresh launch - reset timer
-      useTimerStore.getState().reset();
-      sessionStorage.setItem('app_initialized', 'true');
-    }
-  }, []);
+// Component that uses hooks requiring SettingsProvider context
+function AppContent() {
+  // Enable global keyboard shortcuts
+  useShortcuts();
 
   return (
-    <SettingsProvider>
+    <>
+      {/* Idle detection monitor */}
+      <IdleMonitor />
+
       <BrowserRouter>
         <Routes>
           {/* Widget window - standalone route */}
@@ -47,6 +46,24 @@ function App() {
         {/* Debug panel - only visible during development */}
         <DebugPanel />
       </BrowserRouter>
+    </>
+  );
+}
+
+function App() {
+  // Reset timer on fresh app launch
+  useEffect(() => {
+    const isReload = sessionStorage.getItem('app_initialized');
+    if (!isReload) {
+      // Fresh launch - reset timer
+      useTimerStore.getState().reset();
+      sessionStorage.setItem('app_initialized', 'true');
+    }
+  }, []);
+
+  return (
+    <SettingsProvider>
+      <AppContent />
     </SettingsProvider>
   );
 }

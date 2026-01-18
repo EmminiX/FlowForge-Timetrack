@@ -6,3 +6,4 @@ export { timeEntryService } from './timeEntryService';
 export { invoiceService } from './invoiceService';
 export { settingsService } from './settingsService';
 export { productService } from './productService';
+export { dashboardService } from './dashboardService';
