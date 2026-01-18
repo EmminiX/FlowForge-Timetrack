@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, FileText, Eye, Download, Trash2, Pencil } from 'lucide-react';
-import type { InvoiceWithDetails, Client, AppSettings } from '../../types';
+import type { InvoiceWithDetails, Client, AppSettings, Product, InvoiceStatus } from '../../types';
 import { INVOICE_STATUS_OPTIONS, generateInvoiceNumber, calculateInvoiceTotals } from '../../types';
-import { invoiceService, clientService, projectService, timeEntryService, settingsService } from '../../services';
+import { invoiceService, clientService, projectService, timeEntryService, settingsService, productService } from '../../services';
 import { invoiceLogger } from '../../lib/logger';
 import { Button, Card, EmptyState, ConfirmDialog, StatusBadge, Select, Modal, ModalFooter, Input, Textarea } from '../../components/ui';
+import { QuerySelect } from './QuerySelect';
+
 
 export function InvoicesList() {
     const [invoices, setInvoices] = useState<InvoiceWithDetails[]>([]);
@@ -50,6 +52,15 @@ export function InvoicesList() {
             console.error('Failed to delete invoice:', error);
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleStatusChange = async (invoiceId: string, newStatus: InvoiceStatus) => {
+        try {
+            await invoiceService.update(invoiceId, { status: newStatus });
+            await loadData();
+        } catch (error) {
+            console.error('Failed to update invoice status:', error);
         }
     };
 
@@ -134,11 +145,32 @@ export function InvoicesList() {
                                     <span className="font-mono font-medium text-foreground">
                                         {invoice.invoiceNumber}
                                     </span>
-                                    <StatusBadge status={invoice.status} />
                                 </div>
                                 <p className="text-sm text-muted-foreground truncate">
                                     {invoice.clientName}
                                 </p>
+                            </div>
+
+                            {/* Status Dropdown */}
+                            <div className="min-w-[120px]">
+                                <select
+                                    value={invoice.status}
+                                    onChange={(e) => handleStatusChange(invoice.id, e.target.value as InvoiceStatus)}
+                                    className="w-full h-8 px-2 text-xs rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+                                    style={{
+                                        color: INVOICE_STATUS_OPTIONS.find(s => s.value === invoice.status)?.color || 'inherit'
+                                    }}
+                                >
+                                    {INVOICE_STATUS_OPTIONS.map((option) => (
+                                        <option
+                                            key={option.value}
+                                            value={option.value}
+                                            style={{ color: option.color }}
+                                        >
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div className="text-right">
@@ -236,6 +268,7 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated, initialData }
     const [step, setStep] = useState(1);
     const [clientId, setClientId] = useState('');
     const [lineItems, setLineItems] = useState<{ description: string; quantity: number; unitPrice: number; timeEntryIds?: string[] }[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
     const [dueDate, setDueDate] = useState('');
     const [notes, setNotes] = useState('');
@@ -285,6 +318,13 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated, initialData }
             }
         }
     }, [isOpen, initialData]);
+
+    // Load products
+    useEffect(() => {
+        if (isOpen) {
+            productService.getAll().then(setProducts).catch(console.error);
+        }
+    }, [isOpen]);
 
     const handleLoadHours = async () => {
         if (!clientId) return;
@@ -337,6 +377,14 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated, initialData }
 
     const handleAddLineItem = () => {
         setLineItems([...lineItems, { description: '', quantity: 1, unitPrice: 0 }]);
+    };
+
+    const handleAddProductLine = (product: Product) => {
+        setLineItems([...lineItems, {
+            description: product.name + (product.description ? ` - ${product.description}` : ''),
+            quantity: 1,
+            unitPrice: product.price
+        }]);
     };
 
     const handleRemoveLineItem = (index: number) => {
@@ -492,6 +540,12 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated, initialData }
                         <Button variant="outline" size="sm" onClick={handleAddLineItem}>
                             + Add Line
                         </Button>
+                        <div className="inline-block relative ml-2">
+                            <QuerySelect
+                                products={products}
+                                onSelect={handleAddProductLine}
+                            />
+                        </div>
                         {!initialData && (
                             <Button variant="ghost" size="sm" onClick={handleLoadHours} className="ml-2">
                                 Reload Hours

@@ -6,8 +6,10 @@ import { Clients } from './pages/Clients';
 import { Projects } from './pages/Projects';
 import { TimeEntries } from './pages/TimeEntries';
 import { Invoices } from './pages/Invoices';
+import { Products } from './pages/Products';
 import { Settings } from './pages/Settings';
 import { Widget } from './pages/Widget';
+
 import { SettingsProvider } from './contexts/SettingsContext';
 
 import { useEffect } from 'react';
@@ -38,6 +40,7 @@ function App() {
             <Route path="projects" element={<Projects />} />
             <Route path="time-entries" element={<TimeEntries />} />
             <Route path="invoices" element={<Invoices />} />
+            <Route path="products" element={<Products />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>

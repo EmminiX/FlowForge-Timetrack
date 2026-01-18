@@ -5,3 +5,4 @@ export { projectService } from './projectService';
 export { timeEntryService } from './timeEntryService';
 export { invoiceService } from './invoiceService';
 export { settingsService } from './settingsService';
+export { productService } from './productService';

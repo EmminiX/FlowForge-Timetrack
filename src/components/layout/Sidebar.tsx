@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Timer, Users, Briefcase, Clock, FileText, Settings, Volume2, VolumeX } from 'lucide-react';
+import { Timer, Users, Briefcase, Clock, FileText, Settings, Volume2, VolumeX, Package } from 'lucide-react';
 import clsx from 'clsx';
 import { useSettings } from '../../contexts/SettingsContext';
 
@@ -13,6 +13,7 @@ export function Sidebar() {
     { to: '/projects', label: 'Projects', icon: Briefcase },
     { to: '/time-entries', label: 'Time Entries', icon: Clock },
     { to: '/invoices', label: 'Invoices', icon: FileText },
+    { to: '/products', label: 'Products', icon: Package },
   ];
 
   return (

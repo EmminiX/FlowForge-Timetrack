@@ -101,7 +101,21 @@ export async function runMigrations(): Promise<void> {
   `);
   await db.execute(`
     CREATE INDEX IF NOT EXISTS idx_invoice_line_items_invoice_id ON invoice_line_items(invoice_id)
-  `);
+    `);
+
+  // Create products table
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS products(
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      price REAL DEFAULT 0,
+      sku TEXT DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+    `);
+
 
   // Migration: Add vat_number column to clients if it doesn't exist
   try {
