@@ -81,27 +81,22 @@ export function Widget() {
         await emit('timer-command', { action: 'stop' });
     };
 
-    // If not tracking
-    if (timerState.status === 'idle') {
-        return (
-            <div className="widget-container widget-idle" onMouseDown={handleDrag}>
-                <span className="widget-idle-text" style={{ pointerEvents: 'none' }}>No timer</span>
-            </div>
-        );
-    }
-
-    // Determine if we should show flashing (break or idle)
+    // Determine if we should show flashing (break or idle while running)
     const shouldFlash = isBreakActive || isIdlePaused;
     const flashColor = '#f97316'; // orange-500
+
+    // Use muted styling for idle state
+    const isIdle = timerState.status === 'idle';
+    const displayColor = isIdle ? '#64748b' : (shouldFlash ? flashColor : (timerState.projectColor || '#007AFF'));
 
     return (
         <div
             className={`widget-container ${shouldFlash ? 'animate-flicker' : ''}`}
             style={{
-                borderColor: shouldFlash ? flashColor : (timerState.projectColor || '#007AFF'),
-                boxShadow: shouldFlash
+                borderColor: displayColor,
+                boxShadow: isIdle ? 'none' : (shouldFlash
                     ? '0 0 12px rgba(249, 115, 22, 0.5)'
-                    : `0 0 12px ${timerState.projectColor}15`
+                    : `0 0 12px ${timerState.projectColor}15`)
             }}
             onMouseDown={handleDrag}
         >
@@ -114,12 +109,12 @@ export function Widget() {
             <div className="widget-content" style={{ pointerEvents: 'none' }}>
                 <span
                     className="widget-time"
-                    style={{ color: shouldFlash ? flashColor : (timerState.projectColor || '#007AFF') }}
+                    style={{ color: displayColor }}
                 >
                     {formatDuration(timerState.elapsedSeconds)}
                 </span>
                 <span className="widget-project">
-                    {isIdlePaused ? 'IDLE' : isBreakActive ? 'Take a Break!' : timerState.projectName}
+                    {isIdle ? 'Ready' : (isIdlePaused ? 'IDLE' : isBreakActive ? 'Take a Break!' : timerState.projectName)}
                 </span>
             </div>
 
