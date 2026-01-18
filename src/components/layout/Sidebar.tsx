@@ -18,7 +18,7 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-secondary border-r border-border h-screen flex flex-col p-4 shrink-0">
-      <div className="text-2xl font-bold mb-8 px-4 text-primary">FlowForge</div>
+      <div className="text-2xl font-bold mb-8 px-4 text-primary">FlowForge-Track</div>
 
       <nav className="flex-1 space-y-1">
         {mainLinks.map((link) => (
