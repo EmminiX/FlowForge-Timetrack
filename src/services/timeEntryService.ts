@@ -292,6 +292,16 @@ export const timeEntryService = {
         );
     },
 
+    // Mark entries as unbilled (reverse a billing mistake)
+    async markAsUnbilled(ids: string[]): Promise<void> {
+        const db = await getDb();
+        const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
+        await db.execute(
+            `UPDATE time_entries SET is_billed = 0 WHERE id IN (${placeholders})`,
+            ids
+        );
+    },
+
     // Delete
     async delete(id: string): Promise<boolean> {
         timeEntryLogger.info('delete called', { id });

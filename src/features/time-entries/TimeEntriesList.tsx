@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Trash2, Clock, Calendar, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
+import { Search, Trash2, Clock, Calendar, ChevronDown, ChevronUp, CheckCircle, XCircle } from 'lucide-react';
 import type { TimeEntryWithProject } from '../../types';
 import { formatDurationShort, calculateDuration } from '../../types';
 import { timeEntryService, projectService, clientService } from '../../services';
@@ -152,6 +152,27 @@ export function TimeEntriesList() {
         }
     };
 
+    const handleMarkAsUnbilled = async () => {
+        setSubmitting(true);
+        try {
+            await timeEntryService.markAsUnbilled(Array.from(selectedIds));
+            setSelectedIds(new Set());
+            await loadData();
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    // Check if any selected entries are billed (to show Unbill button)
+    const hasSelectedBilledEntries = useMemo(() => {
+        return filteredEntries.some((e) => selectedIds.has(e.id) && e.isBilled);
+    }, [filteredEntries, selectedIds]);
+
+    // Check if any selected entries are unbilled (to show Mark as Billed button)
+    const hasSelectedUnbilledEntries = useMemo(() => {
+        return filteredEntries.some((e) => selectedIds.has(e.id) && !e.isBilled);
+    }, [filteredEntries, selectedIds]);
+
     const formatDate = (isoString: string) => {
         return new Date(isoString).toLocaleDateString('en-US', {
             weekday: 'short',
@@ -257,14 +278,28 @@ export function TimeEntriesList() {
                         <span className="text-sm text-muted-foreground">
                             {selectedIds.size} selected ({formatDurationShort(selectedTotal)})
                         </span>
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={handleMarkAsBilled}
-                            loading={submitting}
-                        >
-                            Mark as Billed
-                        </Button>
+                        {hasSelectedUnbilledEntries && (
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleMarkAsBilled}
+                                loading={submitting}
+                            >
+                                <CheckCircle className="w-4 h-4" />
+                                Mark as Billed
+                            </Button>
+                        )}
+                        {hasSelectedBilledEntries && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleMarkAsUnbilled}
+                                loading={submitting}
+                            >
+                                <XCircle className="w-4 h-4" />
+                                Unbill
+                            </Button>
+                        )}
                         <Button
                             variant="destructive"
                             size="sm"

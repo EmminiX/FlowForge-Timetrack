@@ -82,7 +82,7 @@ export function Modal({
                 tabIndex={-1}
                 className={clsx(
                     'w-full mx-4 bg-background rounded-xl shadow-xl border border-border',
-                    'animate-in zoom-in-95 fade-in duration-200',
+                    'animate-in fade-in zoom-in-95 duration-200',
                     sizes[size]
                 )}
             >

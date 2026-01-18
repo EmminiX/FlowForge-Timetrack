@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save } from 'lucide-react';
-import type { AppSettings, Theme, FontSize, AnimationPreference, Density } from '../types';
+import type { AppSettings, Theme, FontSize, Density } from '../types';
 import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS } from '../types';
 import { settingsService } from '../services';
 import { useSettings } from '../contexts/SettingsContext';
@@ -34,6 +34,7 @@ export function Settings() {
     if (key === 'theme') applyTheme(value as Theme);
     if (key === 'fontSize') applyFontSize(value as FontSize);
     if (key === 'density') applyDensity(value as Density);
+
   };
 
   const handleSave = async () => {
@@ -230,29 +231,6 @@ export function Settings() {
       {/* Accessibility Tab */}
       {activeTab === 'accessibility' && (
         <div className="space-y-6">
-          <Card>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Animations</label>
-                <div className="flex gap-2">
-                  {(['enabled', 'disabled', 'system'] as AnimationPreference[]).map((pref) => (
-                    <button
-                      key={pref}
-                      onClick={() => updateSetting('animationPreference', pref)}
-                      className={clsx(
-                        'px-4 py-2 rounded-lg border transition-colors capitalize',
-                        settings.animationPreference === pref
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'border-border hover:bg-muted'
-                      )}
-                    >
-                      {pref}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
             <CardContent>
@@ -264,7 +242,7 @@ export function Settings() {
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>Large touch targets (minimum 44pt)</li>
                   <li>Clear labels with icons</li>
-                  <li>Reduced motion option</li>
+                  <li>Smooth, subtle transitions</li>
                   <li>High contrast text</li>
                   <li>Always-visible timer widget</li>
                   <li>Uncluttered, focused interfaces</li>

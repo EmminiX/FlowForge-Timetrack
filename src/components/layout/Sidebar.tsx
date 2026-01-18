@@ -23,7 +23,7 @@ export function Sidebar() {
             end={link.to === '/'}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-base',
+                'flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale',
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground hover:bg-muted-foreground/10'
@@ -42,7 +42,7 @@ export function Sidebar() {
           to="/settings"
           className={({ isActive }) =>
             clsx(
-              'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-base',
+              'flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale',
               isActive
                 ? 'bg-primary text-primary-foreground'
                 : 'text-foreground hover:bg-muted-foreground/10'

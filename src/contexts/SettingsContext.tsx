@@ -1,6 +1,6 @@
 // Settings context and provider for app-wide settings application
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import type { AppSettings, Theme, FontSize, Density } from '../types';
+import type { AppSettings, Theme, FontSize, AnimationPreference, Density } from '../types';
 import { DEFAULT_SETTINGS, FONT_SIZE_SCALE } from '../types';
 import { settingsService } from '../services';
 
@@ -17,6 +17,7 @@ interface SettingsContextType {
     applyTheme: (theme: Theme) => void;
     applyFontSize: (fontSize: FontSize) => void;
     applyDensity: (density: Density) => void;
+    applyAnimations: (preference: AnimationPreference) => void;
     reloadSettings: () => Promise<void>;
 }
 
@@ -62,6 +63,24 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         document.documentElement.dataset.density = density;
     }, []);
 
+    const applyAnimations = useCallback((preference: AnimationPreference) => {
+        const root = document.documentElement;
+        let effective: 'enabled' | 'disabled';
+
+        if (preference === 'enabled') {
+            effective = 'enabled';
+        } else if (preference === 'disabled') {
+            effective = 'disabled';
+        } else {
+            // System
+            effective = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? 'disabled'
+                : 'enabled';
+        }
+
+        root.dataset.animations = effective;
+    }, []);
+
     const loadAndApplySettings = useCallback(async () => {
         try {
             const loaded = await settingsService.load();
@@ -69,31 +88,45 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             applyTheme(loaded.theme);
             applyFontSize(loaded.fontSize);
             applyDensity(loaded.density);
+            applyAnimations(loaded.animationPreference);
         } catch (error) {
             console.error('Failed to load settings:', error);
             // Apply defaults
             applyTheme(DEFAULT_SETTINGS.theme);
             applyFontSize(DEFAULT_SETTINGS.fontSize);
             applyDensity(DEFAULT_SETTINGS.density);
+            applyAnimations(DEFAULT_SETTINGS.animationPreference);
         } finally {
             setLoading(false);
         }
-    }, [applyTheme, applyFontSize, applyDensity]);
+    }, [applyTheme, applyFontSize, applyDensity, applyAnimations]);
 
     // Load settings on mount
     useEffect(() => {
         loadAndApplySettings();
     }, [loadAndApplySettings]);
 
-    // Listen for system theme changes if using 'system' preference
+    // Listen for system theme/animation changes
     useEffect(() => {
-        if (settings.theme !== 'system') return;
+        const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+        const motionMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handler = () => applyTheme('system');
-        mediaQuery.addEventListener('change', handler);
-        return () => mediaQuery.removeEventListener('change', handler);
-    }, [settings.theme, applyTheme]);
+        const handleTheme = () => {
+            if (settings.theme === 'system') applyTheme('system');
+        };
+
+        const handleMotion = () => {
+            if (settings.animationPreference === 'system') applyAnimations('system');
+        };
+
+        themeMedia.addEventListener('change', handleTheme);
+        motionMedia.addEventListener('change', handleMotion);
+
+        return () => {
+            themeMedia.removeEventListener('change', handleTheme);
+            motionMedia.removeEventListener('change', handleMotion);
+        };
+    }, [settings.theme, settings.animationPreference, applyTheme, applyAnimations]);
 
     return (
         <SettingsContext.Provider
@@ -103,6 +136,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 applyTheme,
                 applyFontSize,
                 applyDensity,
+                applyAnimations,
                 reloadSettings: loadAndApplySettings,
             }}
         >
