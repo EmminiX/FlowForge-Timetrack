@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import type { AppSettings, Theme, FontSize, AnimationPreference, Density } from '../types';
 import { DEFAULT_SETTINGS, FONT_SIZE_SCALE } from '../types';
 import { settingsService } from '../services';
+import { toggleWidget } from '../lib/widgetWindow';
 
 // Density scale values (padding, gaps, margins)
 const DENSITY_SCALE: Record<Density, number> = {
@@ -20,6 +21,7 @@ interface SettingsContextType {
     applyFontSize: (fontSize: FontSize) => void;
     applyDensity: (density: Density) => void;
     applyAnimations: (preference: AnimationPreference) => void;
+    updateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => Promise<void>;
     reloadSettings: () => Promise<void>;
 }
 
@@ -91,6 +93,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             applyFontSize(loaded.fontSize);
             applyDensity(loaded.density);
             applyAnimations(loaded.animationPreference);
+
+            // Apply Widget State
+            toggleWidget(loaded.showFloatingWidget).catch(error => {
+                console.warn('Failed to toggle widget on startup:', error);
+            });
+
         } catch (error) {
             console.error('Failed to load settings:', error);
             // Apply defaults
@@ -98,10 +106,21 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             applyFontSize(DEFAULT_SETTINGS.fontSize);
             applyDensity(DEFAULT_SETTINGS.density);
             applyAnimations(DEFAULT_SETTINGS.animationPreference);
+            // Default for widget is 'true' in DEFAULT_SETTINGS? Let's check types/settings.ts if needed, 
+            // but effectively valid loaded settings should have it.
         } finally {
             setLoading(false);
         }
     }, [applyTheme, applyFontSize, applyDensity, applyAnimations]);
+
+    const updateSetting = useCallback(async <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+        try {
+            await settingsService.set(key, value);
+            await loadAndApplySettings();
+        } catch (error) {
+            console.error(`Failed to update setting ${key}:`, error);
+        }
+    }, [loadAndApplySettings]);
 
     // Load settings on mount
     useEffect(() => {
@@ -155,6 +174,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 applyFontSize,
                 applyDensity,
                 applyAnimations,
+                updateSetting,
                 reloadSettings: loadAndApplySettings,
             }}
         >

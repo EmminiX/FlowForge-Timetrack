@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save, Clock } from 'lucide-react';
+import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save, Clock, RotateCcw } from 'lucide-react';
 import type { AppSettings, Theme, FontSize, Density } from '../types';
 import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS } from '../types';
 import { settingsService } from '../services';
@@ -146,28 +146,55 @@ export function Settings() {
               />
 
               {settings.pomodoroEnabled && (
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Work Duration (minutes)</label>
-                    <Input
-                      type="number"
-                      value={settings.pomodoroWorkMinutes || ''}
-                      onChange={(e) => updateSetting('pomodoroWorkMinutes', e.target.value === '' ? 25 : parseInt(e.target.value))}
-                      min={1}
-                      max={120}
-                    />
+                <>
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Work Duration (minutes)</label>
+                      <Input
+                        type="number"
+                        value={settings.pomodoroWorkMinutes || ''}
+                        onChange={(e) => updateSetting('pomodoroWorkMinutes', e.target.value === '' ? 0 : parseInt(e.target.value))}
+                        onBlur={() => {
+                          if (!settings.pomodoroWorkMinutes || settings.pomodoroWorkMinutes < 1) {
+                            updateSetting('pomodoroWorkMinutes', 25);
+                          }
+                        }}
+                        min={1}
+                        max={120}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Break Duration (minutes)</label>
+                      <Input
+                        type="number"
+                        value={settings.pomodoroBreakMinutes || ''}
+                        onChange={(e) => updateSetting('pomodoroBreakMinutes', e.target.value === '' ? 0 : parseInt(e.target.value))}
+                        onBlur={() => {
+                          if (!settings.pomodoroBreakMinutes || settings.pomodoroBreakMinutes < 1) {
+                            updateSetting('pomodoroBreakMinutes', 5);
+                          }
+                        }}
+                        min={1}
+                        max={60}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Break Duration (minutes)</label>
-                    <Input
-                      type="number"
-                      value={settings.pomodoroBreakMinutes || ''}
-                      onChange={(e) => updateSetting('pomodoroBreakMinutes', e.target.value === '' ? 5 : parseInt(e.target.value))}
-                      min={1}
-                      max={60}
-                    />
+
+                  <div className="flex justify-end pt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        updateSetting('pomodoroWorkMinutes', 25);
+                        updateSetting('pomodoroBreakMinutes', 5);
+                      }}
+                      className="gap-2 text-muted-foreground hover:text-foreground"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Reset to Defaults
+                    </Button>
                   </div>
-                </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -400,12 +427,52 @@ export function Settings() {
                 step={0.1}
               />
 
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Input
+                      label="Payment Link 1 Title"
+                      value={settings.paymentLinkTitle || ''}
+                      onChange={(e) => updateSetting('paymentLinkTitle', e.target.value)}
+                      placeholder="e.g. Pay via Stripe"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Input
+                      label="Payment Link 1 URL"
+                      value={settings.paymentLink || ''}
+                      onChange={(e) => updateSetting('paymentLink', e.target.value)}
+                      placeholder="https://paypal.me/yourbusiness"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Input
+                      label="Payment Link 2 Title"
+                      value={settings.paymentLink2Title || ''}
+                      onChange={(e) => updateSetting('paymentLink2Title', e.target.value)}
+                      placeholder="e.g. Pay via Venmo"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Input
+                      label="Payment Link 2 URL"
+                      value={settings.paymentLink2 || ''}
+                      onChange={(e) => updateSetting('paymentLink2', e.target.value)}
+                      placeholder="https://venmo.com/yourbusiness"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <Textarea
                 label="Payment Terms"
                 value={settings.paymentTerms}
                 onChange={(e) => updateSetting('paymentTerms', e.target.value)}
-                placeholder="Payment is due within 30 days of invoice date."
-                rows={2}
+                placeholder="Payment is due within 30 days of invoice date.&#10;&#10;Bank Transfer Details:&#10;IBAN: ...&#10;BIC: ..."
+                rows={6}
               />
             </CardContent>
           </Card>

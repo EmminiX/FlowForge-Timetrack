@@ -1,13 +1,16 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Component, ErrorInfo, ReactNode } from 'react';
 import { Plus, Search, Pencil, Trash2, Briefcase } from 'lucide-react';
 import type { ProjectWithStats, CreateProjectInput, UpdateProjectInput, ProjectStatus } from '../../types';
 import { PROJECT_STATUS_OPTIONS } from '../../types';
 import { projectService } from '../../services';
 import { Button, Card, EmptyState, ConfirmDialog, StatusBadge, Select } from '../../components/ui';
+import { ErrorBoundary } from '../../components/ui/ErrorBoundary';
 import { ProjectForm } from './ProjectForm';
+import { ClientGroup } from './ClientGroup';
 
-export function ProjectsList() {
+function ProjectsListContent() {
     const [projects, setProjects] = useState<ProjectWithStats[]>([]);
+    // ... rest of component same as before ... 
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('');
@@ -58,6 +61,30 @@ export function ProjectsList() {
         return result;
     }, [projects, searchQuery, statusFilter]);
 
+    // Group projects by client
+    const groupedProjects = useMemo(() => {
+        const groups: Record<string, {
+            clientName: string;
+            projects: ProjectWithStats[];
+        }> = {};
+
+        filteredProjects.forEach(project => {
+            const clientId = project.clientId || 'no-client';
+            const clientName = project.clientName || 'No Client';
+
+            if (!groups[clientId]) {
+                groups[clientId] = {
+                    clientName,
+                    projects: []
+                };
+            }
+
+            groups[clientId].projects.push(project);
+        });
+
+        return groups;
+    }, [filteredProjects]);
+
     // Handlers
     const handleCreate = async (data: CreateProjectInput) => {
         setSubmitting(true);
@@ -91,6 +118,21 @@ export function ProjectsList() {
         }
     };
 
+    const handleStatusChange = async (projectId: string, newStatus: ProjectStatus) => {
+        try {
+            await projectService.update(projectId, { status: newStatus });
+            // Optimistically update the list or reload
+            setProjects(prev => prev.map(p =>
+                p.id === projectId ? { ...p, status: newStatus } : p
+            ));
+        } catch (err) {
+            console.error('Failed to update project status:', err);
+            // Revert or show error
+            setError('Failed to update status');
+            loadProjects(); // Reload to ensure consistent state
+        }
+    };
+
     const handleDelete = async () => {
         if (!deletingProject) return;
         setSubmitting(true);
@@ -106,11 +148,6 @@ export function ProjectsList() {
         }
     };
 
-    const formatHours = (hours: number) => {
-        if (hours < 1) return `${Math.round(hours * 60)}m`;
-        return `${hours.toFixed(1)}h`;
-    };
-
     const statusOptions = [
         { value: '', label: 'All Statuses' },
         ...PROJECT_STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.label })),
@@ -123,6 +160,10 @@ export function ProjectsList() {
             </div>
         );
     }
+
+
+
+
 
     return (
         <div className="space-y-6">
@@ -191,55 +232,16 @@ export function ProjectsList() {
                     description="Try adjusting your search or filters."
                 />
             ) : (
-                <div className="space-y-3">
-                    {filteredProjects.map((project) => (
-                        <Card key={project.id} className="flex items-center gap-4 p-4">
-                            {/* Color indicator */}
-                            <div
-                                className="w-3 h-12 rounded-full flex-shrink-0"
-                                style={{ backgroundColor: project.color }}
-                            />
-
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <h3 className="font-medium text-foreground truncate">{project.name}</h3>
-                                    <StatusBadge status={project.status} />
-                                </div>
-                                {project.clientName && (
-                                    <p className="text-sm text-muted-foreground truncate">
-                                        {project.clientName}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="flex items-center gap-6 ml-4">
-                                <div className="text-right">
-                                    <p className="text-sm font-medium text-foreground">
-                                        {formatHours(project.totalHours)}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">tracked</p>
-                                </div>
-
-                                <div className="flex items-center gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setEditingProject(project)}
-                                        aria-label="Edit project"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setDeletingProject(project)}
-                                        aria-label="Delete project"
-                                    >
-                                        <Trash2 className="w-4 h-4 text-destructive" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </Card>
+                <div className="space-y-4">
+                    {Object.entries(groupedProjects).map(([clientId, group]) => (
+                        <ClientGroup
+                            key={clientId}
+                            clientName={group.clientName}
+                            projects={group.projects}
+                            onStatusChange={handleStatusChange}
+                            onEdit={setEditingProject}
+                            onDelete={setDeletingProject}
+                        />
                     ))}
                 </div>
             )}
@@ -274,5 +276,13 @@ export function ProjectsList() {
                 loading={submitting}
             />
         </div>
+    );
+}
+
+export function ProjectsList() {
+    return (
+        <ErrorBoundary name="ProjectsList">
+            <ProjectsListContent />
+        </ErrorBoundary>
     );
 }

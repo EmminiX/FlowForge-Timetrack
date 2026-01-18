@@ -2,11 +2,12 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Play, Pause, Square, Coffee } from 'lucide-react';
 import { emit } from '@tauri-apps/api/event';
 import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';
-import { projectService, timeEntryService, settingsService } from '../../services';
-import type { Project, AppSettings } from '../../types';
+import { projectService, timeEntryService } from '../../services';
+import type { Project } from '../../types';
 import { formatDuration } from '../../types';
 import { Button, Select, Card } from '../../components/ui';
 import { playBreakSound, playWorkResumeSound } from '../../lib/sounds';
+import { useSettings } from '../../contexts/SettingsContext';
 import clsx from 'clsx';
 
 export function TimerView() {
@@ -22,23 +23,18 @@ export function TimerView() {
         getElapsedSeconds,
     } = useTimerWithEffects();
 
+    const { settings } = useSettings();
     const [projects, setProjects] = useState<Project[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<string>('');
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [saving, setSaving] = useState(false);
 
     // Pomodoro state
-    const [settings, setSettings] = useState<AppSettings | null>(null);
     const [breakNotified, setBreakNotified] = useState(false);
     const [showBreakReminder, setShowBreakReminder] = useState(false);
     const [isOnBreak, setIsOnBreak] = useState(false);
     const [breakSecondsRemaining, setBreakSecondsRemaining] = useState(0);
     const [lastBreakTime, setLastBreakTime] = useState(0);
-
-    // Load settings
-    useEffect(() => {
-        settingsService.load().then(setSettings).catch(console.error);
-    }, []);
 
     // Load active projects
     useEffect(() => {

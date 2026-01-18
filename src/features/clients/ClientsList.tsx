@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Pencil, Trash2, Users } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Users, StickyNote } from 'lucide-react';
 import type { ClientWithStats, CreateClientInput, UpdateClientInput } from '../../types';
 import { clientService } from '../../services';
 import { Button, Card, EmptyState, ConfirmDialog } from '../../components/ui';
@@ -10,6 +10,7 @@ export function ClientsList() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
 
     // Modal states
     const [showForm, setShowForm] = useState(false);
@@ -109,6 +110,16 @@ export function ClientsList() {
         return `${hours.toFixed(1)}h`;
     };
 
+    const toggleNotes = (clientId: string) => {
+        const newExpanded = new Set(expandedNotes);
+        if (newExpanded.has(clientId)) {
+            newExpanded.delete(clientId);
+        } else {
+            newExpanded.add(clientId);
+        }
+        setExpandedNotes(newExpanded);
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -177,55 +188,79 @@ export function ClientsList() {
             ) : (
                 <div className="space-y-3">
                     {filteredClients.map((client) => (
-                        <Card key={client.id} className="flex items-center justify-between p-4">
-                            <div className="flex-1 min-w-0">
-                                <h3 className="font-medium text-foreground truncate">{client.name}</h3>
-                                {client.email && (
-                                    <p className="text-sm text-muted-foreground truncate">{client.email}</p>
-                                )}
-                            </div>
-
-                            <div className="flex items-center gap-6 ml-4">
-                                {/* Stats */}
-                                <div className="text-right">
-                                    <p className="text-sm font-medium text-foreground">
-                                        {formatHours(client.totalHours)}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">tracked</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium text-foreground">
-                                        {formatCurrency(client.totalBillable)}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">billable</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium text-foreground">
-                                        {client.projectCount}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">projects</p>
+                        <Card key={client.id} className="flex flex-col p-4 transition-all">
+                            <div className="flex items-center justify-between">
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-medium text-foreground truncate">{client.name}</h3>
+                                    {client.email && (
+                                        <p className="text-sm text-muted-foreground truncate">{client.email}</p>
+                                    )}
                                 </div>
 
-                                {/* Actions */}
-                                <div className="flex items-center gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setEditingClient(client)}
-                                        aria-label="Edit client"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setDeletingClient(client)}
-                                        aria-label="Delete client"
-                                    >
-                                        <Trash2 className="w-4 h-4 text-destructive" />
-                                    </Button>
+                                <div className="flex items-center gap-6 ml-4">
+                                    {/* Stats */}
+                                    <div className="text-right">
+                                        <p className="text-sm font-medium text-foreground">
+                                            {formatHours(client.totalHours)}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">tracked</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-medium text-foreground">
+                                            {formatCurrency(client.totalBillable)}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">billable</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-medium text-foreground">
+                                            {client.projectCount}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">projects</p>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex items-center gap-1">
+                                        {client.notes && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => toggleNotes(client.id)}
+                                                className={expandedNotes.has(client.id) ? 'bg-muted text-primary' : 'text-muted-foreground'}
+                                                aria-label="View notes"
+                                                title="View notes"
+                                            >
+                                                <StickyNote className="w-4 h-4" />
+                                            </Button>
+                                        )}
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setEditingClient(client)}
+                                            aria-label="Edit client"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setDeletingClient(client)}
+                                            aria-label="Delete client"
+                                        >
+                                            <Trash2 className="w-4 h-4 text-destructive" />
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Notes Section */}
+                            {expandedNotes.has(client.id) && client.notes && (
+                                <div className="mt-4 pt-3 border-t border-border animate-in slide-in-from-top-2 fade-in duration-200">
+                                    <div className="flex gap-2 text-sm text-muted-foreground">
+                                        <StickyNote className="w-4 h-4 shrink-0 mt-0.5" />
+                                        <p className="whitespace-pre-wrap">{client.notes}</p>
+                                    </div>
+                                </div>
+                            )}
                         </Card>
                     ))}
                 </div>

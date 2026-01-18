@@ -1,8 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { Timer, Users, Briefcase, Clock, FileText, Settings } from 'lucide-react';
+import { Timer, Users, Briefcase, Clock, FileText, Settings, Volume2, VolumeX } from 'lucide-react';
 import clsx from 'clsx';
+import { useSettings } from '../../contexts/SettingsContext';
+
+import { Switch } from '../ui';
 
 export function Sidebar() {
+  const { settings, updateSetting } = useSettings();
   const mainLinks = [
     { to: '/', label: 'Timer', icon: Timer },
     { to: '/clients', label: 'Clients', icon: Users },
@@ -36,8 +40,22 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Settings at bottom */}
-      <div className="pt-4 border-t border-border">
+      {/* Bottom Actions */}
+      <div className="pt-4 border-t border-border space-y-1">
+        <div className="flex items-center justify-between px-4 py-3 rounded-lg text-foreground hover:bg-muted-foreground/10 transition-colors">
+          <div className="flex items-center gap-3">
+            {settings.enableSoundFeedback ? (
+              <Volume2 className="w-5 h-5" />
+            ) : (
+              <VolumeX className="w-5 h-5 text-muted-foreground" />
+            )}
+            <span className={clsx(!settings.enableSoundFeedback && 'text-muted-foreground')}>Sound</span>
+          </div>
+          <Switch
+            checked={settings.enableSoundFeedback}
+            onCheckedChange={(checked) => updateSetting('enableSoundFeedback', checked)}
+          />
+        </div>
         <NavLink
           to="/settings"
           className={({ isActive }) =>

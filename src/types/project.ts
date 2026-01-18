@@ -32,9 +32,9 @@ export const DEFAULT_PROJECT_COLORS = [
   '#007AFF', // Blue
   '#34C759', // Green
   '#FF9500', // Orange
-  '#FF3B30', // Red
+  '#FFCC00', // Yellow
   '#AF52DE', // Purple
-  '#FF2D55', // Pink
+  '#8E8E93', // Gray
   '#5856D6', // Indigo
   '#00C7BE', // Teal
 ];

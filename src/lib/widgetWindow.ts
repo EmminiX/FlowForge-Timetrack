@@ -13,8 +13,11 @@ export async function showWidget(): Promise<void> {
         const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
         const widget = await WebviewWindow.getByLabel('widget');
         if (widget) {
-            await widget.show();
-            await widget.setFocus();
+            const isVisible = await widget.isVisible();
+            if (!isVisible) {
+                await widget.show();
+                await widget.setFocus();
+            }
         }
     } catch (error) {
         console.warn('Failed to show widget:', error);

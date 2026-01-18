@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, FileText, Eye, Download, Trash2 } from 'lucide-react';
+import { Plus, Search, FileText, Eye, Download, Trash2, Pencil } from 'lucide-react';
 import type { InvoiceWithDetails, Client, AppSettings } from '../../types';
 import { INVOICE_STATUS_OPTIONS, generateInvoiceNumber, calculateInvoiceTotals } from '../../types';
 import { invoiceService, clientService, projectService, timeEntryService, settingsService } from '../../services';
@@ -15,6 +15,7 @@ export function InvoicesList() {
     // Modal states
     const [showCreate, setShowCreate] = useState(false);
     const [viewingInvoice, setViewingInvoice] = useState<InvoiceWithDetails | null>(null);
+    const [editingInvoice, setEditingInvoice] = useState<InvoiceWithDetails | null>(null);
     const [deletingInvoice, setDeletingInvoice] = useState<InvoiceWithDetails | null>(null);
     const [submitting, setSubmitting] = useState(false);
 
@@ -153,6 +154,14 @@ export function InvoicesList() {
                                 <Button
                                     variant="ghost"
                                     size="sm"
+                                    onClick={() => setEditingInvoice(invoice)}
+                                    aria-label="Edit invoice"
+                                >
+                                    <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() => setViewingInvoice(invoice)}
                                     aria-label="View invoice"
                                 >
@@ -180,6 +189,17 @@ export function InvoicesList() {
                 onCreated={loadData}
             />
 
+            {/* Edit Invoice Modal */}
+            {editingInvoice && (
+                <CreateInvoiceModal
+                    isOpen={true}
+                    onClose={() => setEditingInvoice(null)}
+                    clients={clients}
+                    onCreated={loadData}
+                    initialData={editingInvoice}
+                />
+            )}
+
             {/* Invoice Preview */}
             {viewingInvoice && (
                 <InvoicePreview
@@ -203,45 +223,68 @@ export function InvoicesList() {
     );
 }
 
-// Create Invoice Modal Component
+// Create/Edit Invoice Modal Component
 interface CreateInvoiceModalProps {
     isOpen: boolean;
     onClose: () => void;
     clients: Client[];
     onCreated: () => void;
+    initialData?: InvoiceWithDetails | null;
 }
 
-function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoiceModalProps) {
+function CreateInvoiceModal({ isOpen, onClose, clients, onCreated, initialData }: CreateInvoiceModalProps) {
     const [step, setStep] = useState(1);
     const [clientId, setClientId] = useState('');
-    const [lineItems, setLineItems] = useState<{ description: string; quantity: number; unitPrice: number }[]>([]);
+    const [lineItems, setLineItems] = useState<{ description: string; quantity: number; unitPrice: number; timeEntryIds?: string[] }[]>([]);
     const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
     const [dueDate, setDueDate] = useState('');
     const [notes, setNotes] = useState('');
     const [taxRate, setTaxRate] = useState(0);
     const [saving, setSaving] = useState(false);
 
-    // Reset form when opened
+    // Reset form when opened and load settings or initial data
     useEffect(() => {
         if (isOpen) {
             setStep(1);
-            setClientId('');
-            setLineItems([]);
-            setIssueDate(new Date().toISOString().split('T')[0]);
-            setDueDate('');
-            setNotes('');
-            setTaxRate(0);
-        }
-    }, [isOpen]);
 
-    // Set default due date when issue date changes
-    useEffect(() => {
-        if (issueDate) {
-            const due = new Date(issueDate);
-            due.setDate(due.getDate() + 30);
-            setDueDate(due.toISOString().split('T')[0]);
+            if (initialData) {
+                // Editing mode
+                setClientId(initialData.clientId);
+                setLineItems(initialData.lineItems.map(item => ({
+                    description: item.description,
+                    quantity: item.quantity,
+                    unitPrice: item.unitPrice
+                })));
+                setIssueDate(initialData.issueDate);
+                setDueDate(initialData.dueDate);
+                setNotes(initialData.notes || '');
+                setTaxRate(initialData.taxRate * 100);
+            } else {
+                // Creation mode
+                setClientId('');
+                setLineItems([]);
+
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                const due = new Date(today);
+                due.setDate(due.getDate() + 30);
+                const dueStr = due.toISOString().split('T')[0];
+
+                setIssueDate(todayStr);
+                setDueDate(dueStr);
+                setNotes('');
+
+                // Load default options from settings
+                settingsService.load().then(settings => {
+                    if (settings.defaultTaxRate !== undefined) {
+                        setTaxRate(settings.defaultTaxRate * 100);
+                    } else {
+                        setTaxRate(0);
+                    }
+                }).catch(console.error);
+            }
         }
-    }, [issueDate]);
+    }, [isOpen, initialData]);
 
     const handleLoadHours = async () => {
         if (!clientId) return;
@@ -250,22 +293,18 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
 
         // Get projects for this client
         const projects = await projectService.getByClientId(clientId);
-        invoiceLogger.debug('Found projects for client', { clientId, projectCount: projects.length, projects: projects.map(p => ({ id: p.id, name: p.name })) });
-
         const client = clients.find((c) => c.id === clientId);
         const hourlyRate = client?.hourlyRate || 0;
-        invoiceLogger.debug('Client hourly rate', { hourlyRate });
 
         const items: typeof lineItems = [];
 
         for (const project of projects) {
-            invoiceLogger.debug('Fetching unbilled entries for project', { projectId: project.id, projectName: project.name });
             const unbilled = await timeEntryService.getUnbilledByProject(project.id);
-            invoiceLogger.debug('Unbilled entries found', { projectId: project.id, count: unbilled.length });
-
             if (unbilled.length === 0) continue;
 
-            // Calculate total hours for this project
+            const entryIds: string[] = [];
+            unbilled.forEach(e => entryIds.push(e.id));
+
             const totalSeconds = unbilled.reduce((sum, entry) => {
                 if (!entry.endTime) return sum;
                 const duration = (new Date(entry.endTime).getTime() - new Date(entry.startTime).getTime()) / 1000 - entry.pauseDuration;
@@ -273,23 +312,25 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
             }, 0);
 
             const hours = totalSeconds / 3600;
-            invoiceLogger.debug('Total hours calculated', { projectId: project.id, hours });
 
             if (hours > 0) {
                 items.push({
                     description: `${project.name} - ${hours.toFixed(2)} hours`,
                     quantity: parseFloat(hours.toFixed(2)),
                     unitPrice: hourlyRate,
+                    timeEntryIds: entryIds,
                 });
             }
         }
 
-        invoiceLogger.info('handleLoadHours completed', { itemCount: items.length, items });
-
         if (items.length > 0) {
-            setLineItems(items);
-        } else {
-            // Add empty line item
+            // Append to existing items if editing, or replace if empty
+            if (lineItems.length > 0 && (lineItems.length > 1 || lineItems[0].description !== '')) {
+                setLineItems([...lineItems, ...items]);
+            } else {
+                setLineItems(items);
+            }
+        } else if (lineItems.length === 0) {
             setLineItems([{ description: '', quantity: 1, unitPrice: 0 }]);
         }
     };
@@ -313,31 +354,66 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
         taxRate / 100
     ), [lineItems, taxRate]);
 
-    const handleCreate = async () => {
+    const handleSubmit = async () => {
         setSaving(true);
         try {
-            // Get all invoices to generate number
-            const allInvoices = await invoiceService.getAllForNumbering();
-            const invoiceNumber = generateInvoiceNumber(allInvoices);
+            // Prepare line items for saving (strip timeEntryIds)
+            const lineItemsToSave = lineItems.map(({ timeEntryIds, ...item }) => item);
 
-            await invoiceService.create(
-                {
-                    clientId,
-                    invoiceNumber,
+            // Collect IDs to mark as billed from the remaining line items
+            const idsToMarkBilled = lineItems.reduce<string[]>((acc, item) => {
+                if (item.timeEntryIds) {
+                    return [...acc, ...item.timeEntryIds];
+                }
+                return acc;
+            }, []);
+
+            if (initialData) {
+                // Update
+                await invoiceService.update(initialData.id, {
+                    invoiceNumber: initialData.invoiceNumber, // Keep existing number
                     issueDate,
                     dueDate,
-                    status: 'draft',
+                    status: initialData.status, // Keep existing status or allow change? Usually keep for edits unless explicit.
                     notes,
                     taxRate: taxRate / 100,
-                },
-                lineItems.map((item) => ({
-                    invoiceId: '',
+                });
+
+                await invoiceService.replaceLineItems(initialData.id, lineItemsToSave.map(item => ({
                     ...item,
-                }))
-            );
+                    invoiceId: initialData.id
+                })));
+            } else {
+                // Create
+                const allInvoices = await invoiceService.getAllForNumbering();
+                const invoiceNumber = generateInvoiceNumber(allInvoices);
+
+                await invoiceService.create(
+                    {
+                        clientId,
+                        invoiceNumber,
+                        issueDate,
+                        dueDate,
+                        status: 'draft',
+                        notes,
+                        taxRate: taxRate / 100,
+                    },
+                    lineItemsToSave.map((item) => ({
+                        invoiceId: '',
+                        ...item,
+                    }))
+                );
+            }
+
+            // Mark entries as billed if any were linked to the submitted line items
+            if (idsToMarkBilled.length > 0) {
+                await timeEntryService.markAsBilled(idsToMarkBilled);
+            }
 
             onCreated();
             onClose();
+        } catch (err) {
+            console.error('Failed to save invoice:', err);
         } finally {
             setSaving(false);
         }
@@ -346,7 +422,7 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
     const clientOptions = clients.map((c) => ({ value: c.id, label: c.name }));
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Create Invoice" size="xl">
+        <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Invoice" : "Create Invoice"} size="xl">
             {step === 1 && (
                 <div className="space-y-4">
                     <Select
@@ -355,15 +431,19 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
                         onChange={(e) => setClientId(e.target.value)}
                         options={clientOptions}
                         placeholder="Select a client..."
+                        disabled={!!initialData} // Lock client on edit
                     />
 
                     <ModalFooter>
                         <Button variant="outline" onClick={onClose}>Cancel</Button>
                         <Button
-                            onClick={() => { handleLoadHours(); setStep(2); }}
+                            onClick={() => {
+                                if (!initialData) handleLoadHours(); // Only auto-load on create
+                                setStep(2);
+                            }}
                             disabled={!clientId}
                         >
-                            Next: Add Line Items
+                            Next: Line Items
                         </Button>
                     </ModalFooter>
                 </div>
@@ -412,6 +492,11 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
                         <Button variant="outline" size="sm" onClick={handleAddLineItem}>
                             + Add Line
                         </Button>
+                        {!initialData && (
+                            <Button variant="ghost" size="sm" onClick={handleLoadHours} className="ml-2">
+                                Reload Hours
+                            </Button>
+                        )}
                     </div>
 
                     <ModalFooter>
@@ -475,8 +560,8 @@ function CreateInvoiceModal({ isOpen, onClose, clients, onCreated }: CreateInvoi
 
                     <ModalFooter>
                         <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
-                        <Button onClick={handleCreate} loading={saving}>
-                            Create Invoice
+                        <Button onClick={handleSubmit} loading={saving}>
+                            {initialData ? "Save Changes" : "Create Invoice"}
                         </Button>
                     </ModalFooter>
                 </div>
@@ -691,6 +776,32 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
                 doc.setFontSize(9);
                 const termLines = doc.splitTextToSize(settings.paymentTerms, pageWidth - 30);
                 doc.text(termLines, 15, y);
+                y += termLines.length * 4 + 5;
+            }
+
+            // Payment Links
+            const drawLink = (label: string, url: string) => {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0); // Black for title
+                doc.text(label, 15, y);
+                y += 6;
+
+                // Show full URL in small text, blue and clickable
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.setTextColor(0, 0, 238); // Blue for link
+                doc.textWithLink(url, 15, y, { url });
+                doc.setTextColor(0, 0, 0); // Reset
+                y += 8;
+            };
+
+            if (settings?.paymentLink) {
+                drawLink(settings.paymentLinkTitle || 'Payment Link 1', settings.paymentLink);
+            }
+
+            if (settings?.paymentLink2) {
+                drawLink(settings.paymentLink2Title || 'Payment Link 2', settings.paymentLink2);
             }
 
             // Get PDF as bytes
@@ -852,6 +963,34 @@ function InvoicePreview({ invoice, onClose }: InvoicePreviewProps) {
                     <div className="pt-4 border-t border-border">
                         <p className="font-medium">Payment Terms:</p>
                         <p className="text-muted-foreground whitespace-pre-line">{settings.paymentTerms}</p>
+                    </div>
+                )}
+
+                {settings?.paymentLink && (
+                    <div className="pt-4 border-t border-border">
+                        <p className="font-medium">Payment Link 1:</p>
+                        <a
+                            href={settings.paymentLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline break-all block"
+                        >
+                            {settings.paymentLink}
+                        </a>
+                    </div>
+                )}
+
+                {settings?.paymentLink2 && (
+                    <div className="pt-2">
+                        <p className="font-medium">Payment Link 2:</p>
+                        <a
+                            href={settings.paymentLink2}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline break-all block"
+                        >
+                            {settings.paymentLink2}
+                        </a>
                     </div>
                 )}
             </div>

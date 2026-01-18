@@ -33,6 +33,10 @@ export interface AppSettings {
     businessLogo: string | null; // base64 or file path
     defaultTaxRate: number;
     paymentTerms: string;
+    paymentLink: string;
+    paymentLinkTitle: string;
+    paymentLink2: string;
+    paymentLink2Title: string;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -54,6 +58,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
     businessLogo: null,
     defaultTaxRate: 0,
     paymentTerms: 'Payment is due within 30 days of invoice date.',
+    paymentLink: '',
+    paymentLinkTitle: 'Payment Link 1',
+    paymentLink2: '',
+    paymentLink2Title: 'Payment Link 2',
 };
 
 export const FONT_SIZE_SCALE: Record<FontSize, number> = {

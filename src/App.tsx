@@ -10,7 +10,20 @@ import { Settings } from './pages/Settings';
 import { Widget } from './pages/Widget';
 import { SettingsProvider } from './contexts/SettingsContext';
 
+import { useEffect } from 'react';
+import { useTimerStore } from './stores/timerStore';
+
 function App() {
+  // Reset timer on fresh app launch
+  useEffect(() => {
+    const isReload = sessionStorage.getItem('app_initialized');
+    if (!isReload) {
+      // Fresh launch - reset timer
+      useTimerStore.getState().reset();
+      sessionStorage.setItem('app_initialized', 'true');
+    }
+  }, []);
+
   return (
     <SettingsProvider>
       <BrowserRouter>
