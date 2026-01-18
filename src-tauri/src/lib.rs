@@ -1,3 +1,4 @@
+use tauri::Manager;
 use tauri_plugin_sql::{Migration, MigrationKind};
 use user_idle::UserIdle;
 
@@ -119,6 +120,19 @@ pub fn run() {
 
     builder
         .invoke_handler(tauri::generate_handler![greet, get_idle_time])
+        .on_window_event(|window, event| {
+            // When main window is closed, close widget and exit app
+            if let tauri::WindowEvent::CloseRequested { .. } = event {
+                if window.label() == "main" {
+                    // Close the widget window if it exists
+                    if let Some(widget_window) = window.app_handle().get_webview_window("widget") {
+                        let _ = widget_window.destroy();
+                    }
+                    // Exit the application
+                    std::process::exit(0);
+                }
+            }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
