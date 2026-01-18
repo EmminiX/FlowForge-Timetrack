@@ -20,7 +20,7 @@ This phase focuses on updating all user-facing text elements within the applicat
     - [ ] Refactor: Ensure date/layout remains correct with the longer name.
     - [ ] Verify coverage.
 
-- [ ] Task: General UI Text Sweep
+- [x] Task: General UI Text Sweep 742ca9e
     - [ ] Scan `src/pages/` and `src/features/` for any other hardcoded "FlowForge" strings.
     - [ ] Implement: Update any found instances (e.g., Welcome messages, Settings headers).
 
