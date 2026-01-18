@@ -160,8 +160,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         return () => {
             themeMedia.removeEventListener('change', handleTheme);
             motionMedia.removeEventListener('change', handleMotion);
-            unlistenSync.then(f => f());
-            unlistenPreview.then(f => f());
+            unlistenSync.then(f => f()).catch(() => { /* Already unlistened */ });
+            unlistenPreview.then(f => f()).catch(() => { /* Already unlistened */ });
         };
     }, [settings.theme, settings.animationPreference, applyTheme, applyAnimations, loadAndApplySettings, applyDensity, applyFontSize]);
 

@@ -35,7 +35,7 @@ export function DashboardSummary() {
 
         return () => {
             clearInterval(interval);
-            unlisten.then(f => f());
+            unlisten.then(f => f()).catch(() => { /* Already unlistened */ });
         };
     }, []);
 

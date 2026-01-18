@@ -53,9 +53,9 @@ export function Widget() {
         emit('timer-request-sync');
 
         return () => {
-            unlisten.then(f => f());
-            unlistenBreak.then(f => f());
-            unlistenIdle.then(f => f());
+            unlisten.then(f => f()).catch(() => { /* Already unlistened */ });
+            unlistenBreak.then(f => f()).catch(() => { /* Already unlistened */ });
+            unlistenIdle.then(f => f()).catch(() => { /* Already unlistened */ });
             // Optional: reset background on unmount if needed, but for a dedicated window it's fine
         };
     }, []);

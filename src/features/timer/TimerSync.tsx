@@ -79,8 +79,8 @@ export function TimerSync() {
         });
 
         return () => {
-            unlistenCommand.then(f => f());
-            unlistenRequest.then(f => f());
+            unlistenCommand.then(f => f()).catch(() => { /* Already unlistened */ });
+            unlistenRequest.then(f => f()).catch(() => { /* Already unlistened */ });
         };
     }, [state, projectId, projectName, projectColor, getElapsedSeconds, pause, resume, stop]);
 

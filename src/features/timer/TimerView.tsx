@@ -111,7 +111,7 @@ export function TimerView() {
             setIsIdlePaused(event.payload.active);
         });
         return () => {
-            unlisten.then(f => f());
+            unlisten.then(f => f()).catch(() => { /* Already unlistened */ });
         };
     }, []);
 
