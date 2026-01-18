@@ -14,7 +14,7 @@ This phase focuses on updating all user-facing text elements within the applicat
     - [ ] Refactor: Ensure text is consistent with styling.
     - [ ] Verify coverage.
 
-- [ ] Task: Update Invoice PDF Generation
+- [x] Task: Update Invoice PDF Generation c9e4eea
     - [ ] Write failing tests: Update `invoiceService` tests to check for "FlowForge-Track" in the generated PDF data/footer.
     - [ ] Implement: Update the brand name string in `src/services/invoiceService.ts`.
     - [ ] Refactor: Ensure date/layout remains correct with the longer name.
