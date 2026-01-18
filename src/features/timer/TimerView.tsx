@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Play, Pause, Square, Coffee, AlertTriangle } from 'lucide-react';
 import { emit, listen } from '@tauri-apps/api/event';
 import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';

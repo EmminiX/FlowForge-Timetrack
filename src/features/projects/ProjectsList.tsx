@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo, Component, ErrorInfo, ReactNode } from 'react';
-import { Plus, Search, Pencil, Trash2, Briefcase } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, Search, Briefcase } from 'lucide-react';
 import type { ProjectWithStats, CreateProjectInput, UpdateProjectInput, ProjectStatus } from '../../types';
 import { PROJECT_STATUS_OPTIONS } from '../../types';
 import { projectService } from '../../services';
-import { Button, Card, EmptyState, ConfirmDialog, StatusBadge, Select } from '../../components/ui';
+import { Button, EmptyState, ConfirmDialog, Select } from '../../components/ui';
 import { ErrorBoundary } from '../../components/ui/ErrorBoundary';
 import { ProjectForm } from './ProjectForm';
 import { ClientGroup } from './ClientGroup';

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Trash2, Clock, Calendar, ChevronDown, ChevronUp, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Trash2, Clock, Calendar, CheckCircle, XCircle } from 'lucide-react';
 import type { TimeEntryWithProject } from '../../types';
 import { formatDurationShort, calculateDuration } from '../../types';
 import { timeEntryService, projectService, clientService } from '../../services';
@@ -138,22 +138,8 @@ export function TimeEntriesList() {
         { value: 'unbilled', label: 'Not Billed' },
     ];
 
-    const handleSelectAll = (entriesGroup: TimeEntryWithProject[]) => {
-        const allIds = entriesGroup.map((e) => e.id);
-        const allSelected = allIds.every((id) => selectedIds.has(id));
-
-        if (allSelected) {
-            // Deselect all in this group
-            const newSelected = new Set(selectedIds);
-            allIds.forEach((id) => newSelected.delete(id));
-            setSelectedIds(newSelected);
-        } else {
-            // Select all in this group
-            const newSelected = new Set(selectedIds);
-            allIds.forEach((id) => newSelected.add(id));
-            setSelectedIds(newSelected);
-        }
-    };
+    // handleSelectAll is available if needed for future use
+    // Currently using handleSelectMultiple for project-level selection
 
     const handleSelect = (id: string, selected: boolean) => {
         const newSelected = new Set(selectedIds);

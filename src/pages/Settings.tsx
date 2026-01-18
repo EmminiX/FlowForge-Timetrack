@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, BellOff, Palette, LayoutGrid, Building2, Save, Clock, RotateCcw, BookOpen, ChevronDown, ChevronUp, Timer, Users, Briefcase, FileText, Package, Zap, Coffee, Keyboard, BarChart3, PauseCircle } from 'lucide-react';
+import { Moon, Sun, Monitor, Volume2, VolumeX, Bell, Palette, LayoutGrid, Building2, Clock, RotateCcw, BookOpen, ChevronDown, ChevronUp, Timer, Users, Briefcase, FileText, Package, Zap, Coffee, Keyboard, BarChart3, PauseCircle } from 'lucide-react';
 import type { AppSettings, Theme, FontSize, Density } from '../types';
 import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS } from '../types';
-import { settingsService } from '../services';
+// settingsService is accessed through useSettings context
 import { useSettings } from '../contexts/SettingsContext';
 import { toggleWidget } from '../lib/widgetWindow';
 import { Button, Input, Textarea, Card, CardTitle, CardContent, CardDescription } from '../components/ui';

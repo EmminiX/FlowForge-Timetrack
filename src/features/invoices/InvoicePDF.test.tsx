@@ -1,5 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 // We need to mock the component or the function that generates PDF. 
 // Since the PDF generation is inside the component InvoicesList, it's hard to isolate without exporting the function.
 // However, the task is to update the code.
