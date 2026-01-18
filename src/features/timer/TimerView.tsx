@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Play, Pause, Square, Coffee } from 'lucide-react';
-import { emit } from '@tauri-apps/api/event';
+import { Play, Pause, Square, Coffee, AlertTriangle } from 'lucide-react';
+import { emit, listen } from '@tauri-apps/api/event';
 import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';
 import { projectService, timeEntryService } from '../../services';
 import type { Project } from '../../types';
@@ -35,6 +35,9 @@ export function TimerView() {
     const [isOnBreak, setIsOnBreak] = useState(false);
     const [breakSecondsRemaining, setBreakSecondsRemaining] = useState(0);
     const [lastBreakTime, setLastBreakTime] = useState(0);
+
+    // Idle state
+    const [isIdlePaused, setIsIdlePaused] = useState(false);
 
     // Load active projects
     useEffect(() => {
@@ -101,6 +104,16 @@ export function TimerView() {
     useEffect(() => {
         emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch(console.error);
     }, [showBreakReminder, isOnBreak]);
+
+    // Listen for idle toggle events
+    useEffect(() => {
+        const unlisten = listen<{ active: boolean }>('timer-idle-toggle', (event) => {
+            setIsIdlePaused(event.payload.active);
+        });
+        return () => {
+            unlisten.then(f => f());
+        };
+    }, []);
 
     // Start break countdown
     const handleStartBreak = async () => {
@@ -191,6 +204,21 @@ export function TimerView() {
                 <h1 className="text-2xl font-bold text-foreground">Timer</h1>
             </div>
 
+            {/* Idle Warning Banner */}
+            {isIdlePaused && (
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 animate-pulse">
+                    <div className="flex items-center gap-3">
+                        <AlertTriangle className="w-6 h-6 text-amber-500" />
+                        <div>
+                            <p className="font-medium text-amber-500">IDLE - Timer Paused</p>
+                            <p className="text-sm text-muted-foreground">
+                                You've been away. The timer has been automatically paused.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Break Reminder Banner */}
             {showBreakReminder && (
                 <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4">
@@ -275,8 +303,11 @@ export function TimerView() {
 
                 {/* Time display */}
                 <div
-                    className="text-7xl font-light font-mono tracking-wider mb-8"
-                    style={{ color: timerState !== 'idle' && projectColor ? projectColor : undefined }}
+                    className={clsx(
+                        'text-7xl font-light font-mono tracking-wider mb-8',
+                        isIdlePaused && 'animate-flicker-timer'
+                    )}
+                    style={{ color: isIdlePaused ? '#f59e0b' : (timerState !== 'idle' && projectColor ? projectColor : undefined) }}
                 >
                     {formatDuration(elapsedSeconds)}
                 </div>

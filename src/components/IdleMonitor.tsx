@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { emit } from '@tauri-apps/api/event';
 import { useTimerStore } from '../stores/timerStore';
 import { useSettings } from '../contexts/SettingsContext';
 import { IdleDialog } from './IdleDialog';
@@ -43,6 +44,8 @@ export function IdleMonitor() {
                 wasRunningRef.current = true;
                 pausedByIdleRef.current = true;
                 timerPause();
+                // Emit idle state for flashing animation
+                emit('timer-idle-toggle', { active: true }).catch(console.error);
             }
 
             // User returned from being idle - show dialog

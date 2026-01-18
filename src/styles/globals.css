@@ -331,6 +331,23 @@
   /* Orange-500 */
 }
 
+/* Text flicker animation for timer display */
+@keyframes flicker-timer {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-flicker-timer {
+  animation: flicker-timer 1.5s ease-in-out infinite;
+}
+
 /* Duration modifiers */
 .duration-75 {
   animation-duration: 75ms;

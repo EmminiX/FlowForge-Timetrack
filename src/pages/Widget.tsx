@@ -24,6 +24,7 @@ export function Widget() {
         elapsedSeconds: 0
     });
     const [isBreakActive, setIsBreakActive] = useState(false);
+    const [isIdlePaused, setIsIdlePaused] = useState(false);
 
     // Listen for state updates
     useEffect(() => {
@@ -45,11 +46,16 @@ export function Widget() {
             setIsBreakActive(event.payload.active);
         });
 
+        const unlistenIdle = listen<{ active: boolean }>('timer-idle-toggle', (event) => {
+            setIsIdlePaused(event.payload.active);
+        });
+
         emit('timer-request-sync');
 
         return () => {
             unlisten.then(f => f());
             unlistenBreak.then(f => f());
+            unlistenIdle.then(f => f());
             // Optional: reset background on unmount if needed, but for a dedicated window it's fine
         };
     }, []);
@@ -84,12 +90,16 @@ export function Widget() {
         );
     }
 
+    // Determine if we should show flashing (break or idle)
+    const shouldFlash = isBreakActive || isIdlePaused;
+    const flashColor = '#f97316'; // orange-500
+
     return (
         <div
-            className={`widget-container ${isBreakActive ? 'animate-flicker' : ''}`}
+            className={`widget-container ${shouldFlash ? 'animate-flicker' : ''}`}
             style={{
-                borderColor: isBreakActive ? '#f97316' : (timerState.projectColor || '#007AFF'),
-                boxShadow: isBreakActive
+                borderColor: shouldFlash ? flashColor : (timerState.projectColor || '#007AFF'),
+                boxShadow: shouldFlash
                     ? '0 0 12px rgba(249, 115, 22, 0.5)'
                     : `0 0 12px ${timerState.projectColor}15`
             }}
@@ -104,12 +114,12 @@ export function Widget() {
             <div className="widget-content" style={{ pointerEvents: 'none' }}>
                 <span
                     className="widget-time"
-                    style={{ color: isBreakActive ? '#f97316' : (timerState.projectColor || '#007AFF') }}
+                    style={{ color: shouldFlash ? flashColor : (timerState.projectColor || '#007AFF') }}
                 >
                     {formatDuration(timerState.elapsedSeconds)}
                 </span>
                 <span className="widget-project">
-                    {isBreakActive ? 'Take a Break!' : timerState.projectName}
+                    {isIdlePaused ? 'IDLE' : isBreakActive ? 'Take a Break!' : timerState.projectName}
                 </span>
             </div>
 

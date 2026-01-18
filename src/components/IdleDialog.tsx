@@ -1,3 +1,4 @@
+import { emit } from '@tauri-apps/api/event';
 import { useTimerStore } from '../stores/timerStore';
 import { Button, Card } from './ui';
 import { Clock, Trash2, Check } from 'lucide-react';
@@ -24,6 +25,7 @@ export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
             // Standard Discard (Resume, counting break)
             timerResume();
         }
+        emit('timer-idle-toggle', { active: false }).catch(console.error);
         onClose();
     };
 
@@ -45,6 +47,7 @@ export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
                 pauseStartTime: null
             });
         }
+        emit('timer-idle-toggle', { active: false }).catch(console.error);
         onClose();
     };
 
