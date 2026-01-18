@@ -137,18 +137,13 @@ pub fn run() {
         .expect("error while building tauri application")
         .run(|app_handle, event| {
             // Handle dock icon click on macOS
-            if let tauri::RunEvent::Reopen {
-                has_visible_windows,
-                ..
-            } = event
-            {
-                if !has_visible_windows {
-                    // Show and focus main window when dock icon is clicked
-                    if let Some(main_window) = app_handle.get_webview_window("main") {
-                        let _ = main_window.show();
-                        let _ = main_window.unminimize();
-                        let _ = main_window.set_focus();
-                    }
+            if let tauri::RunEvent::Reopen { .. } = event {
+                // Always try to restore main window on dock click
+                // (widget might be visible but main window minimized)
+                if let Some(main_window) = app_handle.get_webview_window("main") {
+                    let _ = main_window.show();
+                    let _ = main_window.unminimize();
+                    let _ = main_window.set_focus();
                 }
             }
         });

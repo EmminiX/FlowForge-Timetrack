@@ -49,7 +49,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     enableSoundFeedback: true,
     enableIdleDetection: true,
     idleThresholdMinutes: 5,
-    pomodoroEnabled: false,
+    pomodoroEnabled: true,
     pomodoroWorkMinutes: 25,
     pomodoroBreakMinutes: 5,
     theme: 'system',
