@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="public/EmmiLogo-noBG.png" alt="Emmi Logo" width="100%" />
+</div>
+
 # FlowForge-Track
 
 A simple, focused desktop app for tracking your work time and creating invoices. Built with privacy in mind — all your data stays on your computer.
