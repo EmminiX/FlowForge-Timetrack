@@ -131,12 +131,42 @@ src-tauri/             # Rust backend
 
 ## 📄 License
 
-MIT License — see [LICENSE](LICENSE) for details.
+**Non-Commercial Use Only**
+
+This software is open source and free to use for **personal, educational, and non-commercial purposes**.
+
+**You may:**
+- ✅ Use it for personal time tracking and invoicing
+- ✅ Use it within your team or organization (non-profit use)
+- ✅ Modify and customize it for your own needs
+- ✅ Share it with others
+- ✅ Contribute improvements back to the project
+
+**You may NOT:**
+- ❌ Sell this software or any derivative of it
+- ❌ Use it as part of a commercial product or service
+- ❌ Generate revenue from this software in any way
+- ❌ Remove attribution or claim it as your own work
+
+See [LICENSE](LICENSE) for full legal details.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request. By contributing, you agree that your contributions will be licensed under the same non-commercial terms.
 
 ---
 
-Made with ❤️ for freelancers and small teams who value simplicity and privacy.
+## 👨‍💻 About
+
+**Made with ❤️ by [Emmi](https://emmi.zone)** — for freelancers and small teams who value simplicity and privacy.
+
+FlowForge-Track was born from the need for a simple, privacy-focused time tracking tool that doesn't require subscriptions, cloud accounts, or complex setup. It's built to respect your data and your workflow.
+
+**Connect:**
+- 🌐 Website: [emmi.zone](https://emmi.zone)
+- 📝 Blog: [blog.emmi.zone](https://blog.emmi.zone)
+- 💼 LinkedIn: [linkedin.com/in/emmic](https://www.linkedin.com/in/emmic/)
+
+---
+
+*This project is open source but not for commercial use. If you find it valuable, consider sharing it with others who might benefit from it.*

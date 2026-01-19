@@ -1,17 +1,41 @@
-MIT License
+FlowForge-Track Non-Commercial License
 
-Copyright (c) 2025 Emanuel Covasa
+Copyright (c) 2026 Emanuel Covasa (Emmi)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, merge, publish, and distribute copies of the Software for
+PERSONAL, EDUCATIONAL, and NON-COMMERCIAL purposes only, subject to the
+following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+PERMITTED USES:
+1. Personal use for time tracking and invoicing
+2. Use within teams or organizations (non-profit/internal use)
+3. Modification and customization for personal needs
+4. Sharing with others under the same license terms
+5. Contributing improvements back to the original project
 
+PROHIBITED USES:
+1. Selling this software or any derivative works
+2. Using this software as part of a commercial product or service
+3. Generating revenue from this software in any way, including:
+   - SaaS (Software as a Service) offerings
+   - Bundling with paid products
+   - Charging fees for access, hosting, or support
+4. Removing or modifying attribution to the original author
+5. Claiming this work as your own
+
+ATTRIBUTION REQUIREMENT:
+All copies or substantial portions of the Software must retain this copyright
+notice, the list of conditions, and the following attribution:
+
+"FlowForge-Track by Emanuel Covasa (Emmi) - https://emmi.zone"
+
+CONTRIBUTIONS:
+By contributing to this project, you agree that your contributions will be
+licensed under the same terms as this license.
+
+DISCLAIMER:
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,3 +43,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+For commercial licensing inquiries, please contact: security@emmi.zone
+
+This license is based on the MIT License but with additional restrictions
+to prevent commercial use without permission.
