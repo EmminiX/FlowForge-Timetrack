@@ -1,0 +1,45 @@
+# Dependabot configuration for automated dependency updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Frontend dependencies (npm/pnpm)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      # Group Tauri plugin updates together
+      tauri-plugins:
+        patterns:
+          - "@tauri-apps/*"
+      # Group dev dependencies together
+      development-dependencies:
+        dependency-type: "development"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Rust dependencies (Cargo)
+  - package-ecosystem: "cargo"
+    directory: "/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      # Group Tauri crate updates together
+      tauri-core:
+        patterns:
+          - "tauri*"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "ci"
