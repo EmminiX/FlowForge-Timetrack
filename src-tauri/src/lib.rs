@@ -136,7 +136,9 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app_handle, event| {
-            // Handle dock icon click on macOS
+            // Handle dock icon click on macOS only
+            // RunEvent::Reopen is macOS-specific and doesn't exist on Windows/Linux
+            #[cfg(target_os = "macos")]
             if let tauri::RunEvent::Reopen { .. } = event {
                 // Always try to restore main window on dock click
                 // (widget might be visible but main window minimized)
@@ -146,5 +148,9 @@ pub fn run() {
                     let _ = main_window.set_focus();
                 }
             }
+
+            // Suppress unused variable warning on non-macOS platforms
+            #[cfg(not(target_os = "macos"))]
+            let _ = (app_handle, event);
         });
 }
