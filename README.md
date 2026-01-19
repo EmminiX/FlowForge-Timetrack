@@ -43,6 +43,23 @@ FlowForge-Track includes built-in protection against accidental data loss:
 - **Delete Order** — To remove a client completely, you must first delete their time entries, then projects, then the client
 - **No Undo Needed** — This deliberate friction prevents accidental deletion of important billing data
 
+## 📁 Data Storage & Privacy
+
+**How and where is data stored?**
+Data is stored locally in a SQLite database file named `flowforge.db` within your operating system's application data directory.
+
+- **macOS**: `~/Library/Application Support/com.emmi.flowforge/flowforge.db`
+- **Windows**: `C:\Users\{username}\AppData\Local\com.emmi.flowforge\flowforge.db`
+- **Linux**: `~/.local/share/com.emmi.flowforge/flowforge.db` *(Standard XDG data path)*
+
+**What are the storage limits?**
+There are no artificial limits imposed by the application. Storage is only limited by the available disk space on your computer.
+
+**How is data storage controlled?**
+- **Control**: You have full ownership of the local database file.
+- **Access**: The app manages data internally, but you can manually back up, copy, or delete the `flowforge.db` file if needed.
+- **Security**: Access is controlled by your operating system's user permissions.
+
 ## 📦 Installation Guide
 
 ### macOS
