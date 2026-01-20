@@ -1,5 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { Timer, Users, Briefcase, Clock, FileText, Settings, Volume2, VolumeX, Package } from 'lucide-react';
+import {
+  Timer,
+  Users,
+  Briefcase,
+  Clock,
+  FileText,
+  Settings,
+  Volume2,
+  VolumeX,
+  Package,
+} from 'lucide-react';
 import clsx from 'clsx';
 import { useSettings } from '../../contexts/SettingsContext';
 
@@ -17,10 +27,10 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-secondary border-r border-border h-screen flex flex-col p-4 shrink-0">
-      <div className="text-2xl font-bold mb-8 px-4 text-primary">FlowForge-Track</div>
+    <aside className='w-64 bg-secondary border-r border-border h-screen flex flex-col p-4 shrink-0'>
+      <div className='text-2xl font-bold mb-8 px-4 text-primary'>FlowForge-Track</div>
 
-      <nav className="flex-1 space-y-1">
+      <nav className='flex-1 space-y-1'>
         {mainLinks.map((link) => (
           <NavLink
             key={link.to}
@@ -31,26 +41,28 @@ export function Sidebar() {
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale',
                 isActive
                   ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-muted-foreground/10'
+                  : 'text-foreground hover:bg-muted-foreground/10',
               )
             }
           >
-            <link.icon className="w-5 h-5" />
+            <link.icon className='w-5 h-5' />
             <span>{link.label}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* Bottom Actions */}
-      <div className="pt-4 border-t border-border space-y-1">
-        <div className="flex items-center justify-between px-4 py-3 rounded-lg text-foreground hover:bg-muted-foreground/10 transition-colors">
-          <div className="flex items-center gap-3">
+      <div className='pt-4 border-t border-border space-y-1'>
+        <div className='flex items-center justify-between px-4 py-3 rounded-lg text-foreground hover:bg-muted-foreground/10 transition-colors'>
+          <div className='flex items-center gap-3'>
             {settings.enableSoundFeedback ? (
-              <Volume2 className="w-5 h-5" />
+              <Volume2 className='w-5 h-5' />
             ) : (
-              <VolumeX className="w-5 h-5 text-muted-foreground" />
+              <VolumeX className='w-5 h-5 text-muted-foreground' />
             )}
-            <span className={clsx(!settings.enableSoundFeedback && 'text-muted-foreground')}>Sound</span>
+            <span className={clsx(!settings.enableSoundFeedback && 'text-muted-foreground')}>
+              Sound
+            </span>
           </div>
           <Switch
             checked={settings.enableSoundFeedback}
@@ -58,17 +70,17 @@ export function Sidebar() {
           />
         </div>
         <NavLink
-          to="/settings"
+          to='/settings'
           className={({ isActive }) =>
             clsx(
               'flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale',
               isActive
                 ? 'bg-primary text-primary-foreground'
-                : 'text-foreground hover:bg-muted-foreground/10'
+                : 'text-foreground hover:bg-muted-foreground/10',
             )
           }
         >
-          <Settings className="w-5 h-5" />
+          <Settings className='w-5 h-5' />
           <span>Settings</span>
         </NavLink>
       </div>

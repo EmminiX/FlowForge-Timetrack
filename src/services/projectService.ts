@@ -84,7 +84,8 @@ export const projectService = {
     projectLogger.debug('getByClientId called', { clientId });
     try {
       const db = await getDb();
-      const result = await db.select<Project[]>(`
+      const result = await db.select<Project[]>(
+        `
         SELECT 
           id, 
           client_id as clientId,
@@ -97,7 +98,9 @@ export const projectService = {
         FROM projects
         WHERE client_id = $1
         ORDER BY name ASC
-      `, [clientId]);
+      `,
+        [clientId],
+      );
       projectLogger.info('getByClientId completed', { clientId, count: result.length });
       return result;
     } catch (error) {
@@ -138,7 +141,8 @@ export const projectService = {
     projectLogger.debug('getById called', { id });
     try {
       const db = await getDb();
-      const result = await db.select<Project[]>(`
+      const result = await db.select<Project[]>(
+        `
         SELECT 
           id, 
           client_id as clientId,
@@ -150,7 +154,9 @@ export const projectService = {
           updated_at as updatedAt
         FROM projects
         WHERE id = $1
-      `, [id]);
+      `,
+        [id],
+      );
       const project = result[0] || null;
       projectLogger.info('getById completed', { id, found: !!project });
       return project;
@@ -170,19 +176,22 @@ export const projectService = {
       const timestamp = now();
 
       projectLogger.debug('Executing INSERT', { id, name: input.name });
-      await db.execute(`
+      await db.execute(
+        `
       INSERT INTO projects (id, client_id, name, description, status, color, created_at, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    `, [
-        id,
-        input.clientId || null,
-        input.name,
-        input.description || '',
-        input.status || 'active',
-        input.color || '#007AFF',
-        timestamp,
-        timestamp,
-      ]);
+    `,
+        [
+          id,
+          input.clientId || null,
+          input.name,
+          input.description || '',
+          input.status || 'active',
+          input.color || '#007AFF',
+          timestamp,
+          timestamp,
+        ],
+      );
       projectLogger.info('create successful', { id, name: input.name });
 
       return {
@@ -218,7 +227,8 @@ export const projectService = {
         updatedAt: now(),
       };
 
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE projects SET
           client_id = $1,
           name = $2,
@@ -227,15 +237,17 @@ export const projectService = {
           color = $5,
           updated_at = $6
         WHERE id = $7
-      `, [
-        updated.clientId,
-        updated.name,
-        updated.description,
-        updated.status,
-        updated.color,
-        updated.updatedAt,
-        id,
-      ]);
+      `,
+        [
+          updated.clientId,
+          updated.name,
+          updated.description,
+          updated.status,
+          updated.color,
+          updated.updatedAt,
+          id,
+        ],
+      );
 
       projectLogger.info('update successful', { id });
       return updated;
@@ -259,4 +271,3 @@ export const projectService = {
     }
   },
 };
-

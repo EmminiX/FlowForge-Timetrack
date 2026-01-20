@@ -9,75 +9,78 @@ import { notifyTimerStarted, notifyTimerStopped } from '../lib/notifications';
 import { formatDuration } from '../types';
 
 export function useTimerWithEffects() {
-    const timerStore = useTimerStore();
+  const timerStore = useTimerStore();
 
-    const start = useCallback(async (projectId: string, projectName: string, projectColor: string) => {
-        const settings = await settingsService.load();
+  const start = useCallback(
+    async (projectId: string, projectName: string, projectColor: string) => {
+      const settings = await settingsService.load();
 
-        timerStore.start(projectId, projectName, projectColor);
+      timerStore.start(projectId, projectName, projectColor);
 
-        if (settings.enableSoundFeedback) {
-            playStartSound();
-        }
+      if (settings.enableSoundFeedback) {
+        playStartSound();
+      }
 
-        if (settings.enableNotifications) {
-            notifyTimerStarted(projectName).catch(console.warn);
-        }
-    }, [timerStore]);
+      if (settings.enableNotifications) {
+        notifyTimerStarted(projectName).catch(console.warn);
+      }
+    },
+    [timerStore],
+  );
 
-    const pause = useCallback(async () => {
-        const settings = await settingsService.load();
+  const pause = useCallback(async () => {
+    const settings = await settingsService.load();
 
-        timerStore.pause();
+    timerStore.pause();
 
-        if (settings.enableSoundFeedback) {
-            playPauseSound();
-        }
-    }, [timerStore]);
+    if (settings.enableSoundFeedback) {
+      playPauseSound();
+    }
+  }, [timerStore]);
 
-    const resume = useCallback(async () => {
-        const settings = await settingsService.load();
+  const resume = useCallback(async () => {
+    const settings = await settingsService.load();
 
-        timerStore.resume();
+    timerStore.resume();
 
-        if (settings.enableSoundFeedback) {
-            playResumeSound();
-        }
-    }, [timerStore]);
+    if (settings.enableSoundFeedback) {
+      playResumeSound();
+    }
+  }, [timerStore]);
 
-    const stop = useCallback(async () => {
-        const settings = await settingsService.load();
-        const projectName = timerStore.projectName;
-        const elapsedSeconds = timerStore.getElapsedSeconds();
+  const stop = useCallback(async () => {
+    const settings = await settingsService.load();
+    const projectName = timerStore.projectName;
+    const elapsedSeconds = timerStore.getElapsedSeconds();
 
-        const result = timerStore.stop();
+    const result = timerStore.stop();
 
-        if (settings.enableSoundFeedback) {
-            playStopSound();
-        }
+    if (settings.enableSoundFeedback) {
+      playStopSound();
+    }
 
-        if (settings.enableNotifications && projectName) {
-            notifyTimerStopped(projectName, formatDuration(elapsedSeconds)).catch(console.warn);
-        }
+    if (settings.enableNotifications && projectName) {
+      notifyTimerStopped(projectName, formatDuration(elapsedSeconds)).catch(console.warn);
+    }
 
-        return result;
-    }, [timerStore]);
+    return result;
+  }, [timerStore]);
 
-    return {
-        // State from store
-        state: timerStore.state,
-        projectId: timerStore.projectId,
-        projectName: timerStore.projectName,
-        projectColor: timerStore.projectColor,
-        startTime: timerStore.startTime,
-        getElapsedSeconds: timerStore.getElapsedSeconds,
-        getPauseDuration: timerStore.getPauseDuration,
-        reset: timerStore.reset,
+  return {
+    // State from store
+    state: timerStore.state,
+    projectId: timerStore.projectId,
+    projectName: timerStore.projectName,
+    projectColor: timerStore.projectColor,
+    startTime: timerStore.startTime,
+    getElapsedSeconds: timerStore.getElapsedSeconds,
+    getPauseDuration: timerStore.getPauseDuration,
+    reset: timerStore.reset,
 
-        // Enhanced actions with effects
-        start,
-        pause,
-        resume,
-        stop,
-    };
+    // Enhanced actions with effects
+    start,
+    pause,
+    resume,
+    stop,
+  };
 }

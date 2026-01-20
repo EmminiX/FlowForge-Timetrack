@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-// We need to mock the component or the function that generates PDF. 
+// We need to mock the component or the function that generates PDF.
 // Since the PDF generation is inside the component InvoicesList, it's hard to isolate without exporting the function.
 // However, the task is to update the code.
 
@@ -7,8 +7,8 @@ import { describe, it, expect } from 'vitest';
 // Actually, I can try to mock jspdf and trigger the export.
 
 describe('Invoice PDF Branding', () => {
-    it('should be manually verified', () => {
-        // This is a placeholder as full integration test for PDF generation inside a component is complex
-        expect(true).toBe(true);
-    });
+  it('should be manually verified', () => {
+    // This is a placeholder as full integration test for PDF generation inside a component is complex
+    expect(true).toBe(true);
+  });
 });

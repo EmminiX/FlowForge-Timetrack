@@ -22,6 +22,7 @@ export const clientService = {
         SELECT 
           id, name, email, address, phone, vat_number as vatNumber,
           hourly_rate as hourlyRate,
+          COALESCE(currency, 'EUR') as currency,
           notes,
           created_at as createdAt,
           updated_at as updatedAt
@@ -45,6 +46,7 @@ export const clientService = {
         SELECT 
           c.id, c.name, c.email, c.address, c.phone, c.vat_number as vatNumber,
           c.hourly_rate as hourlyRate,
+          COALESCE(c.currency, 'EUR') as currency,
           c.notes,
           c.created_at as createdAt,
           c.updated_at as updatedAt,
@@ -78,16 +80,20 @@ export const clientService = {
     clientLogger.debug('getById called', { id });
     try {
       const db = await getDb();
-      const result = await db.select<Client[]>(`
+      const result = await db.select<Client[]>(
+        `
         SELECT 
           id, name, email, address, phone, vat_number as vatNumber,
           hourly_rate as hourlyRate,
+          COALESCE(currency, 'EUR') as currency,
           notes,
           created_at as createdAt,
           updated_at as updatedAt
         FROM clients
         WHERE id = $1
-      `, [id]);
+      `,
+        [id],
+      );
       const client = result[0] || null;
       clientLogger.info('getById completed', { id, found: !!client });
       return client;
@@ -107,21 +113,25 @@ export const clientService = {
       const timestamp = now();
 
       clientLogger.debug('Executing INSERT', { id, name: input.name });
-      await db.execute(`
-      INSERT INTO clients (id, name, email, address, phone, vat_number, hourly_rate, notes, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    `, [
-        id,
-        input.name,
-        input.email || '',
-        input.address || '',
-        input.phone || '',
-        input.vatNumber || '',
-        input.hourlyRate || 0,
-        input.notes || '',
-        timestamp,
-        timestamp,
-      ]);
+      await db.execute(
+        `
+      INSERT INTO clients (id, name, email, address, phone, vat_number, hourly_rate, currency, notes, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    `,
+        [
+          id,
+          input.name,
+          input.email || '',
+          input.address || '',
+          input.phone || '',
+          input.vatNumber || '',
+          input.hourlyRate || 0,
+          input.currency || 'EUR',
+          input.notes || '',
+          timestamp,
+          timestamp,
+        ],
+      );
       clientLogger.info('create successful', { id, name: input.name });
 
       return {
@@ -132,6 +142,7 @@ export const clientService = {
         phone: input.phone || '',
         vatNumber: input.vatNumber || '',
         hourlyRate: input.hourlyRate || 0,
+        currency: input.currency || 'EUR',
         notes: input.notes || '',
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -159,7 +170,8 @@ export const clientService = {
         updatedAt: now(),
       };
 
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE clients SET
           name = $1,
           email = $2,
@@ -167,20 +179,24 @@ export const clientService = {
           phone = $4,
           vat_number = $5,
           hourly_rate = $6,
-          notes = $7,
-          updated_at = $8
-        WHERE id = $9
-      `, [
-        updated.name,
-        updated.email,
-        updated.address,
-        updated.phone,
-        updated.vatNumber,
-        updated.hourlyRate,
-        updated.notes,
-        updated.updatedAt,
-        id,
-      ]);
+          currency = $7,
+          notes = $8,
+          updated_at = $9
+        WHERE id = $10
+      `,
+        [
+          updated.name,
+          updated.email,
+          updated.address,
+          updated.phone,
+          updated.vatNumber,
+          updated.hourlyRate,
+          updated.currency || 'EUR',
+          updated.notes,
+          updated.updatedAt,
+          id,
+        ],
+      );
 
       clientLogger.info('update successful', { id });
       return updated;
@@ -204,4 +220,3 @@ export const clientService = {
     }
   },
 };
-

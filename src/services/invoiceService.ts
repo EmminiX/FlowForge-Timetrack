@@ -71,7 +71,8 @@ export const invoiceService = {
   // Get invoice by ID with full details
   async getById(id: string): Promise<InvoiceWithDetails | null> {
     const db = await getDb();
-    const result = await db.select<InvoiceWithDetails[]>(`
+    const result = await db.select<InvoiceWithDetails[]>(
+      `
       SELECT 
         i.id,
         i.client_id as clientId,
@@ -91,7 +92,9 @@ export const invoiceService = {
       FROM invoices i
       JOIN clients c ON c.id = i.client_id
       WHERE i.id = $1
-    `, [id]);
+    `,
+      [id],
+    );
 
     if (!result[0]) return null;
 
@@ -111,7 +114,8 @@ export const invoiceService = {
   // Get line items for an invoice
   async getLineItems(invoiceId: string): Promise<InvoiceLineItem[]> {
     const db = await getDb();
-    return db.select<InvoiceLineItem[]>(`
+    return db.select<InvoiceLineItem[]>(
+      `
       SELECT 
         id,
         invoice_id as invoiceId,
@@ -121,7 +125,9 @@ export const invoiceService = {
       FROM invoice_line_items
       WHERE invoice_id = $1
       ORDER BY rowid ASC
-    `, [invoiceId]);
+    `,
+      [invoiceId],
+    );
   },
 
   // Create invoice
@@ -130,21 +136,24 @@ export const invoiceService = {
     const id = generateId();
     const timestamp = now();
 
-    await db.execute(`
+    await db.execute(
+      `
       INSERT INTO invoices (id, client_id, invoice_number, issue_date, due_date, status, notes, tax_rate, created_at, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    `, [
-      id,
-      input.clientId,
-      input.invoiceNumber,
-      input.issueDate,
-      input.dueDate,
-      input.status || 'draft',
-      input.notes || '',
-      input.taxRate || 0,
-      timestamp,
-      timestamp,
-    ]);
+    `,
+      [
+        id,
+        input.clientId,
+        input.invoiceNumber,
+        input.issueDate,
+        input.dueDate,
+        input.status || 'draft',
+        input.notes || '',
+        input.taxRate || 0,
+        timestamp,
+        timestamp,
+      ],
+    );
 
     // Insert line items
     for (const item of lineItems) {
@@ -171,7 +180,8 @@ export const invoiceService = {
   // Update invoice
   async update(id: string, input: UpdateInvoiceInput): Promise<Invoice | null> {
     const db = await getDb();
-    const existing = await db.select<Invoice[]>(`
+    const existing = await db.select<Invoice[]>(
+      `
       SELECT 
         id,
         client_id as clientId,
@@ -185,7 +195,9 @@ export const invoiceService = {
         updated_at as updatedAt
       FROM invoices
       WHERE id = $1
-    `, [id]);
+    `,
+      [id],
+    );
 
     if (!existing[0]) return null;
 
@@ -195,7 +207,8 @@ export const invoiceService = {
       updatedAt: now(),
     };
 
-    await db.execute(`
+    await db.execute(
+      `
       UPDATE invoices SET
         invoice_number = $1,
         issue_date = $2,
@@ -205,16 +218,18 @@ export const invoiceService = {
         tax_rate = $6,
         updated_at = $7
       WHERE id = $8
-    `, [
-      updated.invoiceNumber,
-      updated.issueDate,
-      updated.dueDate,
-      updated.status,
-      updated.notes,
-      updated.taxRate,
-      updated.updatedAt,
-      id,
-    ]);
+    `,
+      [
+        updated.invoiceNumber,
+        updated.issueDate,
+        updated.dueDate,
+        updated.status,
+        updated.notes,
+        updated.taxRate,
+        updated.updatedAt,
+        id,
+      ],
+    );
 
     return updated;
   },
@@ -224,16 +239,13 @@ export const invoiceService = {
     const db = await getDb();
     const id = generateId();
 
-    await db.execute(`
+    await db.execute(
+      `
       INSERT INTO invoice_line_items (id, invoice_id, description, quantity, unit_price)
       VALUES ($1, $2, $3, $4, $5)
-    `, [
-      id,
-      input.invoiceId,
-      input.description,
-      input.quantity,
-      input.unitPrice,
-    ]);
+    `,
+      [id, input.invoiceId, input.description, input.quantity, input.unitPrice],
+    );
 
     return {
       id,

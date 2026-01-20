@@ -116,10 +116,16 @@ export async function runMigrations(): Promise<void> {
     )
     `);
 
-
   // Migration: Add vat_number column to clients if it doesn't exist
   try {
     await db.execute(`ALTER TABLE clients ADD COLUMN vat_number TEXT DEFAULT ''`);
+  } catch {
+    // Column already exists, ignore error
+  }
+
+  // Migration: Add currency column to clients if it doesn't exist
+  try {
+    await db.execute(`ALTER TABLE clients ADD COLUMN currency TEXT DEFAULT 'EUR'`);
   } catch {
     // Column already exists, ignore error
   }

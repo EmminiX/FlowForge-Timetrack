@@ -8,163 +8,184 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { formatDuration } from '../types';
 
 interface TimerSyncState {
-    status: 'idle' | 'running' | 'paused';
-    projectId: string | null;
-    projectName: string;
-    projectColor: string;
-    elapsedSeconds: number;
+  status: 'idle' | 'running' | 'paused';
+  projectId: string | null;
+  projectName: string;
+  projectColor: string;
+  elapsedSeconds: number;
 }
 
 export function Widget() {
-    const [timerState, setTimerState] = useState<TimerSyncState>({
-        status: 'idle',
-        projectId: null,
-        projectName: '',
-        projectColor: '',
-        elapsedSeconds: 0
+  const [timerState, setTimerState] = useState<TimerSyncState>({
+    status: 'idle',
+    projectId: null,
+    projectName: '',
+    projectColor: '',
+    elapsedSeconds: 0,
+  });
+  const [isBreakActive, setIsBreakActive] = useState(false);
+  const [isIdlePaused, setIsIdlePaused] = useState(false);
+
+  // Listen for state updates
+  useEffect(() => {
+    // Reset document margins/padding just in case
+    document.documentElement.style.margin = '0';
+    document.body.style.margin = '0';
+    document.documentElement.style.padding = '0';
+    document.body.style.padding = '0';
+    document.documentElement.style.height = '100%';
+    document.body.style.height = '100%';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    const unlisten = listen<TimerSyncState>('timer-sync', (event) => {
+      setTimerState(event.payload);
     });
-    const [isBreakActive, setIsBreakActive] = useState(false);
-    const [isIdlePaused, setIsIdlePaused] = useState(false);
 
-    // Listen for state updates
-    useEffect(() => {
-        // Reset document margins/padding just in case
-        document.documentElement.style.margin = '0';
-        document.body.style.margin = '0';
-        document.documentElement.style.padding = '0';
-        document.body.style.padding = '0';
-        document.documentElement.style.height = '100%';
-        document.body.style.height = '100%';
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
+    const unlistenBreak = listen<{ active: boolean }>('timer-break-toggle', (event) => {
+      setIsBreakActive(event.payload.active);
+    });
 
-        const unlisten = listen<TimerSyncState>('timer-sync', (event) => {
-            setTimerState(event.payload);
+    const unlistenIdle = listen<{ active: boolean }>('timer-idle-toggle', (event) => {
+      setIsIdlePaused(event.payload.active);
+    });
+
+    emit('timer-request-sync');
+
+    return () => {
+      unlisten
+        .then((f) => f())
+        .catch(() => {
+          /* Already unlistened */
         });
-
-        const unlistenBreak = listen<{ active: boolean }>('timer-break-toggle', (event) => {
-            setIsBreakActive(event.payload.active);
+      unlistenBreak
+        .then((f) => f())
+        .catch(() => {
+          /* Already unlistened */
         });
-
-        const unlistenIdle = listen<{ active: boolean }>('timer-idle-toggle', (event) => {
-            setIsIdlePaused(event.payload.active);
+      unlistenIdle
+        .then((f) => f())
+        .catch(() => {
+          /* Already unlistened */
         });
-
-        emit('timer-request-sync');
-
-        return () => {
-            unlisten.then(f => f()).catch(() => { /* Already unlistened */ });
-            unlistenBreak.then(f => f()).catch(() => { /* Already unlistened */ });
-            unlistenIdle.then(f => f()).catch(() => { /* Already unlistened */ });
-            // Optional: reset background on unmount if needed, but for a dedicated window it's fine
-        };
-    }, []);
-
-    // Handle window dragging
-    const handleDrag = async (e: React.MouseEvent) => {
-        if (e.button === 0) {
-            await getCurrentWindow().startDragging();
-        }
+      // Optional: reset background on unmount if needed, but for a dedicated window it's fine
     };
+  }, []);
 
-    const handlePauseResume = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (timerState.status === 'running') {
-            await emit('timer-command', { action: 'pause' });
-        } else if (timerState.status === 'paused') {
-            await emit('timer-command', { action: 'resume' });
-        }
-    };
+  // Handle window dragging
+  const handleDrag = async (e: React.MouseEvent) => {
+    if (e.button === 0) {
+      await getCurrentWindow().startDragging();
+    }
+  };
 
-    const handleStop = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        await emit('timer-command', { action: 'stop' });
-    };
+  const handlePauseResume = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (timerState.status === 'running') {
+      await emit('timer-command', { action: 'pause' });
+    } else if (timerState.status === 'paused') {
+      await emit('timer-command', { action: 'resume' });
+    }
+  };
 
-    // Determine if we should show flashing (break or idle while running)
-    const shouldFlash = isBreakActive || isIdlePaused;
-    const flashColor = '#f97316'; // orange-500
+  const handleStop = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await emit('timer-command', { action: 'stop' });
+  };
 
-    // Use muted styling for idle state
-    const isIdle = timerState.status === 'idle';
-    const displayColor = isIdle ? '#64748b' : (shouldFlash ? flashColor : (timerState.projectColor || '#007AFF'));
+  // Determine if we should show flashing (break or idle while running)
+  const shouldFlash = isBreakActive || isIdlePaused;
+  const flashColor = '#f97316'; // orange-500
 
-    return (
-        <div
-            className={`widget-container ${shouldFlash ? 'animate-flicker' : ''}`}
-            style={{
-                borderColor: displayColor,
-                boxShadow: isIdle ? 'none' : (shouldFlash
-                    ? '0 0 12px rgba(249, 115, 22, 0.5)'
-                    : `0 0 12px ${timerState.projectColor}15`)
-            }}
-            onMouseDown={handleDrag}
+  // Use muted styling for idle state
+  const isIdle = timerState.status === 'idle';
+  const displayColor = isIdle
+    ? '#64748b'
+    : shouldFlash
+      ? flashColor
+      : timerState.projectColor || '#007AFF';
+
+  return (
+    <div
+      className={`widget-container ${shouldFlash ? 'animate-flicker' : ''}`}
+      style={{
+        borderColor: displayColor,
+        boxShadow: isIdle
+          ? 'none'
+          : shouldFlash
+            ? '0 0 12px rgba(249, 115, 22, 0.5)'
+            : `0 0 12px ${timerState.projectColor}15`,
+      }}
+      onMouseDown={handleDrag}
+    >
+      {/* Drag Handle */}
+      <div className='widget-drag-handle' title='Drag to move'>
+        <GripVertical className='w-4 h-4 text-muted-foreground/40' />
+      </div>
+
+      {/* Timer display */}
+      <div className='widget-content' style={{ pointerEvents: 'none' }}>
+        <span className='widget-time' style={{ color: displayColor }}>
+          {formatDuration(timerState.elapsedSeconds)}
+        </span>
+        <span className='widget-project'>
+          {isIdle
+            ? 'Ready'
+            : isIdlePaused
+              ? 'IDLE'
+              : isBreakActive
+                ? 'Take a Break!'
+                : timerState.projectName}
+        </span>
+      </div>
+
+      {/* Controls */}
+      <div className='widget-controls'>
+        <button
+          className='widget-button'
+          onMouseUp={(e) => {
+            e.stopPropagation();
+            handlePauseResume(e);
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          title={timerState.status === 'running' ? 'Pause' : 'Resume'}
         >
-            {/* Drag Handle */}
-            <div className="widget-drag-handle" title="Drag to move">
-                <GripVertical className="w-4 h-4 text-muted-foreground/40" />
-            </div>
-
-            {/* Timer display */}
-            <div className="widget-content" style={{ pointerEvents: 'none' }}>
-                <span
-                    className="widget-time"
-                    style={{ color: displayColor }}
-                >
-                    {formatDuration(timerState.elapsedSeconds)}
-                </span>
-                <span className="widget-project">
-                    {isIdle ? 'Ready' : (isIdlePaused ? 'IDLE' : isBreakActive ? 'Take a Break!' : timerState.projectName)}
-                </span>
-            </div>
-
-            {/* Controls */}
-            <div className="widget-controls">
-                <button
-                    className="widget-button"
-                    onMouseUp={(e) => {
-                        e.stopPropagation();
-                        handlePauseResume(e);
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    title={timerState.status === 'running' ? 'Pause' : 'Resume'}
-                >
-                    {timerState.status === 'running' ? (
-                        <Pause className="w-3.5 h-3.5" />
-                    ) : (
-                        <Play className="w-3.5 h-3.5 ml-0.5" />
-                    )}
-                </button>
-                <button
-                    className="widget-button"
-                    onMouseUp={async (e) => {
-                        e.stopPropagation();
-                        // Get the main window and unminimize/focus it
-                        const { Window } = await import('@tauri-apps/api/window');
-                        const mainWindow = new Window('main');
-                        await mainWindow.unminimize();
-                        await mainWindow.show();
-                        await mainWindow.setFocus();
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    title="Open App"
-                >
-                    <Layout className="w-3.5 h-3.5" />
-                </button>
-                <button
-                    className="widget-button widget-button-stop"
-                    onMouseUp={(e) => {
-                        e.stopPropagation();
-                        handleStop(e);
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    title="Stop"
-                >
-                    <Square className="w-3.5 h-3.5" />
-                </button>
-            </div>
-        </div>
-    );
+          {timerState.status === 'running' ? (
+            <Pause className='w-3.5 h-3.5' />
+          ) : (
+            <Play className='w-3.5 h-3.5 ml-0.5' />
+          )}
+        </button>
+        <button
+          className='widget-button'
+          onMouseUp={async (e) => {
+            e.stopPropagation();
+            // Get the main window and unminimize/focus it
+            const { Window } = await import('@tauri-apps/api/window');
+            const mainWindow = new Window('main');
+            await mainWindow.unminimize();
+            await mainWindow.show();
+            await mainWindow.setFocus();
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          title='Open App'
+        >
+          <Layout className='w-3.5 h-3.5' />
+        </button>
+        <button
+          className='widget-button widget-button-stop'
+          onMouseUp={(e) => {
+            e.stopPropagation();
+            handleStop(e);
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          title='Stop'
+        >
+          <Square className='w-3.5 h-3.5' />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default Widget;

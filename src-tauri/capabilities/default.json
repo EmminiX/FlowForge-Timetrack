@@ -24,7 +24,58 @@
     "sql:allow-close",
     "dialog:default",
     "dialog:allow-save",
+    "dialog:allow-open",
     "fs:default",
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        {
+          "path": "$APPDATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-file",
+      "allow": [
+        {
+          "path": "$APPDATA/**"
+        },
+        {
+          "path": "$HOME/Downloads/**"
+        },
+        {
+          "path": "$HOME/Desktop/**"
+        },
+        {
+          "path": "$HOME/Documents/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-copy-file",
+      "allow": [
+        {
+          "path": "$APPDATA/**"
+        },
+        {
+          "path": "$HOME/Downloads/**"
+        },
+        {
+          "path": "$HOME/Desktop/**"
+        },
+        {
+          "path": "$HOME/Documents/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-remove",
+      "allow": [
+        {
+          "path": "$APPDATA/**"
+        }
+      ]
+    },
     "fs:write-all",
     "notification:default",
     "notification:allow-is-permission-granted",

@@ -17,7 +17,7 @@ describe('Brand Verification', () => {
     render(
       <BrowserRouter>
         <Sidebar />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
     expect(screen.getByText('FlowForge-Track')).toBeInTheDocument();
   });

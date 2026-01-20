@@ -98,6 +98,12 @@ pub fn run() {
             sql: "ALTER TABLE clients ADD COLUMN vat_number TEXT;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "add_currency_to_clients",
+            sql: "ALTER TABLE clients ADD COLUMN currency TEXT DEFAULT 'EUR';",
+            kind: MigrationKind::Up,
+        },
     ];
 
     let mut builder = tauri::Builder::default()

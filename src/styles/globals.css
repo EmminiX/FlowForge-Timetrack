@@ -84,6 +84,72 @@
     --input: #1e293b;
     --ring: #3b82f6;
   }
+
+  /* High Contrast Theme for Accessibility */
+  .high-contrast {
+    --background: #000000;
+    --foreground: #ffffff;
+
+    --primary: #ffff00;
+    /* Yellow for maximum contrast */
+    --primary-foreground: #000000;
+
+    --secondary: #1a1a1a;
+    --secondary-foreground: #ffffff;
+
+    --muted: #1a1a1a;
+    --muted-foreground: #cccccc;
+
+    --accent: #00ffff;
+    /* Cyan for accents */
+    --accent-foreground: #000000;
+
+    --destructive: #ff0000;
+    --destructive-foreground: #ffffff;
+
+    --border: #ffffff;
+    --input: #333333;
+    --ring: #ffff00;
+  }
+
+  /* High contrast specific adjustments */
+  .high-contrast button,
+  .high-contrast input,
+  .high-contrast select,
+  .high-contrast textarea {
+    border-width: 2px;
+  }
+
+  .high-contrast a {
+    text-decoration: underline;
+  }
+}
+
+/* Reduced Motion - disable animations when user prefers */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Manual reduced motion toggle via data attribute */
+[data-reduce-motion="true"] *,
+[data-reduce-motion="true"] *::before,
+[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Disable hover translate effects when animations disabled */
+[data-reduce-motion="true"] .card-hover:hover,
+[data-reduce-motion="true"] .hover-scale:hover,
+[data-reduce-motion="true"] .widget-button:hover {
+  transform: none !important;
 }
 
 @layer base {
