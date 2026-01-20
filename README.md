@@ -29,11 +29,18 @@ Designed to be easy to use, especially for people who prefer clear interfaces an
   - `Cmd+Shift+S` (Mac) / `Ctrl+Shift+S` (Win/Linux) — Start/Resume
   - `Cmd+Shift+P` (Mac) / `Ctrl+Shift+P` (Win/Linux) — Pause
   - `Cmd+Shift+X` (Mac) / `Ctrl+Shift+X` (Win/Linux) — Stop & Save
+  - `Cmd+Shift+W` (Mac) / `Ctrl+Shift+W` (Win/Linux) — Toggle Widget
+  - `Cmd+Shift+M` (Mac) / `Ctrl+Shift+M` (Win/Linux) — Toggle Sound
 - **Pomodoro Timer** — Built-in work/break intervals (25/5 min default, customizable)
 - **Dashboard Analytics** — Visual breakdown of your daily and weekly progress
 - **Smart Idle Detection** — Automatically pauses the timer when you step away
 - **Customizable UI** — Light/Dark theme, adjustable font size and density
-- **100% Offline** — All data stored locally in SQLite, no cloud required
+- **App Update System** — Checks for updates automatically and notifies you of new releases
+- **Time Editing** — Manually adjust time logs to correct mistakes or add missed time
+- **High Contrast Theme** — Improved visibility for low-vision users
+- **Disable Animations** — Option to turn off UI animations for a calmer experience
+- **Multi-Currency Support** — Set currency per client (EUR, USD, GBP)
+- **Backup & Restore** — Export your data safe-keeping or move it to another device
 
 ## 🛡️ Data Protection
 

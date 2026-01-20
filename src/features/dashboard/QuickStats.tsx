@@ -44,7 +44,9 @@ export function QuickStats({
               </div>
               <div>
                 <div className='text-lg font-bold'>{formatCurrencyAmount(amount, currency)}</div>
-                <div className='text-xs text-muted-foreground'>Unbilled</div>
+                <div className='text-xs text-muted-foreground'>
+                  Unbilled {CURRENCY_SYMBOLS[currency] || currency}
+                </div>
               </div>
             </div>
           ))
@@ -68,7 +70,9 @@ export function QuickStats({
               </div>
               <div>
                 <div className='text-lg font-bold'>{formatCurrencyAmount(amount, currency)}</div>
-                <div className='text-xs text-muted-foreground'>Total Billed</div>
+                <div className='text-xs text-muted-foreground'>
+                  Total Billed {CURRENCY_SYMBOLS[currency] || currency}
+                </div>
               </div>
             </div>
           ))
