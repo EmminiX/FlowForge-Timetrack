@@ -50,9 +50,16 @@ export const updateService = {
    */
   async checkForUpdate(): Promise<UpdateCheckResult | null> {
     try {
+      // Add timeout to prevent hanging on slow networks
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch(UPDATE_CHECK_URL, {
         cache: 'no-store', // Don't cache - always get fresh version info
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         console.warn('Update check failed:', response.status);
@@ -69,7 +76,12 @@ export const updateService = {
         currentVersion,
       };
     } catch (error) {
-      console.warn('Update check failed:', error);
+      // Silent fail on timeout or network errors - don't interrupt user experience
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('Update check timed out after 10 seconds');
+      } else {
+        console.warn('Update check failed:', error);
+      }
       return null;
     }
   },

@@ -42,20 +42,12 @@ export function UpdateBanner() {
         </div>
 
         <div className='flex items-center gap-2'>
-          <a
-            href={`https://github.com/EmminiX/FlowForge-Timetrack/releases/tag/v${updateInfo.latestVersion}`}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='text-xs text-muted-foreground hover:text-primary underline mr-2'
-          >
-            Release Notes (v{updateInfo.latestVersion})
-          </a>
           <button
             onClick={handleOpenRelease}
             className='flex items-center gap-1 text-sm text-primary hover:underline'
           >
             <ExternalLink className='w-3 h-3' />
-            Download
+            View Release & Download
           </button>
           <button
             onClick={() => setDismissed(true)}
