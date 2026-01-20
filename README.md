@@ -10,6 +10,10 @@ Designed to be easy to use, especially for people who prefer clear interfaces an
 
 ![FlowForge-Track Screenshot](docs/screenshot.png)
 
+## 📖 User Guide
+
+For a complete walkthrough of features and settings, read the **[FlowForge-Track User Guide](https://flowforge.emmi.zone/guide)**.
+
 ## 📥 Download
 
 | Platform | Download | Notes |
