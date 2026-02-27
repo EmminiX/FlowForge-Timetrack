@@ -28,23 +28,29 @@ For a complete walkthrough of features and settings, read the **[FlowForge-Track
 
 - **Floating Timer Widget** — A small always-on-top window so you always see your timer, positioned at the corner of your app
 - **Client & Project Management** — Organize your work with clients and projects
-- **Offline Invoicing** — Create professional PDF invoices without needing the internet
+- **Product Catalog** — Manage reusable products/services with descriptions, prices, and SKUs
+- **Offline Invoicing** — Create professional PDF invoices with multi-page support
+- **CSV Export** — Export invoice data to CSV for spreadsheets and accounting tools
 - **Global Keyboard Shortcuts** — Control the timer from anywhere:
   - `Cmd+Shift+S` (Mac) / `Ctrl+Shift+S` (Win/Linux) — Start/Resume
   - `Cmd+Shift+P` (Mac) / `Ctrl+Shift+P` (Win/Linux) — Pause
   - `Cmd+Shift+X` (Mac) / `Ctrl+Shift+X` (Win/Linux) — Stop & Save
   - `Cmd+Shift+W` (Mac) / `Ctrl+Shift+W` (Win/Linux) — Toggle Widget
   - `Cmd+Shift+M` (Mac) / `Ctrl+Shift+M` (Win/Linux) — Toggle Sound
+- **Global Search** — Quick-find clients, projects, and invoices from the header (`Cmd+K` / `Ctrl+K`)
 - **Pomodoro Timer** — Built-in work/break intervals (25/5 min default, customizable)
-- **Dashboard Analytics** — Visual breakdown of your daily and weekly progress
+- **Dashboard Analytics** — Daily, weekly, and monthly breakdowns with 30-day chart view and per-client/project stats
 - **Smart Idle Detection** — Automatically pauses the timer when you step away
-- **Customizable UI** — Light/Dark theme, adjustable font size and density
+- **Customizable UI** — Light/Dark theme, Lexend font, adjustable font size and density
 - **App Update System** — Checks for updates automatically and notifies you of new releases
 - **Time Editing** — Manually adjust time logs to correct mistakes or add missed time
 - **High Contrast Theme** — Improved visibility for low-vision users
 - **Disable Animations** — Option to turn off UI animations for a calmer experience
-- **Multi-Currency Support** — Set currency per client (EUR, USD, GBP)
-- **Backup & Restore** — Export your data safe-keeping or move it to another device
+- **Multi-Currency Support** — Set currency per client (EUR, USD, GBP) with correct symbols throughout
+- **Backup & Restore** — Export your data for safe-keeping or move it to another device
+- **Undo Actions** — Toast-based undo system for destructive actions (delete with undo)
+- **Keyboard Navigation** — Full keyboard shortcuts dialog (`?` key) and keyboard-friendly UI
+- **Error Boundaries** — Graceful error handling prevents full-app crashes
 
 ## 🛡️ Data Protection
 
@@ -163,28 +169,22 @@ src-tauri/             # Rust backend
 
 ## 📄 License
 
-**Non-Commercial Use Only**
+**AGPL-3.0** — Free and open source.
 
-This software is open source and free to use for **personal, educational, and non-commercial purposes**.
+This software is licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html). You are free to use, modify, and distribute it under the terms of the AGPL-3.0.
 
-**You may:**
-- ✅ Use it for personal time tracking and invoicing
-- ✅ Use it within your team or organization (non-profit use)
-- ✅ Modify and customize it for your own needs
-- ✅ Share it with others
-- ✅ Contribute improvements back to the project
+**What this means:**
+- Use it freely for any purpose (personal, educational, commercial)
+- Modify and share it — but derivatives must also be AGPL-3.0
+- If you run a modified version as a network service, you must share the source
 
-**You may NOT:**
-- ❌ Sell this software or any derivative of it
-- ❌ Use it as part of a commercial product or service
-- ❌ Generate revenue from this software in any way
-- ❌ Remove attribution or claim it as your own work
+**Commercial licensing** (proprietary use without AGPL obligations) is available — contact security@emmi.zone.
 
 See [LICENSE](LICENSE) for full legal details.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. By contributing, you agree that your contributions will be licensed under the same non-commercial terms.
+Contributions are welcome! Please feel free to submit a Pull Request. By contributing, you agree that your contributions will be licensed under the AGPL-3.0.
 
 ---
 
@@ -201,4 +201,4 @@ FlowForge-Track was born from the need for a simple, privacy-focused time tracki
 
 ---
 
-*This project is open source but not for commercial use. If you find it valuable, consider sharing it with others who might benefit from it.*
+*This project is open source under AGPL-3.0. If you find it valuable, consider sharing it with others who might benefit from it.*
