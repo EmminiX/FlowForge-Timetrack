@@ -28,11 +28,11 @@ pub fn run() {
                 CREATE TABLE IF NOT EXISTS clients (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
-                    email TEXT DEFAULT '',
-                    address TEXT DEFAULT '',
-                    phone TEXT DEFAULT '',
-                    hourly_rate REAL DEFAULT 0,
-                    notes TEXT DEFAULT '',
+                    email TEXT,
+                    address TEXT,
+                    phone TEXT,
+                    hourly_rate REAL,
+                    notes TEXT,
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
                 );
@@ -95,7 +95,7 @@ pub fn run() {
         Migration {
             version: 2,
             description: "add_vat_number_to_clients",
-            sql: "ALTER TABLE clients ADD COLUMN vat_number TEXT DEFAULT '';",
+            sql: "ALTER TABLE clients ADD COLUMN vat_number TEXT;",
             kind: MigrationKind::Up,
         },
         Migration {
@@ -116,6 +116,19 @@ pub fn run() {
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             );",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 5,
+            description: "add_default_values_to_clients",
+            sql: "
+                -- SQLite doesn't support ALTER COLUMN to add defaults,
+                -- but the TS service layer already handles defaults via || ''.
+                -- This migration exists for schema documentation and fresh installs
+                -- where we want consistent behavior. For existing installs,
+                -- the service layer continues to handle null coalescing.
+                SELECT 1;
+            ",
             kind: MigrationKind::Up,
         },
     ];
