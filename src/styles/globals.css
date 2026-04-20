@@ -1,42 +1,50 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  
+
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --font-sans: 'Lexend Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 @layer base {
   :root {
     --background: #ffffff;
-    --foreground: #0f172a; /* Slate 900 - High contrast */
+    --foreground: #0f172a;
+    /* Slate 900 - High contrast */
 
-    --primary: #2563eb; /* Blue 600 */
+    --primary: #2563eb;
+    /* Blue 600 */
     --primary-foreground: #ffffff;
 
-    --secondary: #f1f5f9; /* Slate 100 */
+    --secondary: #f1f5f9;
+    /* Slate 100 */
     --secondary-foreground: #0f172a;
 
     --muted: #f1f5f9;
-    --muted-foreground: #64748b; /* Slate 500 */
+    --muted-foreground: #64748b;
+    /* Slate 500 */
 
     --accent: #f1f5f9;
     --accent-foreground: #0f172a;
@@ -44,7 +52,8 @@
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
 
-    --border: #e2e8f0; /* Slate 200 */
+    --border: #e2e8f0;
+    /* Slate 200 */
     --input: #e2e8f0;
     --ring: #2563eb;
 
@@ -52,17 +61,22 @@
   }
 
   .dark {
-    --background: #020617; /* Slate 950 */
-    --foreground: #f8fafc; /* Slate 50 */
+    --background: #020617;
+    /* Slate 950 */
+    --foreground: #f8fafc;
+    /* Slate 50 */
 
-    --primary: #3b82f6; /* Blue 500 */
+    --primary: #3b82f6;
+    /* Blue 500 */
     --primary-foreground: #ffffff;
 
-    --secondary: #1e293b; /* Slate 800 */
+    --secondary: #1e293b;
+    /* Slate 800 */
     --secondary-foreground: #f8fafc;
 
     --muted: #1e293b;
-    --muted-foreground: #94a3b8; /* Slate 400 */
+    --muted-foreground: #94a3b8;
+    /* Slate 400 */
 
     --accent: #1e293b;
     --accent-foreground: #f8fafc;
@@ -74,13 +88,636 @@
     --input: #1e293b;
     --ring: #3b82f6;
   }
+
+  /* High Contrast Theme for Accessibility */
+  .high-contrast {
+    --background: #000000;
+    --foreground: #ffffff;
+
+    --primary: #ffff00;
+    /* Yellow for maximum contrast */
+    --primary-foreground: #000000;
+
+    --secondary: #1a1a1a;
+    --secondary-foreground: #ffffff;
+
+    --muted: #1a1a1a;
+    --muted-foreground: #cccccc;
+
+    --accent: #00ffff;
+    /* Cyan for accents */
+    --accent-foreground: #000000;
+
+    --destructive: #ff0000;
+    --destructive-foreground: #ffffff;
+
+    --border: #ffffff;
+    --input: #333333;
+    --ring: #ffff00;
+  }
+
+  /* High contrast specific adjustments */
+  .high-contrast button,
+  .high-contrast input,
+  .high-contrast select,
+  .high-contrast textarea {
+    border-width: 2px;
+  }
+
+  .high-contrast a {
+    text-decoration: underline;
+  }
+}
+
+/* Reduced Motion - disable animations when user prefers */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Manual reduced motion toggle via data attribute */
+[data-reduce-motion="true"] *,
+[data-reduce-motion="true"] *::before,
+[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Disable hover translate effects when animations disabled */
+[data-reduce-motion="true"] .card-hover:hover,
+[data-reduce-motion="true"] .hover-scale:hover,
+[data-reduce-motion="true"] .widget-button:hover {
+  transform: none !important;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
   }
+}
+
+/* Density scaling system */
+:root {
+  --density-scale: 1;
+  --spacing-xs: calc(0.25rem * var(--density-scale));
+  --spacing-sm: calc(0.5rem * var(--density-scale));
+  --spacing-md: calc(1rem * var(--density-scale));
+  --spacing-lg: calc(1.5rem * var(--density-scale));
+  --spacing-xl: calc(2rem * var(--density-scale));
+}
+
+/* Density-aware components */
+[data-density="compact"] {
+  --card-padding: 0.75rem;
+  --button-padding-y: 0.375rem;
+  --button-padding-x: 0.75rem;
+  --input-padding: 0.375rem 0.5rem;
+  --gap-default: 0.5rem;
+}
+
+[data-density="comfortable"] {
+  --card-padding: 1rem;
+  --button-padding-y: 0.5rem;
+  --button-padding-x: 1rem;
+  --input-padding: 0.5rem 0.75rem;
+  --gap-default: 0.75rem;
+}
+
+[data-density="spacious"] {
+  --card-padding: 1.5rem;
+  --button-padding-y: 0.75rem;
+  --button-padding-x: 1.25rem;
+  --input-padding: 0.75rem 1rem;
+  --gap-default: 1rem;
+}
+
+/* ========================================
+   Animation System
+   ======================================== */
+
+/* Animation Keyframes */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoom-in-95 {
+  from {
+    transform: scale(0.95);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes zoom-out-95 {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slide-in-from-top {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-25%);
+  }
+}
+
+@keyframes flicker {
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
+  }
+
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 35px rgba(249, 115, 22, 1);
+  }
+}
+
+/* Animation Utility Classes */
+.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.animate-out {
+  animation-duration: 150ms;
+  animation-timing-function: ease-in;
+  animation-fill-mode: both;
+}
+
+/* Fade animations */
+.fade-in {
+  animation-name: fade-in;
+}
+
+.fade-out {
+  animation-name: fade-out;
+}
+
+/* Zoom animations */
+.zoom-in-95 {
+  animation-name: zoom-in-95;
+}
+
+.zoom-out-95 {
+  animation-name: zoom-out-95;
+}
+
+/* Slide animations */
+.slide-in-from-top {
+  animation-name: slide-in-from-top;
+}
+
+.slide-in-from-bottom {
+  animation-name: slide-in-from-bottom;
+}
+
+.slide-in-from-left {
+  animation-name: slide-in-from-left;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}
+
+/* Continuous animations */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-flicker {
+  animation: flicker 1.5s ease-in-out infinite;
+  border-color: #f97316 !important;
+  /* Orange-500 */
+}
+
+/* Text flicker animation for timer display */
+@keyframes flicker-timer {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-flicker-timer {
+  animation: flicker-timer 1.5s ease-in-out infinite;
+}
+
+/* Duration modifiers */
+.duration-75 {
+  animation-duration: 75ms;
+}
+
+.duration-100 {
+  animation-duration: 100ms;
+}
+
+.duration-150 {
+  animation-duration: 150ms;
+}
+
+.duration-200 {
+  animation-duration: 200ms;
+}
+
+.duration-300 {
+  animation-duration: 300ms;
+}
+
+.duration-500 {
+  animation-duration: 500ms;
+}
+
+/* ========================================
+   Interactive Animations
+   ======================================== */
+
+/* Page content fade-in */
+.page-enter {
+  animation: fade-in 300ms ease-out, slide-up 300ms ease-out;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card hover lift effect */
+.card-hover {
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Button press effect */
+.btn-press {
+  transition: transform 100ms ease-out, background-color 150ms ease-out;
+}
+
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Smooth hover transitions for all interactive elements */
+.hover-smooth {
+  transition: all 150ms ease-out;
+}
+
+/* List item stagger animation */
+.list-item {
+  animation: slide-up 300ms ease-out backwards;
+}
+
+.list-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.list-item:nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.list-item:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.list-item:nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.list-item:nth-child(5) {
+  animation-delay: 200ms;
+}
+
+.list-item:nth-child(6) {
+  animation-delay: 250ms;
+}
+
+.list-item:nth-child(7) {
+  animation-delay: 300ms;
+}
+
+.list-item:nth-child(8) {
+  animation-delay: 350ms;
+}
+
+.list-item:nth-child(9) {
+  animation-delay: 400ms;
+}
+
+.list-item:nth-child(10) {
+  animation-delay: 450ms;
+}
+
+/* Glow effect on focus */
+.focus-glow:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Gentle scale on hover */
+.hover-scale {
+  transition: transform 150ms ease-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Icon spin on hover */
+.icon-spin-hover:hover svg {
+  animation: spin 500ms ease-in-out;
+}
+
+/* Subtle pulse for active states */
+.active-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Loading shimmer effect */
+.shimmer {
+  background: linear-gradient(90deg,
+      var(--muted) 25%,
+      var(--background) 50%,
+      var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Floating Timer Widget Styles */
+.widget-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--background) 0%, var(--secondary) 100%);
+  color: var(--foreground);
+  border-radius: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.08);
+  user-select: none;
+  cursor: grab;
+  box-sizing: border-box;
+  margin: 0;
+  overflow: hidden;
+}
+
+.widget-container:active {
+  cursor: grabbing;
+}
+
+.widget-idle {
+  justify-content: center;
+  border-color: rgba(100, 116, 139, 0.3);
+  padding: 0;
+}
+
+.widget-idle-text {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.widget-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  margin-right: -2px;
+}
+
+.widget-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 0;
+  margin-right: 2px;
+}
+
+.widget-time {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.widget-project {
+  font-size: 10px;
+  color: var(--muted-foreground);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  opacity: 1;
+}
+
+.widget-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.1);
+  color: rgb(37, 99, 235);
+  /* Blue 600 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dark .widget-button {
+  background: rgba(59, 130, 246, 0.15);
+  color: rgb(147, 197, 253);
+  /* Blue 300 */
+}
+
+.widget-button:hover {
+  background: rgba(37, 99, 235, 0.2);
+  transform: scale(1.05);
+}
+
+.dark .widget-button:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.widget-button:active {
+  transform: scale(0.95);
+}
+
+.widget-button-stop {
+  background: rgba(220, 38, 38, 0.1);
+  color: rgb(220, 38, 38);
+  /* Red 600 */
+}
+
+.dark .widget-button-stop {
+  background: rgba(239, 68, 68, 0.15);
+  color: rgb(252, 165, 165);
+  /* Red 300 */
+}
+
+.widget-button-stop:hover {
+  background: rgba(220, 38, 38, 0.2);
+}
+
+.dark .widget-button-stop:hover {
+  background: rgba(239, 68, 68, 0.3);
 }

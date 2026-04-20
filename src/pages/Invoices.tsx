@@ -1,5 +1,5 @@
 import { InvoicesList } from '../features/invoices';
 
 export function Invoices() {
-    return <InvoicesList />;
+  return <InvoicesList />;
 }

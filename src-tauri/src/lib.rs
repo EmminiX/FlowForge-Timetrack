@@ -1,9 +1,21 @@
+use tauri::Manager;
 use tauri_plugin_sql::{Migration, MigrationKind};
+use user_idle::UserIdle;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+// Get system idle time in seconds
+#[tauri::command]
+fn get_idle_time() -> u64 {
+    let time = UserIdle::get_time()
+        .map(|idle| idle.as_seconds())
+        .unwrap_or(0);
+    // println!("Rust Idle Check: {}s", time);
+    time
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -79,17 +91,122 @@ pub fn run() {
                 );
             ",
             kind: MigrationKind::Up,
-        }
+        },
+        Migration {
+            version: 2,
+            description: "add_vat_number_to_clients",
+            sql: "ALTER TABLE clients ADD COLUMN vat_number TEXT;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 3,
+            description: "add_currency_to_clients",
+            sql: "ALTER TABLE clients ADD COLUMN currency TEXT DEFAULT 'EUR';",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 4,
+            description: "create_products_table",
+            sql: "CREATE TABLE IF NOT EXISTS products (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT DEFAULT '',
+                price REAL DEFAULT 0,
+                sku TEXT DEFAULT '',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 5,
+            description: "add_default_values_to_clients",
+            sql: "
+                -- SQLite doesn't support ALTER COLUMN to add defaults,
+                -- but the TS service layer already handles defaults via || ''.
+                -- This migration exists for schema documentation and fresh installs
+                -- where we want consistent behavior. For existing installs,
+                -- the service layer continues to handle null coalescing.
+                SELECT 1;
+            ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 6,
+            description: "add_down_payment_to_invoices",
+            sql: "ALTER TABLE invoices ADD COLUMN down_payment REAL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 7,
+            description: "create_down_payments_table",
+            sql: "CREATE TABLE IF NOT EXISTS down_payments (
+                id TEXT PRIMARY KEY,
+                client_id TEXT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+                project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+                amount REAL NOT NULL,
+                payment_date TEXT NOT NULL,
+                notes TEXT DEFAULT '',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_down_payments_client_id ON down_payments(client_id);
+            CREATE INDEX IF NOT EXISTS idx_down_payments_payment_date ON down_payments(payment_date);",
+            kind: MigrationKind::Up,
+        },
     ];
 
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(
             tauri_plugin_sql::Builder::new()
                 .add_migrations("sqlite:flowforge.db", migrations)
                 .build(),
         )
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_notification::init());
+
+    // Setup global shortcuts plugin on desktop platforms
+    // Note: Actual shortcut registration is done via JavaScript API
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_global_shortcut::Builder::new().build());
+    }
+
+    builder
+        .invoke_handler(tauri::generate_handler![greet, get_idle_time])
+        .on_window_event(|window, event| {
+            // When main window is closed, close widget and exit app
+            if let tauri::WindowEvent::CloseRequested { .. } = event {
+                if window.label() == "main" {
+                    // Close the widget window if it exists
+                    if let Some(widget_window) = window.app_handle().get_webview_window("widget") {
+                        let _ = widget_window.destroy();
+                    }
+                    // Exit the application
+                    std::process::exit(0);
+                }
+            }
+        })
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app_handle, event| {
+            // Handle dock icon click on macOS only
+            // RunEvent::Reopen is macOS-specific and doesn't exist on Windows/Linux
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen { .. } = event {
+                // Always try to restore main window on dock click
+                // (widget might be visible but main window minimized)
+                if let Some(main_window) = app_handle.get_webview_window("main") {
+                    let _ = main_window.show();
+                    let _ = main_window.unminimize();
+                    let _ = main_window.set_focus();
+                }
+            }
+
+            // Suppress unused variable warning on non-macOS platforms
+            #[cfg(not(target_os = "macos"))]
+            let _ = (app_handle, event);
+        });
 }

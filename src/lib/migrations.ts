@@ -2,18 +2,20 @@
 // Run these on app startup to ensure schema is up to date
 
 import { getDb } from './db';
+import { dbLogger } from './logger';
 
 export async function runMigrations(): Promise<void> {
-    const db = await getDb();
+  const db = await getDb();
 
-    // Create clients table
-    await db.execute(`
+  // Create clients table
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS clients (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       email TEXT DEFAULT '',
       address TEXT DEFAULT '',
       phone TEXT DEFAULT '',
+      vat_number TEXT DEFAULT '',
       hourly_rate REAL DEFAULT 0,
       notes TEXT DEFAULT '',
       created_at TEXT NOT NULL,
@@ -21,8 +23,8 @@ export async function runMigrations(): Promise<void> {
     )
   `);
 
-    // Create projects table
-    await db.execute(`
+  // Create projects table
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS projects (
       id TEXT PRIMARY KEY,
       client_id TEXT REFERENCES clients(id) ON DELETE SET NULL,
@@ -35,8 +37,8 @@ export async function runMigrations(): Promise<void> {
     )
   `);
 
-    // Create time_entries table
-    await db.execute(`
+  // Create time_entries table
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS time_entries (
       id TEXT PRIMARY KEY,
       project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -50,8 +52,8 @@ export async function runMigrations(): Promise<void> {
     )
   `);
 
-    // Create invoices table
-    await db.execute(`
+  // Create invoices table
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS invoices (
       id TEXT PRIMARY KEY,
       client_id TEXT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
@@ -66,8 +68,8 @@ export async function runMigrations(): Promise<void> {
     )
   `);
 
-    // Create invoice_line_items table
-    await db.execute(`
+  // Create invoice_line_items table
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS invoice_line_items (
       id TEXT PRIMARY KEY,
       invoice_id TEXT NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
@@ -77,30 +79,86 @@ export async function runMigrations(): Promise<void> {
     )
   `);
 
-    // Create settings table (key-value store)
-    await db.execute(`
+  // Create settings table (key-value store)
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     )
   `);
 
-    // Create indexes for common queries
-    await db.execute(`
+  // Create indexes for common queries
+  await db.execute(`
     CREATE INDEX IF NOT EXISTS idx_projects_client_id ON projects(client_id)
   `);
-    await db.execute(`
+  await db.execute(`
     CREATE INDEX IF NOT EXISTS idx_time_entries_project_id ON time_entries(project_id)
   `);
-    await db.execute(`
+  await db.execute(`
     CREATE INDEX IF NOT EXISTS idx_time_entries_start_time ON time_entries(start_time)
   `);
-    await db.execute(`
+  await db.execute(`
     CREATE INDEX IF NOT EXISTS idx_invoices_client_id ON invoices(client_id)
   `);
-    await db.execute(`
+  await db.execute(`
     CREATE INDEX IF NOT EXISTS idx_invoice_line_items_invoice_id ON invoice_line_items(invoice_id)
+    `);
+
+  // Create products table
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS products(
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      price REAL DEFAULT 0,
+      sku TEXT DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+    `);
+
+  // Migration: Add vat_number column to clients if it doesn't exist
+  try {
+    await db.execute(`ALTER TABLE clients ADD COLUMN vat_number TEXT DEFAULT ''`);
+  } catch {
+    // Column already exists, ignore error
+  }
+
+  // Migration: Add currency column to clients if it doesn't exist
+  try {
+    await db.execute(`ALTER TABLE clients ADD COLUMN currency TEXT DEFAULT 'EUR'`);
+  } catch {
+    // Column already exists, ignore error
+  }
+
+  // Migration: Add down_payment column to invoices if it doesn't exist
+  try {
+    await db.execute(`ALTER TABLE invoices ADD COLUMN down_payment REAL DEFAULT 0`);
+  } catch {
+    // Column already exists, ignore error
+  }
+
+  // Create down_payments table (payment ledger)
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS down_payments (
+      id TEXT PRIMARY KEY,
+      client_id TEXT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+      project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+      amount REAL NOT NULL,
+      payment_date TEXT NOT NULL,
+      notes TEXT DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
   `);
 
-    console.log('Database migrations completed successfully');
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_down_payments_client_id ON down_payments(client_id)
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_down_payments_payment_date ON down_payments(payment_date)
+  `);
+
+  dbLogger.info('Database migrations completed successfully');
 }
