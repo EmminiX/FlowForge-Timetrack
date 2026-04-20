@@ -11,22 +11,22 @@
   },
   "dependencies": {
     "@fontsource-variable/lexend": "^5.2.11",
-    "@tauri-apps/api": "~2.9.1",
-    "@tauri-apps/plugin-dialog": "~2.6.0",
-    "@tauri-apps/plugin-fs": "~2.4.5",
+    "@tauri-apps/api": "~2.10.1",
+    "@tauri-apps/plugin-dialog": "~2.7.0",
+    "@tauri-apps/plugin-fs": "~2.5.0",
     "@tauri-apps/plugin-global-shortcut": "~2.3.1",
     "@tauri-apps/plugin-notification": "~2.3.3",
     "@tauri-apps/plugin-opener": "~2.5",
-    "@tauri-apps/plugin-sql": "~2.3.1",
+    "@tauri-apps/plugin-sql": "~2.4.0",
     "clsx": "^2.1.1",
     "jspdf": "^4.2.1",
-    "lucide-react": "^0.562.0",
+    "lucide-react": "^0.563.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.71.1",
-    "react-router-dom": "^7.12.0",
+    "react-router-dom": "^7.14.1",
     "tailwind-merge": "^3.4.0",
-    "zod": "^4.3.5",
+    "zod": "^4.3.6",
     "zustand": "^5.0.10"
   },
   "devDependencies": {
@@ -54,7 +54,7 @@
     "tailwindcss": "^4.1.18",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.53.1",
-    "vite": "^7.0.4",
+    "vite": "^7.3.2",
     "vitest": "^4.0.17"
   }
 }
