@@ -56,7 +56,9 @@ export function DashboardSummary() {
       }
     };
     fetchChart();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [chartRange]);
 
   useEffect(() => {

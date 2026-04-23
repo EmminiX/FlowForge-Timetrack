@@ -83,7 +83,12 @@ export function WhatsNewModal() {
   if (!sections) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleDismiss} title={`What's New in v${currentVersion}`} size='lg'>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleDismiss}
+      title={`What's New in v${currentVersion}`}
+      size='lg'
+    >
       <div className='space-y-5'>
         {sections.map((section) => (
           <div key={section.title}>

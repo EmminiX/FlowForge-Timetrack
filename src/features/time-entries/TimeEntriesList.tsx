@@ -1,5 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Trash2, Clock, Calendar, CheckCircle, XCircle, Pencil, Download } from 'lucide-react';
+import {
+  Search,
+  Trash2,
+  Clock,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Pencil,
+  Download,
+} from 'lucide-react';
 import type { TimeEntryWithProject, TimeEntry } from '../../types';
 import { formatDurationShort, calculateDuration } from '../../types';
 import { timeEntryService, projectService, clientService } from '../../services';
@@ -248,16 +257,24 @@ export function TimeEntriesList() {
 
   const handleExportCSV = async () => {
     try {
-      const headers = ['Date', 'Project', 'Client', 'Start', 'End', 'Duration', 'Billable', 'Billed', 'Notes'];
+      const headers = [
+        'Date',
+        'Project',
+        'Client',
+        'Start',
+        'End',
+        'Duration',
+        'Billable',
+        'Billed',
+        'Notes',
+      ];
       const rows = filteredEntries.map((entry) => [
         new Date(entry.startTime).toLocaleDateString(),
         entry.projectName || '',
         entry.clientName || '',
         new Date(entry.startTime).toLocaleTimeString(),
         entry.endTime ? new Date(entry.endTime).toLocaleTimeString() : '',
-        entry.endTime
-          ? formatDurationShort(calculateDuration(entry))
-          : '',
+        entry.endTime ? formatDurationShort(calculateDuration(entry)) : '',
         entry.isBillable ? 'Yes' : 'No',
         entry.isBilled ? 'Yes' : 'No',
         entry.notes || '',
@@ -305,38 +322,38 @@ export function TimeEntriesList() {
             Export CSV
           </Button>
           {selectedIds.size > 0 && (
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-muted-foreground'>
-              {selectedIds.size} selected ({formatDurationShort(selectedTotal)})
-            </span>
-            {hasSelectedUnbilledEntries && (
-              <Button
-                variant='secondary'
-                size='sm'
-                onClick={handleMarkAsBilled}
-                loading={submitting}
-              >
-                <CheckCircle className='w-4 h-4' />
-                Mark as Billed
+            <div className='flex items-center gap-2'>
+              <span className='text-sm text-muted-foreground'>
+                {selectedIds.size} selected ({formatDurationShort(selectedTotal)})
+              </span>
+              {hasSelectedUnbilledEntries && (
+                <Button
+                  variant='secondary'
+                  size='sm'
+                  onClick={handleMarkAsBilled}
+                  loading={submitting}
+                >
+                  <CheckCircle className='w-4 h-4' />
+                  Mark as Billed
+                </Button>
+              )}
+              {hasSelectedBilledEntries && (
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={handleMarkAsUnbilled}
+                  loading={submitting}
+                >
+                  <XCircle className='w-4 h-4' />
+                  Unbill
+                </Button>
+              )}
+              <Button variant='destructive' size='sm' onClick={handleDeleteSelected}>
+                <Trash2 className='w-4 h-4' />
+                Delete
               </Button>
-            )}
-            {hasSelectedBilledEntries && (
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={handleMarkAsUnbilled}
-                loading={submitting}
-              >
-                <XCircle className='w-4 h-4' />
-                Unbill
-              </Button>
-            )}
-            <Button variant='destructive' size='sm' onClick={handleDeleteSelected}>
-              <Trash2 className='w-4 h-4' />
-              Delete
-            </Button>
-          </div>
-        )}
+            </div>
+          )}
         </div>
       </div>
 

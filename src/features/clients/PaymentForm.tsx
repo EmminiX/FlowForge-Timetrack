@@ -33,7 +33,10 @@ export function PaymentForm({
   // Load client's projects for dropdown
   useEffect(() => {
     if (isOpen && clientId) {
-      projectService.getByClientId(clientId).then(setProjects).catch(() => setProjects([]));
+      projectService
+        .getByClientId(clientId)
+        .then(setProjects)
+        .catch(() => setProjects([]));
     }
   }, [isOpen, clientId]);
 

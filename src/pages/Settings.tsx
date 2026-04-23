@@ -625,7 +625,9 @@ export function Settings() {
                         <span className='font-medium text-primary'>Click to upload</span> or drag
                         and drop
                       </p>
-                      <p className='text-xs text-muted-foreground mt-1'>PNG, JPG up to 1MB. Used on all invoices.</p>
+                      <p className='text-xs text-muted-foreground mt-1'>
+                        PNG, JPG up to 1MB. Used on all invoices.
+                      </p>
                     </div>
                     <input
                       type='file'
@@ -671,7 +673,9 @@ export function Settings() {
                 label='Bank Transfer Details'
                 value={localSettings.paymentBankDetails}
                 onChange={(e) => handleLocalChange('paymentBankDetails', e.target.value)}
-                onBlur={() => handleAutoSave('paymentBankDetails', localSettings.paymentBankDetails)}
+                onBlur={() =>
+                  handleAutoSave('paymentBankDetails', localSettings.paymentBankDetails)
+                }
                 placeholder={'IBAN: NL00 BANK 0000 0000 00\nBIC: BANKCODE\nBank Name'}
                 rows={4}
               />
@@ -1137,8 +1141,8 @@ export function Settings() {
                 <h4 className='font-medium mb-2'>Quick Add Templates</h4>
                 <p className='text-sm text-muted-foreground'>
                   Use the "Quick Add" button to instantly create products from pre-filled templates.
-                  Templates provide suggested names, descriptions, and prices for common service types
-                  that you can customize before saving.
+                  Templates provide suggested names, descriptions, and prices for common service
+                  types that you can customize before saving.
                 </p>
               </div>
               <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
@@ -1205,8 +1209,8 @@ export function Settings() {
                     payments (appears on PDF invoices).
                   </li>
                   <li>
-                    • <strong>Bank Transfer Details:</strong> Add IBAN, bank name, and reference info
-                    for direct transfers.
+                    • <strong>Bank Transfer Details:</strong> Add IBAN, bank name, and reference
+                    info for direct transfers.
                   </li>
                 </ul>
               </div>
@@ -1335,8 +1339,8 @@ export function Settings() {
                     previous month.
                   </li>
                   <li>
-                    • <strong>Project Breakdown:</strong> All-time hours per project with color-coded
-                    progress bars showing each project's share of total time.
+                    • <strong>Project Breakdown:</strong> All-time hours per project with
+                    color-coded progress bars showing each project's share of total time.
                   </li>
                 </ul>
               </div>
@@ -1419,7 +1423,8 @@ export function Settings() {
                 >
                   emmi.engineer
                 </a>{' '}
-                — a freelance-first time tracking and invoicing app designed for simplicity and speed.
+                — a freelance-first time tracking and invoicing app designed for simplicity and
+                speed.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Links</h4>

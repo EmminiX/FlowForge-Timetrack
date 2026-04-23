@@ -47,7 +47,6 @@ export function ProjectForm({
   // Reset form when modal opens with new data
   useEffect(() => {
     if (isOpen) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       setFormData({
         name: initialData?.name || '',
         description: initialData?.description || '',

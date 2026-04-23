@@ -81,7 +81,10 @@ export function Header() {
                     className='flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground'
                   />
                   {query && (
-                    <button onClick={() => setQuery('')} className='text-muted-foreground hover:text-foreground'>
+                    <button
+                      onClick={() => setQuery('')}
+                      className='text-muted-foreground hover:text-foreground'
+                    >
                       <X className='w-4 h-4' />
                     </button>
                   )}
@@ -108,7 +111,9 @@ export function Header() {
                             <div className='flex-1 min-w-0'>
                               <p className='text-sm font-medium truncate'>{result.title}</p>
                               {result.subtitle && (
-                                <p className='text-xs text-muted-foreground truncate'>{result.subtitle}</p>
+                                <p className='text-xs text-muted-foreground truncate'>
+                                  {result.subtitle}
+                                </p>
                               )}
                             </div>
                             <span className='text-xs text-muted-foreground capitalize shrink-0'>
@@ -122,9 +127,15 @@ export function Header() {
                 )}
 
                 <div className='px-4 py-2 border-t border-border flex items-center gap-4 text-xs text-muted-foreground'>
-                  <span><kbd className='px-1 bg-secondary rounded'>↑↓</kbd> Navigate</span>
-                  <span><kbd className='px-1 bg-secondary rounded'>↵</kbd> Select</span>
-                  <span><kbd className='px-1 bg-secondary rounded'>Esc</kbd> Close</span>
+                  <span>
+                    <kbd className='px-1 bg-secondary rounded'>↑↓</kbd> Navigate
+                  </span>
+                  <span>
+                    <kbd className='px-1 bg-secondary rounded'>↵</kbd> Select
+                  </span>
+                  <span>
+                    <kbd className='px-1 bg-secondary rounded'>Esc</kbd> Close
+                  </span>
                 </div>
               </div>
             </div>

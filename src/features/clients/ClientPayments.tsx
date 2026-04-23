@@ -113,8 +113,10 @@ export function ClientPayments({ clientId, currency }: ClientPaymentsProps) {
         <div className='text-sm text-muted-foreground'>
           {payments.length > 0 ? (
             <>
-              <span className='font-medium text-foreground'>{formatCurrency(totalDeposits, currency)}</span>
-              {' '}total deposits ({payments.length} payment{payments.length !== 1 ? 's' : ''})
+              <span className='font-medium text-foreground'>
+                {formatCurrency(totalDeposits, currency)}
+              </span>{' '}
+              total deposits ({payments.length} payment{payments.length !== 1 ? 's' : ''})
             </>
           ) : (
             'No payments recorded'

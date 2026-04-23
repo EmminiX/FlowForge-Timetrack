@@ -15,7 +15,11 @@ import { useSettings } from '../../contexts/SettingsContext';
 
 import { Switch } from '../ui';
 
-export function Sidebar() {
+interface SidebarProps {
+  topPadding?: string;
+}
+
+export function Sidebar({ topPadding = '0' }: SidebarProps) {
   const { settings, updateSetting } = useSettings();
   const mainLinks = [
     { to: '/', label: 'Timer', icon: Timer },
@@ -27,7 +31,10 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className='w-64 bg-secondary border-r border-border h-screen flex flex-col p-4 shrink-0'>
+    <aside
+      className='w-64 bg-secondary border-r border-border h-screen flex flex-col p-4 shrink-0'
+      style={{ paddingTop: topPadding ? `calc(${topPadding} + 1rem)` : '1rem' }}
+    >
       <div className='text-2xl font-bold mb-8 px-4 text-primary'>FlowForge-Track</div>
 
       <nav className='flex-1 space-y-1'>
@@ -84,12 +91,20 @@ export function Sidebar() {
           <span>Settings</span>
         </NavLink>
         <div className='px-4 pt-3 pb-1'>
-          <a href='https://flowforge.emmi.zone/' target='_blank' rel='noopener noreferrer'
-             className='block text-xs text-muted-foreground hover:text-foreground transition-colors'>
+          <a
+            href='https://flowforge.emmi.zone/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='block text-xs text-muted-foreground hover:text-foreground transition-colors'
+          >
             flowforge.emmi.zone
           </a>
-          <a href='https://emmi.engineer' target='_blank' rel='noopener noreferrer'
-             className='block text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors mt-0.5'>
+          <a
+            href='https://emmi.engineer'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='block text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors mt-0.5'
+          >
             by emmi.engineer
           </a>
         </div>

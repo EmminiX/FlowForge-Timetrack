@@ -46,7 +46,10 @@ export function TimerView() {
 
   // Load active projects
   useEffect(() => {
-    projectService.getActive().then(setProjects).catch((err) => timeEntryLogger.error('Failed to load active projects:', err));
+    projectService
+      .getActive()
+      .then(setProjects)
+      .catch((err) => timeEntryLogger.error('Failed to load active projects:', err));
   }, []);
 
   // Update elapsed time every second when running
@@ -107,7 +110,9 @@ export function TimerView() {
 
   // Emit break status to widget
   useEffect(() => {
-    emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch((err) => timeEntryLogger.error('Failed to emit break toggle:', err));
+    emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch((err) =>
+      timeEntryLogger.error('Failed to emit break toggle:', err),
+    );
   }, [showBreakReminder, isOnBreak]);
 
   // Listen for idle toggle events
