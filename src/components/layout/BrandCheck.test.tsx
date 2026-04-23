@@ -19,21 +19,22 @@ vi.mock('../../services', () => ({
 }));
 
 describe('Brand Verification', () => {
-  it('Sidebar displays FlowForge-Track', () => {
+  it('Sidebar displays TimeSage', () => {
     render(
       <BrowserRouter>
         <Sidebar />
       </BrowserRouter>,
     );
-    expect(screen.getByText('FlowForge-Track')).toBeInTheDocument();
+    expect(screen.getByText('TimeSage')).toBeInTheDocument();
   });
 
-  it('Header displays FlowForge-Track', () => {
+  it('Header displays route-aware title', () => {
     render(
       <BrowserRouter>
         <Header />
       </BrowserRouter>,
     );
-    expect(screen.getByText('FlowForge-Track')).toBeInTheDocument();
+    // Header should show "Timer" for the root route
+    expect(screen.getByText('Timer')).toBeInTheDocument();
   });
 });

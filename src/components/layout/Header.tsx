@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Users, FolderKanban, FileText, X } from 'lucide-react';
 import { useGlobalSearch, type SearchResult } from '../../hooks/useGlobalSearch';
 
@@ -10,10 +10,25 @@ const TYPE_ICONS: Record<string, typeof Users> = {
   'time-entry': FileText,
 };
 
+// Route to title mapping
+const ROUTE_TITLES: Record<string, { title: string; subtitle?: string }> = {
+  '/': { title: 'Timer', subtitle: 'Track your time' },
+  '/clients': { title: 'Clients', subtitle: 'Manage your clients' },
+  '/projects': { title: 'Projects', subtitle: 'Organize your work' },
+  '/time-entries': { title: 'Time Entries', subtitle: 'View your tracked time' },
+  '/invoices': { title: 'Invoices', subtitle: 'Create and manage invoices' },
+  '/products': { title: 'Products', subtitle: 'Service catalog' },
+  '/settings': { title: 'Settings', subtitle: 'Configure your preferences' },
+};
+
 export function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { query, setQuery, isOpen, open, close, results } = useGlobalSearch();
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Get current page title based on route
+  const pageInfo = ROUTE_TITLES[location.pathname] || { title: 'TimeSage' };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -51,7 +66,10 @@ export function Header() {
 
   return (
     <header className='h-16 border-b border-border flex items-center px-8 bg-background shrink-0'>
-      <h1 className='text-xl font-semibold'>FlowForge-Track</h1>
+      <div>
+        <h1 className='text-xl font-semibold'>{pageInfo.title}</h1>
+        {pageInfo.subtitle && <p className='text-sm text-muted-foreground'>{pageInfo.subtitle}</p>}
+      </div>
 
       <div className='ml-auto relative'>
         <button
