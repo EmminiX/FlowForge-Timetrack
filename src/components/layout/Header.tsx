@@ -50,7 +50,7 @@ export function Header() {
   };
 
   return (
-    <header className='h-16 border-b border-border flex items-center px-8 bg-background shrink-0'>
+    <header className='h-16 border-b border-border flex items-center bg-background shrink-0' style={{ paddingInline: 'var(--shell-header-px)' }}>
       <h1 className='text-xl font-semibold'>FlowForge-Track</h1>
 
       <div className='ml-auto relative'>

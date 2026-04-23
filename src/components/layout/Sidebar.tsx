@@ -26,19 +26,34 @@ export function Sidebar() {
     { to: '/products', label: 'Products', icon: Package },
   ];
 
-  return (
-    <aside className='w-64 bg-secondary border-r border-border h-screen flex flex-col p-4 shrink-0'>
-      <div className='text-2xl font-bold mb-8 px-4 text-primary'>FlowForge-Track</div>
+  const navItemStyle = {
+    paddingTop: 'var(--shell-nav-item-py)',
+    paddingBottom: 'var(--shell-nav-item-py)',
+    paddingInline: 'var(--shell-nav-item-px)',
+  };
 
-      <nav className='flex-1 space-y-1'>
+  return (
+    <aside
+      className='w-64 bg-secondary border-r border-border h-screen flex flex-col shrink-0'
+      style={{ padding: 'var(--shell-sidebar-padding)' }}
+    >
+      <div
+        className='text-2xl font-bold text-primary'
+        style={{ marginBottom: 'var(--shell-brand-mb)', paddingInline: 'var(--shell-nav-item-px)' }}
+      >
+        FlowForge-Track
+      </div>
+
+      <nav className='flex-1 flex flex-col' style={{ gap: 'var(--shell-section-gap)' }}>
         {mainLinks.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             end={link.to === '/'}
+            style={navItemStyle}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale',
+                'flex items-center gap-3 rounded-lg transition-all text-base hover-scale',
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground hover:bg-muted-foreground/10',
@@ -52,8 +67,14 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom Actions */}
-      <div className='pt-4 border-t border-border space-y-1'>
-        <div className='flex items-center justify-between px-4 py-3 rounded-lg text-foreground hover:bg-muted-foreground/10 transition-colors'>
+      <div
+        className='border-t border-border flex flex-col'
+        style={{ paddingTop: 'var(--shell-brand-mb)', gap: 'var(--shell-section-gap)' }}
+      >
+        <div
+          className='flex items-center justify-between rounded-lg text-foreground hover:bg-muted-foreground/10 transition-colors'
+          style={navItemStyle}
+        >
           <div className='flex items-center gap-3'>
             {settings.enableSoundFeedback ? (
               <Volume2 className='w-5 h-5' />
@@ -71,9 +92,10 @@ export function Sidebar() {
         </div>
         <NavLink
           to='/settings'
+          style={navItemStyle}
           className={({ isActive }) =>
             clsx(
-              'flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale',
+              'flex items-center gap-3 rounded-lg transition-all text-base hover-scale',
               isActive
                 ? 'bg-primary text-primary-foreground'
                 : 'text-foreground hover:bg-muted-foreground/10',
@@ -83,7 +105,7 @@ export function Sidebar() {
           <Settings className='w-5 h-5' />
           <span>Settings</span>
         </NavLink>
-        <div className='px-4 pt-3 pb-1'>
+        <div style={{ paddingTop: 'var(--shell-nav-item-py)', paddingBottom: 'var(--spacing-xs)', paddingInline: 'var(--shell-nav-item-px)' }}>
           <a href='https://flowforge.emmi.zone/' target='_blank' rel='noopener noreferrer'
              className='block text-xs text-muted-foreground hover:text-foreground transition-colors'>
             flowforge.emmi.zone
