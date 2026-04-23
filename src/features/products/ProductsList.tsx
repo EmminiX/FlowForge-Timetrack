@@ -108,6 +108,7 @@ export function ProductsList() {
       {products.length === 0 ? (
         <EmptyState
           icon={<Package className='w-8 h-8' />}
+          variant='guided'
           title='No items yet'
           description='Create your first product or service to easily add them to invoices.'
           action={
@@ -120,6 +121,7 @@ export function ProductsList() {
       ) : filteredProducts.length === 0 ? (
         <EmptyState
           icon={<Search className='w-8 h-8' />}
+          variant='minimal'
           title='No matching items'
           description='Try searching for something else.'
         />

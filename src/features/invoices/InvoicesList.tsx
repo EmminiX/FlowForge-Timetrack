@@ -188,11 +188,17 @@ export function InvoicesList() {
       {invoices.length === 0 && allInvoicesCount === 0 ? (
         <EmptyState
           icon={<FileText className='w-8 h-8' />}
+          variant='guided'
           title='No invoices yet'
           description={
             clients.length === 0
               ? 'Create a client first to generate invoices.'
               : 'Create your first invoice to get started.'
+          }
+          secondaryText={
+            clients.length > 0
+              ? 'Invoices let you bill clients for the time you have tracked.'
+              : undefined
           }
           action={
             clients.length > 0 ? (
@@ -206,6 +212,7 @@ export function InvoicesList() {
       ) : invoices.length === 0 ? (
         <EmptyState
           icon={<Search className='w-8 h-8' />}
+          variant='minimal'
           title='No matching invoices'
           description='Try selecting a different status filter.'
           action={
