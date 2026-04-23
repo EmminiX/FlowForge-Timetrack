@@ -38,9 +38,9 @@ export function Sidebar() {
             end={link.to === '/'}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale',
+                'relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
                 isActive
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-primary/10 text-primary font-semibold before:absolute before:left-0 before:inset-y-2 before:w-0.5 before:rounded-r-full before:bg-primary'
                   : 'text-foreground hover:bg-muted-foreground/10',
               )
             }
@@ -73,9 +73,9 @@ export function Sidebar() {
           to='/settings'
           className={({ isActive }) =>
             clsx(
-              'flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale',
+              'relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-base hover-scale focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
               isActive
-                ? 'bg-primary text-primary-foreground'
+                ? 'bg-primary/10 text-primary font-semibold before:absolute before:left-0 before:inset-y-2 before:w-0.5 before:rounded-r-full before:bg-primary'
                 : 'text-foreground hover:bg-muted-foreground/10',
             )
           }
