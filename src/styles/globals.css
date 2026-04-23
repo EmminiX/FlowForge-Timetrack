@@ -30,90 +30,97 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #0f172a;
-    /* Slate 900 - High contrast */
+    /* Light theme: Warm neutrals with subtle chroma tilt (OKLCH) */
+    --background: oklch(99% 0.005 60);
+    /* Nearly white with tiny warm tint */
+    --foreground: oklch(20% 0.015 250);
+    /* Deep blue-gray, warm undertone */
 
-    --primary: #2563eb;
-    /* Blue 600 */
-    --primary-foreground: #ffffff;
+    --primary: oklch(58% 0.18 250);
+    /* Calmer blue - less saturated than original #2563eb */
+    --primary-foreground: oklch(99% 0.005 250);
 
-    --secondary: #f1f5f9;
-    /* Slate 100 */
-    --secondary-foreground: #0f172a;
+    --secondary: oklch(95% 0.01 45);
+    /* Very light warm gray */
+    --secondary-foreground: oklch(20% 0.015 250);
 
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    /* Slate 500 */
+    --muted: oklch(95% 0.01 45);
+    --muted-foreground: oklch(55% 0.025 250);
+    /* Mid-tone with slight warmth */
 
-    --accent: #f1f5f9;
-    --accent-foreground: #0f172a;
+    --accent: oklch(95% 0.01 45);
+    --accent-foreground: oklch(20% 0.015 250);
 
-    --destructive: #ef4444;
-    --destructive-foreground: #ffffff;
+    --destructive: oklch(60% 0.22 25);
+    /* Warm red with WCAG-safe contrast */
+    --destructive-foreground: oklch(99% 0.005 25);
 
-    --border: #e2e8f0;
-    /* Slate 200 */
-    --input: #e2e8f0;
-    --ring: #2563eb;
+    --border: oklch(90% 0.012 45);
+    /* Subtle warm border */
+    --input: oklch(90% 0.012 45);
+    --ring: oklch(58% 0.18 250);
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: #020617;
-    /* Slate 950 */
-    --foreground: #f8fafc;
-    /* Slate 50 */
+    /* Dark theme: Warmer dark background, calmer blue accents (OKLCH) */
+    --background: oklch(12% 0.015 250);
+    /* Deep blue-black with warmth instead of pure #020617 */
+    --foreground: oklch(96% 0.008 60);
+    /* Slightly warm white */
 
-    --primary: #3b82f6;
-    /* Blue 500 */
-    --primary-foreground: #ffffff;
+    --primary: oklch(65% 0.16 250);
+    /* Calmer blue - less neon than #3b82f6 */
+    --primary-foreground: oklch(99% 0.005 250);
 
-    --secondary: #1e293b;
-    /* Slate 800 */
-    --secondary-foreground: #f8fafc;
+    --secondary: oklch(22% 0.018 250);
+    /* Dark surface with subtle warmth */
+    --secondary-foreground: oklch(96% 0.008 60);
 
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
-    /* Slate 400 */
+    --muted: oklch(22% 0.018 250);
+    --muted-foreground: oklch(62% 0.025 250);
+    /* Lighter muted text for better readability */
 
-    --accent: #1e293b;
-    --accent-foreground: #f8fafc;
+    --accent: oklch(22% 0.018 250);
+    --accent-foreground: oklch(96% 0.008 60);
 
-    --destructive: #7f1d1d;
-    --destructive-foreground: #f8fafc;
+    --destructive: oklch(40% 0.18 25);
+    /* Darker, less intense red for dark mode */
+    --destructive-foreground: oklch(96% 0.008 25);
 
-    --border: #1e293b;
-    --input: #1e293b;
-    --ring: #3b82f6;
+    --border: oklch(22% 0.018 250);
+    --input: oklch(22% 0.018 250);
+    --ring: oklch(65% 0.16 250);
   }
 
   /* High Contrast Theme for Accessibility */
   .high-contrast {
-    --background: #000000;
-    --foreground: #ffffff;
+    /* Pure black/white base for maximum contrast (OKLCH) */
+    --background: oklch(0% 0 0);
+    --foreground: oklch(100% 0 0);
 
-    --primary: #ffff00;
-    /* Yellow for maximum contrast */
-    --primary-foreground: #000000;
+    --primary: oklch(85% 0.18 100);
+    /* Bright warm yellow-green instead of pure yellow - less harsh */
+    --primary-foreground: oklch(0% 0 0);
 
-    --secondary: #1a1a1a;
-    --secondary-foreground: #ffffff;
+    --secondary: oklch(10% 0 0);
+    --secondary-foreground: oklch(100% 0 0);
 
-    --muted: #1a1a1a;
-    --muted-foreground: #cccccc;
+    --muted: oklch(10% 0 0);
+    --muted-foreground: oklch(80% 0 0);
 
-    --accent: #00ffff;
-    /* Cyan for accents */
-    --accent-foreground: #000000;
+    --accent: oklch(80% 0.20 200);
+    /* Bright cyan-blue for accents - calmer than pure cyan */
+    --accent-foreground: oklch(0% 0 0);
 
-    --destructive: #ff0000;
-    --destructive-foreground: #ffffff;
+    --destructive: oklch(65% 0.28 25);
+    /* Bright red with high contrast */
+    --destructive-foreground: oklch(100% 0 0);
 
-    --border: #ffffff;
-    --input: #333333;
-    --ring: #ffff00;
+    --border: oklch(100% 0 0);
+    --input: oklch(20% 0 0);
+    --ring: oklch(85% 0.18 100);
   }
 
   /* High contrast specific adjustments */
