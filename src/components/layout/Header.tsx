@@ -67,9 +67,9 @@ export function Header() {
 
         {isOpen && (
           <>
-            <div className='fixed inset-0 bg-black/50 z-40' onClick={close} />
-            <div className='fixed top-[20vh] left-1/2 -translate-x-1/2 w-full max-w-lg z-50'>
-              <div className='bg-background border border-border rounded-xl shadow-xl overflow-hidden'>
+            <div className='fixed inset-0 bg-background/60 backdrop-blur-sm z-40' onClick={close} />
+            <div className='fixed top-[20vh] left-1/2 -translate-x-1/2 w-full max-w-lg z-50 px-4 sm:px-0'>
+              <div className='bg-background border border-border/60 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95'>
                 <div className='flex items-center gap-3 px-4 py-3 border-b border-border'>
                   <Search className='w-5 h-5 text-muted-foreground shrink-0' />
                   <input
@@ -78,17 +78,29 @@ export function Header() {
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder='Search clients, projects, invoices...'
+                    aria-label='Search'
+                    aria-autocomplete='list'
+                    aria-controls='cmd-search-results'
                     className='flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground'
                   />
                   {query && (
-                    <button onClick={() => setQuery('')} className='text-muted-foreground hover:text-foreground'>
+                    <button
+                      onClick={() => setQuery('')}
+                      aria-label='Clear search'
+                      className='text-muted-foreground hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                    >
                       <X className='w-4 h-4' />
                     </button>
                   )}
                 </div>
 
                 {query.trim() && (
-                  <div className='max-h-64 overflow-y-auto'>
+                  <div
+                    id='cmd-search-results'
+                    role='listbox'
+                    aria-label='Search results'
+                    className='max-h-64 overflow-y-auto'
+                  >
                     {results.length === 0 ? (
                       <div className='px-4 py-8 text-center text-sm text-muted-foreground'>
                         No results found
@@ -96,12 +108,17 @@ export function Header() {
                     ) : (
                       results.map((result, index) => {
                         const Icon = TYPE_ICONS[result.type] || FileText;
+                        const isSelected = index === selectedIndex;
                         return (
                           <button
                             key={result.id}
+                            role='option'
+                            aria-selected={isSelected}
                             onClick={() => handleSelect(result)}
-                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-secondary transition-colors ${
-                              index === selectedIndex ? 'bg-secondary' : ''
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors border-l-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
+                              isSelected
+                                ? 'bg-secondary border-l-primary'
+                                : 'border-l-transparent hover:bg-secondary/60'
                             }`}
                           >
                             <Icon className='w-4 h-4 text-muted-foreground shrink-0' />
