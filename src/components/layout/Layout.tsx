@@ -8,14 +8,21 @@ import { TimerSync } from '../../features/timer/TimerSync';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { isMacOS, MACOS_TITLEBAR_HEIGHT } from '../../lib/platform';
 
+function isTauriRuntime() {
+  return (
+    typeof globalThis !== 'undefined' &&
+    ('__TAURI__' in globalThis || '__TAURI_INTERNALS__' in globalThis)
+  );
+}
+
 export function Layout() {
   // Initialize global effects here
   useThemeEffect();
   useFontSizeEffect();
 
-  // Apply macOS-specific styling for traffic-light inset
-  const isMac = isMacOS();
-  const topPadding = isMac ? `${MACOS_TITLEBAR_HEIGHT}px` : '0';
+  // Apply macOS-specific styling for traffic-light inset only in Tauri windows
+  const isTauriMacOS = isMacOS() && isTauriRuntime();
+  const topPadding = isTauriMacOS ? `${MACOS_TITLEBAR_HEIGHT}px` : '0';
 
   return (
     <div className='flex h-screen bg-background text-foreground overflow-hidden'>
