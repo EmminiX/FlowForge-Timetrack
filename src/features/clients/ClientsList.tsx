@@ -41,7 +41,12 @@ export function ClientsList() {
   };
 
   useEffect(() => {
-    loadClients();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadClients();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter clients by search

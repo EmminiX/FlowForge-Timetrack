@@ -127,8 +127,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // Load settings on mount
   useEffect(() => {
-    loadAndApplySettings();
-  }, [loadAndApplySettings]);
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadAndApplySettings();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   // Listen for system theme/animation changes and cross-window sync
   useEffect(() => {

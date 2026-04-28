@@ -47,7 +47,12 @@ export function ClientPayments({ clientId, currency }: ClientPaymentsProps) {
   };
 
   useEffect(() => {
-    loadPayments();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadPayments();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId]);
 
   const totalDeposits = payments.reduce((sum, p) => sum + p.amount, 0);

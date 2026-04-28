@@ -54,22 +54,25 @@ const CHANGELOG: Record<string, ChangelogSection[]> = {
 
 export function WhatsNewModal() {
   const { settings, updateSetting, loading } = useSettings();
+
+  // Derive shouldShow from props/settings instead of using effect
+  const currentVersion = updateService.getCurrentVersion();
+  const shouldShow = !loading &&
+    window.location.pathname !== '/widget' &&
+    currentVersion &&
+    currentVersion !== '0.0.0' &&
+    settings.seenChangelogVersion !== currentVersion;
+
   const [isOpen, setIsOpen] = useState(false);
 
+  // Sync isOpen with shouldShow after render to avoid setState in effect
   useEffect(() => {
-    if (loading) return;
-
-    // Don't show on widget window
-    if (window.location.pathname === '/widget') return;
-
-    const currentVersion = updateService.getCurrentVersion();
-    if (!currentVersion || currentVersion === '0.0.0') return;
-
-    // Show if user hasn't seen this version's changelog
-    if (settings.seenChangelogVersion !== currentVersion) {
-      setIsOpen(true);
+    if (shouldShow && !isOpen) {
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => setIsOpen(true), 0);
+      return () => clearTimeout(timer);
     }
-  }, [loading, settings.seenChangelogVersion]);
+  }, [shouldShow, isOpen]);
 
   const handleDismiss = async () => {
     setIsOpen(false);

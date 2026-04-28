@@ -27,7 +27,9 @@ export function Header() {
   }, [open]);
 
   useEffect(() => {
-    setSelectedIndex(0);
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => setSelectedIndex(0), 0);
+    return () => clearTimeout(timer);
   }, [results]);
 
   const handleSelect = (result: SearchResult) => {
