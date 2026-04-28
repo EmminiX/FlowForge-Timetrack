@@ -43,7 +43,7 @@ export function UpdateBanner() {
           </div>
           <div>
             <span className='text-sm font-semibold text-foreground'>
-              FlowForge-Track {updateInfo.latestVersion} is available!
+              TimeSage {updateInfo.latestVersion} is available!
             </span>
             <span className='text-xs text-muted-foreground ml-2'>
               (You have {updateInfo.currentVersion})

@@ -409,7 +409,7 @@ export function Settings() {
                 Neurodivergent-Friendly Design
               </CardTitle>
               <CardDescription className='text-blue-700 dark:text-blue-400'>
-                FlowForge-Track was designed with neurodivergent users in mind. Features include:
+                TimeSage was designed with neurodivergent users in mind. Features include:
                 <ul className='list-disc list-inside mt-2 space-y-1'>
                   <li>Large touch targets (minimum 44pt)</li>
                   <li>Clear labels with icons</li>
@@ -689,7 +689,7 @@ export function Settings() {
           <Card>
             <CardTitle className='px-6 pt-6 text-base'>Data Management</CardTitle>
             <CardDescription className='px-6 pb-2'>
-              Export or import your FlowForge-Track database for backup purposes.
+              Export or import your TimeSage database for backup purposes.
             </CardDescription>
             <CardContent className='space-y-4'>
               <div className='flex gap-4'>
@@ -738,7 +738,7 @@ export function Settings() {
                   try {
                     const { message } = await import('@tauri-apps/plugin-dialog');
                     await message('Backup imported! The app will now restart.', {
-                      title: 'FlowForge-Track',
+                      title: 'TimeSage',
                       kind: 'info',
                     });
                   } catch (e) {
@@ -772,10 +772,10 @@ export function Settings() {
             <CardContent className='py-6'>
               <div className='flex items-center gap-3 mb-2'>
                 <Zap className='w-6 h-6 text-primary' />
-                <CardTitle className='text-xl'>Welcome to FlowForge-Track!</CardTitle>
+                <CardTitle className='text-xl'>Welcome to TimeSage!</CardTitle>
               </div>
               <CardDescription className='text-base'>
-                FlowForge-Track is your all-in-one time tracking and invoicing companion. This guide
+                TimeSage is your all-in-one time tracking and invoicing companion. This guide
                 will walk you through every feature step by step.
               </CardDescription>
             </CardContent>
@@ -827,7 +827,7 @@ export function Settings() {
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
                 The floating widget is a small, always-on-top window that shows your timer status
-                even when FlowForge-Track is minimized.
+                even when TimeSage is minimized.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Widget Features</h4>
@@ -840,7 +840,7 @@ export function Settings() {
                     • <strong>Stop button:</strong> End the current session
                   </li>
                   <li>
-                    • <strong>Open App button:</strong> Bring FlowForge-Track to focus
+                    • <strong>Open App button:</strong> Bring TimeSage to focus
                   </li>
                   <li>
                     • <strong>Drag handle:</strong> Move the widget anywhere on screen
@@ -1039,7 +1039,7 @@ export function Settings() {
           <GuideSection icon={<FileText className='w-5 h-5' />} title='Creating Invoices'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                FlowForge-Track makes invoicing easy by automatically importing your unbilled time
+                TimeSage makes invoicing easy by automatically importing your unbilled time
                 entries.
               </p>
               <div>
@@ -1284,7 +1284,7 @@ export function Settings() {
           <GuideSection icon={<Keyboard className='w-5 h-5' />} title='Global Shortcuts'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                Control FlowForge-Track from anywhere, even when the app is in the background.
+                Control TimeSage from anywhere, even when the app is in the background.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Available Shortcuts</h4>
@@ -1307,7 +1307,7 @@ export function Settings() {
                 </ul>
               </div>
               <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> These work globally! You don't need to have the FlowForge
+                <strong>💡 Tip:</strong> These work globally! You don't need to have the TimeSage
                 window focused.
               </div>
             </div>
@@ -1407,7 +1407,7 @@ export function Settings() {
               <div>
                 <h4 className='font-medium mb-2'>App Updates</h4>
                 <p className='text-sm text-muted-foreground'>
-                  FlowForge-Track automatically checks for updates on startup. If a new version is
+                  TimeSage automatically checks for updates on startup. If a new version is
                   available, a <strong>banner</strong> will appear at the top of the screen with a
                   link to download the latest release.
                 </p>
@@ -1415,10 +1415,10 @@ export function Settings() {
             </div>
           </GuideSection>
 
-          <GuideSection icon={<Globe className='w-5 h-5' />} title='About FlowForge-Track'>
+          <GuideSection icon={<Globe className='w-5 h-5' />} title='About TimeSage'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                FlowForge-Track is built by{' '}
+                TimeSage is built by{' '}
                 <a
                   href='https://emmi.engineer'
                   target='_blank'
@@ -1471,7 +1471,7 @@ export function Settings() {
                 🎉 You're All Set!
               </CardTitle>
               <CardDescription className='text-green-700 dark:text-green-400'>
-                You now know everything FlowForge-Track can do. Start tracking your time and
+                You now know everything TimeSage can do. Start tracking your time and
                 creating invoices with ease!
               </CardDescription>
             </CardContent>
