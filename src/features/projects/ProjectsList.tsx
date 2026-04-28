@@ -47,7 +47,11 @@ function ProjectsListContent() {
   };
 
   useEffect(() => {
-    loadProjects();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadProjects();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Filter projects

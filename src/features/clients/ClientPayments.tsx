@@ -63,8 +63,6 @@ export function ClientPayments({ clientId, currency }: ClientPaymentsProps) {
       await downPaymentService.create(data);
       await loadPayments();
       setShowForm(false);
-    } catch (err) {
-      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -82,8 +80,6 @@ export function ClientPayments({ clientId, currency }: ClientPaymentsProps) {
       });
       await loadPayments();
       setEditingPayment(null);
-    } catch (err) {
-      throw err;
     } finally {
       setSubmitting(false);
     }

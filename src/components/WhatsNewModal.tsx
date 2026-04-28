@@ -57,7 +57,8 @@ export function WhatsNewModal() {
 
   // Derive shouldShow from props/settings instead of using effect
   const currentVersion = updateService.getCurrentVersion();
-  const shouldShow = !loading &&
+  const shouldShow =
+    !loading &&
     window.location.pathname !== '/widget' &&
     currentVersion &&
     currentVersion !== '0.0.0' &&
@@ -76,11 +77,9 @@ export function WhatsNewModal() {
 
   const handleDismiss = async () => {
     setIsOpen(false);
-    const currentVersion = updateService.getCurrentVersion();
     await updateSetting('seenChangelogVersion', currentVersion);
   };
 
-  const currentVersion = updateService.getCurrentVersion();
   const sections = CHANGELOG[currentVersion] || CHANGELOG['0.2.0'];
 
   if (!sections) return null;

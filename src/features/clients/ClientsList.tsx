@@ -46,7 +46,6 @@ export function ClientsList() {
       loadClients();
     }, 0);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter clients by search

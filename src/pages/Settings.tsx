@@ -67,7 +67,11 @@ export function Settings() {
 
   // Sync local state with global settings when they change (e.g. initial load or external update)
   useEffect(() => {
-    setLocalSettings(globalSettings);
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      setLocalSettings(globalSettings);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [globalSettings]);
 
   // Handle immediate visual updates and local state

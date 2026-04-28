@@ -59,7 +59,7 @@ export function DashboardSummary() {
     return () => {
       cancelled = true;
     };
-  }, [chartRange]);
+  }, [chartRange, data]);
 
   useEffect(() => {
     // Use timeout to avoid synchronous setState in effect
