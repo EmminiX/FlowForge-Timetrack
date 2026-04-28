@@ -51,7 +51,11 @@ export function ProductsList() {
   };
 
   useEffect(() => {
-    loadData();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleDelete = async () => {
@@ -260,22 +264,26 @@ function CreateProductModal({
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (initialData) {
-      setName(initialData.name);
-      setDescription(initialData.description);
-      setPrice(initialData.price);
-      setSku(initialData.sku || '');
-    } else if (templateData) {
-      setName(templateData.name);
-      setDescription(templateData.description);
-      setPrice(templateData.price);
-      setSku('');
-    } else {
-      setName('');
-      setDescription('');
-      setPrice(0);
-      setSku('');
-    }
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      if (initialData) {
+        setName(initialData.name);
+        setDescription(initialData.description);
+        setPrice(initialData.price);
+        setSku(initialData.sku || '');
+      } else if (templateData) {
+        setName(templateData.name);
+        setDescription(templateData.description);
+        setPrice(templateData.price);
+        setSku('');
+      } else {
+        setName('');
+        setDescription('');
+        setPrice(0);
+        setSku('');
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [initialData, templateData, isOpen]);
 
   const handleSubmit = async () => {
@@ -373,7 +381,12 @@ function TemplatesModal({ isOpen, onClose, onSelect, existingNames }: TemplatesM
 
   // Expand all by default on mount
   useEffect(() => {
-    setExpandedFields(new Set(fields));
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      setExpandedFields(new Set(fields));
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

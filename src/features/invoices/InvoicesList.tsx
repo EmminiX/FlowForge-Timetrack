@@ -84,7 +84,12 @@ export function InvoicesList() {
   };
 
   useEffect(() => {
-    loadData();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const handleDelete = () => {
@@ -379,69 +384,77 @@ function CreateInvoiceModal({
   // Reset form when opened and load settings or initial data
   useEffect(() => {
     if (isOpen) {
-      setStep(1);
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        setStep(1);
 
-      if (initialData) {
-        // Editing mode
-        setClientId(initialData.clientId);
-        setLineItems(
-          initialData.lineItems.map((item) => ({
-            description: item.description,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-          })),
-        );
-        setIssueDate(initialData.issueDate);
-        setDueDate(initialData.dueDate);
-        setNotes(initialData.notes || '');
-        setTaxRate(initialData.taxRate * 100);
-        setDownPayment(initialData.downPayment || 0);
-        // Load payment terms from settings for existing invoices
-        settingsService
-          .load()
-          .then((settings) => {
-            setPaymentTerms(settings.paymentTerms || '');
-          })
-          .catch((err) => invoiceLogger.error('Failed to load settings:', err));
-      } else {
-        // Creation mode
-        setClientId('');
-        setLineItems([]);
+        if (initialData) {
+          // Editing mode
+          setClientId(initialData.clientId);
+          setLineItems(
+            initialData.lineItems.map((item) => ({
+              description: item.description,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+            })),
+          );
+          setIssueDate(initialData.issueDate);
+          setDueDate(initialData.dueDate);
+          setNotes(initialData.notes || '');
+          setTaxRate(initialData.taxRate * 100);
+          setDownPayment(initialData.downPayment || 0);
+          // Load payment terms from settings for existing invoices
+          settingsService
+            .load()
+            .then((settings) => {
+              setPaymentTerms(settings.paymentTerms || '');
+            })
+            .catch((err) => invoiceLogger.error('Failed to load settings:', err));
+        } else {
+          // Creation mode
+          setClientId('');
+          setLineItems([]);
 
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-        const due = new Date(today);
-        due.setDate(due.getDate() + 30);
-        const dueStr = due.toISOString().split('T')[0];
+          const today = new Date();
+          const todayStr = today.toISOString().split('T')[0];
+          const due = new Date(today);
+          due.setDate(due.getDate() + 30);
+          const dueStr = due.toISOString().split('T')[0];
 
-        setIssueDate(todayStr);
-        setDueDate(dueStr);
-        setNotes('');
-        setDownPayment(0);
+          setIssueDate(todayStr);
+          setDueDate(dueStr);
+          setNotes('');
+          setDownPayment(0);
 
-        // Load default options from settings
-        settingsService
-          .load()
-          .then((settings) => {
-            if (settings.defaultTaxRate !== undefined) {
-              setTaxRate(settings.defaultTaxRate * 100);
-            } else {
-              setTaxRate(0);
-            }
-            setPaymentTerms(settings.paymentTerms || '');
-          })
-          .catch((err) => invoiceLogger.error('Failed to load settings:', err));
-      }
+          // Load default options from settings
+          settingsService
+            .load()
+            .then((settings) => {
+              if (settings.defaultTaxRate !== undefined) {
+                setTaxRate(settings.defaultTaxRate * 100);
+              } else {
+                setTaxRate(0);
+              }
+              setPaymentTerms(settings.paymentTerms || '');
+            })
+            .catch((err) => invoiceLogger.error('Failed to load settings:', err));
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, initialData]);
 
   // Load products
   useEffect(() => {
     if (isOpen) {
-      productService
-        .getAll()
-        .then(setProducts)
-        .catch((err) => invoiceLogger.error('Failed to load products:', err));
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        productService
+          .getAll()
+          .then(setProducts)
+          .catch((err) => invoiceLogger.error('Failed to load products:', err));
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 

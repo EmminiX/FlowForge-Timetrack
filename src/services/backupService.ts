@@ -56,9 +56,12 @@ export const backupService = {
       return savePath;
     } catch (error: unknown) {
       backupLogger.error('Backup export failed:', error);
-      // Ensure we throw a proper Error object with a message
+      // Ensure we throw a proper Error object with a message and preserve the original cause
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(message || 'Unknown error during backup export');
+      const err = new Error(message || 'Unknown error during backup export');
+      // @ts-expect-error - cause is not in TS lib but supported in modern JS
+      err.cause = error;
+      throw err;
     }
   },
 
@@ -132,7 +135,10 @@ export const backupService = {
     } catch (error: unknown) {
       backupLogger.error('Backup import failed:', error);
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(message || 'Unknown error during backup import');
+      const err = new Error(message || 'Unknown error during backup import');
+      // @ts-expect-error - cause is not in TS lib but supported in modern JS
+      err.cause = error;
+      throw err;
     }
   },
 };

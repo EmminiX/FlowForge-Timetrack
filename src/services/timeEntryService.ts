@@ -76,7 +76,7 @@ export const timeEntryService = {
       params.push(filters.isBillable ? 1 : 0);
     }
     if (filters?.isBilled !== undefined) {
-      query += ` AND te.is_billed = $${paramIndex++}`;
+      query += ` AND te.is_billed = $${paramIndex}`;
       params.push(filters.isBilled ? 1 : 0);
     }
 
