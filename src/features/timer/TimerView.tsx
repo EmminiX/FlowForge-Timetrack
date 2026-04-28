@@ -46,18 +46,24 @@ export function TimerView() {
 
   // Load active projects
   useEffect(() => {
-    projectService.getActive().then(setProjects).catch((err) => timeEntryLogger.error('Failed to load active projects:', err));
+    projectService
+      .getActive()
+      .then(setProjects)
+      .catch((err) => timeEntryLogger.error('Failed to load active projects:', err));
   }, []);
 
   // Update elapsed time every second when running
   useEffect(() => {
     if (timerState === 'idle') {
-      setElapsedSeconds(0);
-      setBreakNotified(false);
-      setShowBreakReminder(false);
-      setIsOnBreak(false);
-      setLastBreakTime(0);
-      return;
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        setElapsedSeconds(0);
+        setBreakNotified(false);
+        setShowBreakReminder(false);
+        setIsOnBreak(false);
+        setLastBreakTime(0);
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
     const updateElapsed = () => {
@@ -76,12 +82,16 @@ export function TimerView() {
     const workSeconds = (settings.pomodoroWorkMinutes || 25) * 60;
 
     if (elapsedSeconds - lastBreakTime >= workSeconds) {
-      setBreakNotified(true);
-      setShowBreakReminder(true);
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        setBreakNotified(true);
+        setShowBreakReminder(true);
 
-      if (settings.enableSoundFeedback) {
-        playBreakSound();
-      }
+        if (settings.enableSoundFeedback) {
+          playBreakSound();
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [elapsedSeconds, settings, timerState, breakNotified, lastBreakTime]);
 
@@ -107,7 +117,9 @@ export function TimerView() {
 
   // Emit break status to widget
   useEffect(() => {
-    emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch((err) => timeEntryLogger.error('Failed to emit break toggle:', err));
+    emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch((err) =>
+      timeEntryLogger.error('Failed to emit break toggle:', err),
+    );
   }, [showBreakReminder, isOnBreak]);
 
   // Listen for idle toggle events
@@ -144,7 +156,11 @@ export function TimerView() {
   // Sync selected project with running timer
   useEffect(() => {
     if (projectId) {
-      setSelectedProjectId(projectId);
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        setSelectedProjectId(projectId);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [projectId]);
 

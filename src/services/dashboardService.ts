@@ -299,14 +299,16 @@ export const dashboardService = {
   async getClientBreakdown(): Promise<ClientSummary[]> {
     const db = await getDb();
     const [timeResult, paymentTotals] = await Promise.all([
-      db.select<Array<{
-        client_id: string;
-        client_name: string;
-        currency: string;
-        total_seconds: number;
-        unbilled_amount: number;
-        billed_amount: number;
-      }>>(
+      db.select<
+        Array<{
+          client_id: string;
+          client_name: string;
+          currency: string;
+          total_seconds: number;
+          unbilled_amount: number;
+          billed_amount: number;
+        }>
+      >(
         `SELECT
           c.id as client_id,
           c.name as client_name,
@@ -384,9 +386,7 @@ export const dashboardService = {
     END`;
 
     // Query current month grouped by day
-    const currentMonthResult = await db.select<
-      Array<{ date: string; total_seconds: number }>
-    >(
+    const currentMonthResult = await db.select<Array<{ date: string; total_seconds: number }>>(
       `SELECT date(te.start_time) as date, SUM(${durationCalc}) as total_seconds
        FROM time_entries te
        WHERE date(te.start_time) >= ? AND date(te.start_time) <= ?
@@ -396,9 +396,7 @@ export const dashboardService = {
     );
 
     // Query previous month total for comparison
-    const prevMonthResult = await db.select<
-      Array<{ total_seconds: number }>
-    >(
+    const prevMonthResult = await db.select<Array<{ total_seconds: number }>>(
       `SELECT SUM(${durationCalc}) as total_seconds
        FROM time_entries te
        WHERE date(te.start_time) >= ? AND date(te.start_time) <= ?`,
@@ -487,17 +485,27 @@ export const dashboardService = {
 
   async getDashboardData(): Promise<DashboardData> {
     const now = new Date();
-    const [today, week, unbilled, billed, total, clientBreakdown, monthSummary, projectBreakdown] = await Promise.all([
-      this.getTodaySummary(),
-      this.getWeekSummary(),
-      this.getUnbilledSummary(),
-      this.getBilledSummary(),
-      this.getAllTimeTotal(),
-      this.getClientBreakdown(),
-      this.getMonthSummary(now.getFullYear(), now.getMonth()),
-      this.getProjectBreakdown(),
-    ]);
+    const [today, week, unbilled, billed, total, clientBreakdown, monthSummary, projectBreakdown] =
+      await Promise.all([
+        this.getTodaySummary(),
+        this.getWeekSummary(),
+        this.getUnbilledSummary(),
+        this.getBilledSummary(),
+        this.getAllTimeTotal(),
+        this.getClientBreakdown(),
+        this.getMonthSummary(now.getFullYear(), now.getMonth()),
+        this.getProjectBreakdown(),
+      ]);
 
-    return { today, week, unbilled, billed, total, clientBreakdown, monthSummary, projectBreakdown };
+    return {
+      today,
+      week,
+      unbilled,
+      billed,
+      total,
+      clientBreakdown,
+      monthSummary,
+      projectBreakdown,
+    };
   },
 };

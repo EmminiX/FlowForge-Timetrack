@@ -19,7 +19,12 @@ function ToastItem({
   toast,
   onDismiss,
 }: {
-  toast: { id: string; message: string; action?: { label: string; onClick: () => void }; duration?: number };
+  toast: {
+    id: string;
+    message: string;
+    action?: { label: string; onClick: () => void };
+    duration?: number;
+  };
   onDismiss: () => void;
 }) {
   useEffect(() => {
@@ -41,7 +46,11 @@ function ToastItem({
           {toast.action.label}
         </button>
       )}
-      <button onClick={onDismiss} className='opacity-60 hover:opacity-100 shrink-0' aria-label='Dismiss'>
+      <button
+        onClick={onDismiss}
+        className='opacity-60 hover:opacity-100 shrink-0'
+        aria-label='Dismiss'
+      >
         <X className='w-4 h-4' />
       </button>
     </div>

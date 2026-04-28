@@ -118,7 +118,10 @@ export const downPaymentService = {
     const id = generateId();
     const timestamp = now();
 
-    downPaymentLogger.debug('Creating down payment', { clientId: input.clientId, amount: input.amount });
+    downPaymentLogger.debug('Creating down payment', {
+      clientId: input.clientId,
+      amount: input.amount,
+    });
 
     await db.execute(
       `
@@ -137,7 +140,11 @@ export const downPaymentService = {
       ],
     );
 
-    downPaymentLogger.info('Created down payment', { id, clientId: input.clientId, amount: input.amount });
+    downPaymentLogger.info('Created down payment', {
+      id,
+      clientId: input.clientId,
+      amount: input.amount,
+    });
 
     return {
       id,

@@ -73,7 +73,7 @@ export function WeeklyChart({
           return (
             <div
               key={day.date}
-              className="flex-1 flex flex-col items-center gap-1"
+              className='flex-1 flex flex-col items-center gap-1'
               style={{ minWidth: range === 'month' ? '8px' : 'auto' }}
               title={`${day.date}: ${formatDuration(day.totalSeconds)}`}
             >
