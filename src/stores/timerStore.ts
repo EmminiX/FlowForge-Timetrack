@@ -89,7 +89,15 @@ export const useTimerStore = create<TimerStore>()(
       },
 
       stop: () => {
-        const { state, projectId, projectName, projectColor, startTime, pauseStartTime, accumulatedPauseDuration } = get();
+        const {
+          state,
+          projectId,
+          projectName,
+          projectColor,
+          startTime,
+          pauseStartTime,
+          accumulatedPauseDuration,
+        } = get();
         if (state === 'idle' || !projectId || !startTime) return null;
 
         // Calculate final pause duration
