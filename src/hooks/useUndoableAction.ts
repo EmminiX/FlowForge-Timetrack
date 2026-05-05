@@ -3,7 +3,9 @@ import { useToastStore } from '../stores/toastStore';
 
 export function useUndoableAction() {
   const addToast = useToastStore((state) => state.addToast);
-  const pendingRef = useRef<{ timeoutId: ReturnType<typeof setTimeout>; toastId: string } | null>(null);
+  const pendingRef = useRef<{ timeoutId: ReturnType<typeof setTimeout>; toastId: string } | null>(
+    null,
+  );
 
   const execute = useCallback(
     (options: {

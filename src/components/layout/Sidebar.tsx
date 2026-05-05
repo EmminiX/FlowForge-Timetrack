@@ -15,7 +15,11 @@ import { useSettings } from '../../contexts/SettingsContext';
 
 import { Switch } from '../ui';
 
-export function Sidebar() {
+interface SidebarProps {
+  topPadding?: string;
+}
+
+export function Sidebar({ topPadding = '0' }: SidebarProps) {
   const { settings, updateSetting } = useSettings();
   const mainLinks = [
     { to: '/', label: 'Timer', icon: Timer },
@@ -35,7 +39,10 @@ export function Sidebar() {
   return (
     <aside
       className='w-64 bg-secondary border-r border-border h-screen flex flex-col shrink-0'
-      style={{ padding: 'var(--shell-sidebar-padding)' }}
+      style={{
+        padding: 'var(--shell-sidebar-padding)',
+        ...(topPadding && topPadding !== '0' ? { paddingTop: `calc(${topPadding} + var(--shell-sidebar-padding))` } : {}),
+      }}
     >
       <div
         className='text-2xl font-bold text-primary'
@@ -106,12 +113,20 @@ export function Sidebar() {
           <span>Settings</span>
         </NavLink>
         <div style={{ paddingTop: 'var(--shell-nav-item-py)', paddingBottom: 'var(--spacing-xs)', paddingInline: 'var(--shell-nav-item-px)' }}>
-          <a href='https://flowforge.emmi.zone/' target='_blank' rel='noopener noreferrer'
-             className='block text-xs text-muted-foreground hover:text-foreground transition-colors'>
+          <a
+            href='https://flowforge.emmi.zone/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='block text-xs text-muted-foreground hover:text-foreground transition-colors'
+          >
             flowforge.emmi.zone
           </a>
-          <a href='https://emmi.engineer' target='_blank' rel='noopener noreferrer'
-             className='block text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors mt-0.5'>
+          <a
+            href='https://emmi.engineer'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='block text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors mt-0.5'
+          >
             by emmi.engineer
           </a>
         </div>

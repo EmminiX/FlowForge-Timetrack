@@ -13,11 +13,12 @@
     "windows": [
       {
         "label": "main",
-        "title": "FlowForge-Track",
+        "title": "TimeSage",
         "width": 1024,
         "height": 768,
         "minWidth": 800,
-        "minHeight": 600
+        "minHeight": 600,
+        "titleBarStyle": "overlay"
       },
       {
         "label": "widget",

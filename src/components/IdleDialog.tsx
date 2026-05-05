@@ -57,7 +57,9 @@ export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
         accumulatedPauseDuration: targetAccumulated,
       });
     }
-    emit('timer-idle-toggle', { active: false }).catch((err) => uiLogger.error('Failed to emit idle toggle:', err));
+    emit('timer-idle-toggle', { active: false }).catch((err) =>
+      uiLogger.error('Failed to emit idle toggle:', err),
+    );
     onClose();
   };
 
@@ -92,7 +94,9 @@ export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
         accumulatedPauseDuration: targetAccumulated,
       });
     }
-    emit('timer-idle-toggle', { active: false }).catch((err) => uiLogger.error('Failed to emit idle toggle:', err));
+    emit('timer-idle-toggle', { active: false }).catch((err) =>
+      uiLogger.error('Failed to emit idle toggle:', err),
+    );
     onClose();
   };
 

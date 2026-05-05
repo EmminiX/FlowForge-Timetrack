@@ -41,7 +41,11 @@ export function ClientsList() {
   };
 
   useEffect(() => {
-    loadClients();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadClients();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Filter clients by search

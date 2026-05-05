@@ -41,10 +41,10 @@ export interface AppSettings {
   paymentLinkTitle: string;
   paymentLink2: string;
   paymentLink2Title: string;
-  paymentQrCode: string | null;  // base64 image of QR code
+  paymentQrCode: string | null; // base64 image of QR code
   businessWebsite: string;
   businessTagline: string;
-  paymentBankDetails: string;   // IBAN, BIC, bank name (multi-line)
+  paymentBankDetails: string; // IBAN, BIC, bank name (multi-line)
 
   // Version tracking
   seenChangelogVersion: string;
