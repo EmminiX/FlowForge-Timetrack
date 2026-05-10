@@ -169,9 +169,10 @@ export function ClientsList() {
           <input
             type='text'
             placeholder='Search clients...'
+            aria-label='Search clients'
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className='w-full h-10 pl-10 pr-4 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary'
+            className='min-h-11 w-full rounded-md border border-border bg-background pl-10 pr-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring'
           />
         </div>
       )}
@@ -198,7 +199,10 @@ export function ClientsList() {
       ) : (
         <div className='space-y-3'>
           {filteredClients.map((client) => (
-            <Card key={client.id} className='flex flex-col p-4 transition-[background-color,border-color,box-shadow] duration-150'>
+            <Card
+              key={client.id}
+              className='flex flex-col p-4 transition-[background-color,border-color,box-shadow] duration-150'
+            >
               <div className='flex items-center justify-between'>
                 <div className='flex-1 min-w-0'>
                   <h3 className='font-medium text-foreground truncate'>{client.name}</h3>

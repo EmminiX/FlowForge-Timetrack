@@ -277,6 +277,11 @@
   }
 }
 
+:where(button, a, input, select, textarea, [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
 /* Density scaling system */
 :root {
   --density-scale: 1;
@@ -715,7 +720,7 @@
 
 .widget-idle {
   justify-content: center;
-  border-color: rgba(100, 116, 139, 0.3);
+  border-color: var(--border);
   padding: 0;
 }
 
@@ -774,7 +779,7 @@
   justify-content: center;
   min-width: 44px;
   width: 44px;
-  height: 40px;
+  height: 44px;
   border: 1px solid color-mix(in oklch, var(--primary) 24%, var(--border));
   border-radius: 8px;
   background: color-mix(in oklch, var(--primary) 12%, transparent);

@@ -35,7 +35,8 @@ export function ClientGroup({
     <div className='border border-border rounded-lg overflow-hidden mb-4'>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className='w-full flex items-center justify-between p-3 bg-secondary/50 hover:bg-secondary transition-colors'
+        className='flex min-h-11 w-full items-center justify-between bg-secondary/50 p-3 transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+        aria-expanded={isExpanded}
       >
         <div className='flex items-center gap-2 font-medium'>
           <span className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>

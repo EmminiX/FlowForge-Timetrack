@@ -1,5 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Trash2, Clock, Calendar, CheckCircle, XCircle, Pencil, Download } from 'lucide-react';
+import {
+  Search,
+  Trash2,
+  Clock,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Pencil,
+  Download,
+} from 'lucide-react';
 import type { TimeEntryWithProject, TimeEntry } from '../../types';
 import { formatDurationShort, calculateDuration } from '../../types';
 import { timeEntryService, projectService, clientService } from '../../services';
@@ -248,16 +257,24 @@ export function TimeEntriesList() {
 
   const handleExportCSV = async () => {
     try {
-      const headers = ['Date', 'Project', 'Client', 'Start', 'End', 'Duration', 'Billable', 'Billed', 'Notes'];
+      const headers = [
+        'Date',
+        'Project',
+        'Client',
+        'Start',
+        'End',
+        'Duration',
+        'Billable',
+        'Billed',
+        'Notes',
+      ];
       const rows = filteredEntries.map((entry) => [
         new Date(entry.startTime).toLocaleDateString(),
         entry.projectName || '',
         entry.clientName || '',
         new Date(entry.startTime).toLocaleTimeString(),
         entry.endTime ? new Date(entry.endTime).toLocaleTimeString() : '',
-        entry.endTime
-          ? formatDurationShort(calculateDuration(entry))
-          : '',
+        entry.endTime ? formatDurationShort(calculateDuration(entry)) : '',
         entry.isBillable ? 'Yes' : 'No',
         entry.isBilled ? 'Yes' : 'No',
         entry.notes || '',
@@ -305,38 +322,38 @@ export function TimeEntriesList() {
             Export CSV
           </Button>
           {selectedIds.size > 0 && (
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-muted-foreground'>
-              {selectedIds.size} selected ({formatDurationShort(selectedTotal)})
-            </span>
-            {hasSelectedUnbilledEntries && (
-              <Button
-                variant='secondary'
-                size='sm'
-                onClick={handleMarkAsBilled}
-                loading={submitting}
-              >
-                <CheckCircle className='w-4 h-4' />
-                Mark as Billed
+            <div className='flex items-center gap-2'>
+              <span className='text-sm text-muted-foreground'>
+                {selectedIds.size} selected ({formatDurationShort(selectedTotal)})
+              </span>
+              {hasSelectedUnbilledEntries && (
+                <Button
+                  variant='secondary'
+                  size='sm'
+                  onClick={handleMarkAsBilled}
+                  loading={submitting}
+                >
+                  <CheckCircle className='w-4 h-4' />
+                  Mark as Billed
+                </Button>
+              )}
+              {hasSelectedBilledEntries && (
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={handleMarkAsUnbilled}
+                  loading={submitting}
+                >
+                  <XCircle className='w-4 h-4' />
+                  Unbill
+                </Button>
+              )}
+              <Button variant='destructive' size='sm' onClick={handleDeleteSelected}>
+                <Trash2 className='w-4 h-4' />
+                Delete
               </Button>
-            )}
-            {hasSelectedBilledEntries && (
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={handleMarkAsUnbilled}
-                loading={submitting}
-              >
-                <XCircle className='w-4 h-4' />
-                Unbill
-              </Button>
-            )}
-            <Button variant='destructive' size='sm' onClick={handleDeleteSelected}>
-              <Trash2 className='w-4 h-4' />
-              Delete
-            </Button>
-          </div>
-        )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -348,6 +365,7 @@ export function TimeEntriesList() {
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
               options={projectOptions}
+              aria-label='Filter time entries by project'
             />
           </div>
           <div className='w-48'>
@@ -355,6 +373,7 @@ export function TimeEntriesList() {
               value={clientFilter}
               onChange={(e) => setClientFilter(e.target.value)}
               options={clientOptions}
+              aria-label='Filter time entries by client'
             />
           </div>
           <div className='w-40'>
@@ -362,6 +381,7 @@ export function TimeEntriesList() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               options={statusOptions}
+              aria-label='Filter time entries by billing status'
             />
           </div>
         </div>
@@ -408,7 +428,8 @@ export function TimeEntriesList() {
             <div className='space-y-4 pt-8'>
               <button
                 onClick={() => setShowBilledSection(!showBilledSection)}
-                className='flex items-center gap-2 pb-2 border-b border-border w-full text-left hover:bg-muted/50 transition-colors rounded px-1'
+                className='flex min-h-11 w-full items-center gap-2 rounded border-b border-border px-1 pb-2 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+                aria-expanded={showBilledSection}
               >
                 <span
                   className={`transform transition-transform ${showBilledSection ? 'rotate-90' : ''}`}
@@ -490,7 +511,8 @@ const ClientGroup = ({
     <div className='border border-border rounded-lg overflow-hidden mb-4'>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className='w-full flex items-center justify-between p-3 bg-secondary/50 hover:bg-secondary transition-colors'
+        className='flex min-h-11 w-full items-center justify-between bg-secondary/50 p-3 transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+        aria-expanded={isExpanded}
       >
         <div className='flex items-center gap-2 font-medium'>
           <span className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
@@ -540,6 +562,7 @@ const ProjectGroup = ({
         <input
           type='checkbox'
           checked={project.entries.every((e: TimeEntryWithProject) => selectedIds.has(e.id))}
+          aria-label={`Select all entries for ${project.projectName}`}
           onChange={(e) => {
             e.stopPropagation();
             onSelectMultiple(
@@ -552,7 +575,8 @@ const ProjectGroup = ({
         />
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className='flex-1 flex items-center justify-between'
+          className='flex min-h-11 flex-1 items-center justify-between rounded-md px-2 text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+          aria-expanded={isExpanded}
         >
           <div className='flex items-center gap-2'>
             <div
@@ -615,6 +639,7 @@ const TimeEntryCard = ({
       <input
         type='checkbox'
         checked={selected}
+        aria-label={`Select entry for ${entry.projectName}`}
         onChange={onSelect}
         onClick={(e) => e.stopPropagation()}
         className='rounded border-border'

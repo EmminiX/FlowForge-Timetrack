@@ -62,7 +62,7 @@ export function Sidebar() {
       {/* Bottom Actions */}
       <div className='pt-4 border-t border-border space-y-1'>
         <div className='flex min-h-11 items-center justify-between rounded-md px-4 py-3 text-foreground transition-colors hover:bg-muted'>
-          <div className='flex items-center gap-3'>
+          <div id='sound-feedback-label' className='flex items-center gap-3'>
             {settings.enableSoundFeedback ? (
               <Volume2 className='w-5 h-5' />
             ) : (
@@ -75,6 +75,7 @@ export function Sidebar() {
           <Switch
             checked={settings.enableSoundFeedback}
             onCheckedChange={(checked) => updateSetting('enableSoundFeedback', checked)}
+            aria-labelledby='sound-feedback-label'
           />
         </div>
         <NavLink
@@ -92,12 +93,20 @@ export function Sidebar() {
           <span>Settings</span>
         </NavLink>
         <div className='px-4 pt-3 pb-1'>
-          <a href='https://timesage.emmi.zone/' target='_blank' rel='noopener noreferrer'
-             className='block text-xs text-muted-foreground hover:text-foreground transition-colors'>
+          <a
+            href='https://timesage.emmi.zone/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='flex min-h-11 items-center rounded-md text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'
+          >
             Product website
           </a>
-          <a href='https://emmi.engineer' target='_blank' rel='noopener noreferrer'
-             className='block text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors mt-0.5'>
+          <a
+            href='https://emmi.engineer'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='flex min-h-11 items-center rounded-md text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'
+          >
             by emmi.engineer
           </a>
         </div>

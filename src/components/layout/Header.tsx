@@ -1,4 +1,4 @@
-import { useState, useEffect, useId } from 'react';
+import { useState, useEffect, useId, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Users, FolderKanban, FileText, X } from 'lucide-react';
 import { useGlobalSearch, type SearchResult } from '../../hooks/useGlobalSearch';
@@ -16,6 +16,9 @@ export function Header() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const searchInputId = useId();
   const searchResultsId = useId();
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const wasSearchOpenRef = useRef(false);
   const activeResultId = results[selectedIndex] ? `${searchResultsId}-${selectedIndex}` : undefined;
 
   useEffect(() => {
@@ -32,6 +35,46 @@ export function Header() {
   useEffect(() => {
     setSelectedIndex(0);
   }, [results]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleDialogKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        close();
+        return;
+      }
+
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+
+      const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+
+      if (focusableElements.length === 0) return;
+
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleDialogKeyDown);
+    return () => document.removeEventListener('keydown', handleDialogKeyDown);
+  }, [close, isOpen]);
+
+  useEffect(() => {
+    if (wasSearchOpenRef.current && !isOpen) {
+      searchButtonRef.current?.focus();
+    }
+    wasSearchOpenRef.current = isOpen;
+  }, [isOpen]);
 
   const handleSelect = (result: SearchResult) => {
     navigate(result.route);
@@ -63,12 +106,13 @@ export function Header() {
 
       <div className='ml-auto relative'>
         <button
+          ref={searchButtonRef}
           onClick={open}
           className='flex min-h-11 items-center gap-2 rounded-md border border-border bg-[var(--surface-raised)] px-3 py-1.5 text-sm text-muted-foreground shadow-[var(--shadow-subtle)] transition-colors hover:border-primary/40 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'
           aria-label='Open search'
         >
           <Search className='w-4 h-4' />
-          <span>Search...</span>
+          <span>Search</span>
           <kbd className='ml-2 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground'>
             {/Mac/.test(navigator.userAgent) ? '⌘' : 'Ctrl'}+K
           </kbd>
@@ -82,6 +126,7 @@ export function Header() {
             />
             <div className='fixed top-[20vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2'>
               <div
+                ref={dialogRef}
                 role='dialog'
                 aria-modal='true'
                 aria-label='Global search'
@@ -161,7 +206,7 @@ export function Header() {
                   )}
                 </div>
 
-                <div className='px-4 py-2 border-t border-border flex items-center gap-4 text-xs text-muted-foreground'>
+                <div className='flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-2 text-xs text-muted-foreground'>
                   <span>
                     <kbd className='rounded bg-muted px-1'>↑↓</kbd> Navigate
                   </span>
