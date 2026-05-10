@@ -112,6 +112,7 @@ export function ProductsList() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder='Search items...'
+            aria-label='Search products and services'
             className='pl-9'
           />
         </div>
@@ -398,7 +399,8 @@ function TemplatesModal({ isOpen, onClose, onSelect, existingNames }: TemplatesM
           <div key={field} className='border border-border rounded-lg overflow-hidden'>
             <button
               onClick={() => toggleField(field)}
-              className='w-full flex items-center justify-between p-3 text-left hover:bg-muted/50 transition-colors'
+              className='flex min-h-11 w-full items-center justify-between p-3 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+              aria-expanded={expandedFields.has(field)}
             >
               <span className='font-medium text-sm text-foreground'>{field}</span>
               {expandedFields.has(field) ? (
@@ -416,7 +418,7 @@ function TemplatesModal({ isOpen, onClose, onSelect, existingNames }: TemplatesM
                       key={template.name}
                       onClick={() => !exists && onSelect(template)}
                       disabled={exists}
-                      className={`w-full text-left p-3 border-b border-border last:border-b-0 transition-colors ${
+                      className={`min-h-11 w-full border-b border-border p-3 text-left transition-colors last:border-b-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring ${
                         exists
                           ? 'opacity-50 cursor-not-allowed bg-muted/30'
                           : 'hover:bg-primary/5 cursor-pointer'

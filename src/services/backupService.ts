@@ -5,6 +5,7 @@ import { save, open } from '@tauri-apps/plugin-dialog';
 import { copyFile, exists, BaseDirectory } from '@tauri-apps/plugin-fs';
 import Database from '@tauri-apps/plugin-sql';
 import { backupLogger } from '../lib/logger';
+import { assertSafeUserFilePath } from '../lib/safeFilePaths';
 // import { appDataDir, join } from '@tauri-apps/api/path'; // Unused
 
 const DB_FILENAME = 'flowforge.db';
@@ -24,8 +25,8 @@ export const backupService = {
 
       // Open save dialog
       const savePath = await save({
-        title: 'Export FlowForge Backup',
-        defaultPath: `flowforge-backup-${new Date().toISOString().split('T')[0]}.db`,
+        title: 'Export TimeSage Backup',
+        defaultPath: `timesage-backup-${new Date().toISOString().split('T')[0]}.db`,
         filters: [
           {
             name: 'SQLite Database',
@@ -37,6 +38,8 @@ export const backupService = {
       if (!savePath) {
         return null; // User cancelled
       }
+
+      const safeSavePath = await assertSafeUserFilePath(savePath, '.db', 'Backup export');
 
       // Force SQLite to write all WAL data to the main database file
       // usage of sqlite: prefix is required for load
@@ -51,9 +54,9 @@ export const backupService = {
       }
 
       // Copy the database file using BaseDirectory option for reliable path resolution
-      await copyFile(DB_FILENAME, savePath, { fromPathBaseDir: BaseDirectory.AppData });
+      await copyFile(DB_FILENAME, safeSavePath, { fromPathBaseDir: BaseDirectory.AppData });
 
-      return savePath;
+      return safeSavePath;
     } catch (error: unknown) {
       backupLogger.error('Backup export failed:', error);
       // Ensure we throw a proper Error object with a message and preserve the original cause
@@ -76,7 +79,7 @@ export const backupService = {
       backupLogger.debug('Opening file dialog...');
       // Open file dialog
       const selectedPath = await open({
-        title: 'Import FlowForge Backup',
+        title: 'Import TimeSage Backup',
         multiple: false,
         filters: [
           {
@@ -92,6 +95,7 @@ export const backupService = {
       }
 
       const filePath = Array.isArray(selectedPath) ? selectedPath[0] : selectedPath;
+      const safeImportPath = await assertSafeUserFilePath(filePath, '.db', 'Backup import');
 
       // Create backup of current database first using BaseDirectory
       const currentExists = await exists(DB_FILENAME, { baseDir: BaseDirectory.AppData });
@@ -120,7 +124,7 @@ export const backupService = {
         }
 
         // Copy imported file to database location
-        await copyFile(filePath, DB_FILENAME, { toPathBaseDir: BaseDirectory.AppData });
+        await copyFile(safeImportPath, DB_FILENAME, { toPathBaseDir: BaseDirectory.AppData });
         return true;
       } catch (copyError) {
         // Restore backup if copy failed

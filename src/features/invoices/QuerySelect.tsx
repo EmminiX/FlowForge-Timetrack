@@ -21,7 +21,8 @@ export function QuerySelect({ products, onSelect }: QuerySelectProps) {
 
   return (
     <select
-      className='h-8 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary'
+      className='min-h-11 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary'
+      aria-label='Add a stored invoice item'
       onChange={handleChange}
       defaultValue=''
     >
