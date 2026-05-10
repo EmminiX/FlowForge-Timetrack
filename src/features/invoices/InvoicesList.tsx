@@ -87,7 +87,12 @@ export function InvoicesList() {
   };
 
   useEffect(() => {
-    loadData();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const handleDelete = () => {
@@ -110,7 +115,18 @@ export function InvoicesList() {
 
   const handleExportCSV = async () => {
     try {
-      const headers = ['Invoice #', 'Client', 'Issue Date', 'Due Date', 'Status', 'Currency', 'Subtotal', 'Tax', 'Down Payment', 'Total'];
+      const headers = [
+        'Invoice #',
+        'Client',
+        'Issue Date',
+        'Due Date',
+        'Status',
+        'Currency',
+        'Subtotal',
+        'Tax',
+        'Down Payment',
+        'Total',
+      ];
       const rows = invoices.map((inv) => {
         const currency = clients.find((c) => c.id === inv.clientId)?.currency || 'EUR';
         return [
@@ -165,7 +181,12 @@ export function InvoicesList() {
       <div className='flex items-center justify-between'>
         <h1 className='text-2xl font-bold text-foreground'>Invoices</h1>
         <div className='flex items-center gap-2'>
-          <Button variant='outline' size='sm' onClick={handleExportCSV} disabled={invoices.length === 0}>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={handleExportCSV}
+            disabled={invoices.length === 0}
+          >
             <Download className='w-4 h-4' />
             Export CSV
           </Button>
@@ -191,11 +212,17 @@ export function InvoicesList() {
       {invoices.length === 0 && allInvoicesCount === 0 ? (
         <EmptyState
           icon={<FileText className='w-8 h-8' />}
+          variant='guided'
           title='No invoices yet'
           description={
             clients.length === 0
               ? 'Create a client first to generate invoices.'
               : 'Create your first invoice to get started.'
+          }
+          secondaryText={
+            clients.length > 0
+              ? 'Invoices let you bill clients for the time you have tracked.'
+              : undefined
           }
           action={
             clients.length > 0 ? (
@@ -209,6 +236,7 @@ export function InvoicesList() {
       ) : invoices.length === 0 ? (
         <EmptyState
           icon={<Search className='w-8 h-8' />}
+          variant='minimal'
           title='No matching invoices'
           description='Try selecting a different status filter.'
           action={
@@ -252,7 +280,12 @@ export function InvoicesList() {
               </div>
 
               <div className='text-right'>
-                <p className='font-medium text-foreground'>{formatCurrency(invoice.total, clients.find((c) => c.id === invoice.clientId)?.currency)}</p>
+                <p className='font-medium text-foreground'>
+                  {formatCurrency(
+                    invoice.total,
+                    clients.find((c) => c.id === invoice.clientId)?.currency,
+                  )}
+                </p>
                 <p className='text-xs text-muted-foreground'>Due {formatDate(invoice.dueDate)}</p>
               </div>
 
@@ -362,66 +395,77 @@ function CreateInvoiceModal({
   // Reset form when opened and load settings or initial data
   useEffect(() => {
     if (isOpen) {
-      setStep(1);
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        setStep(1);
 
-      if (initialData) {
-        // Editing mode
-        setClientId(initialData.clientId);
-        setLineItems(
-          initialData.lineItems.map((item) => ({
-            description: item.description,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-          })),
-        );
-        setIssueDate(initialData.issueDate);
-        setDueDate(initialData.dueDate);
-        setNotes(initialData.notes || '');
-        setTaxRate(initialData.taxRate * 100);
-        setDownPayment(initialData.downPayment || 0);
-        // Load payment terms from settings for existing invoices
-        settingsService
-          .load()
-          .then((settings) => {
-            setPaymentTerms(settings.paymentTerms || '');
-          })
-          .catch((err) => invoiceLogger.error('Failed to load settings:', err));
-      } else {
-        // Creation mode
-        setClientId('');
-        setLineItems([]);
+        if (initialData) {
+          // Editing mode
+          setClientId(initialData.clientId);
+          setLineItems(
+            initialData.lineItems.map((item) => ({
+              description: item.description,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+            })),
+          );
+          setIssueDate(initialData.issueDate);
+          setDueDate(initialData.dueDate);
+          setNotes(initialData.notes || '');
+          setTaxRate(initialData.taxRate * 100);
+          setDownPayment(initialData.downPayment || 0);
+          // Load payment terms from settings for existing invoices
+          settingsService
+            .load()
+            .then((settings) => {
+              setPaymentTerms(settings.paymentTerms || '');
+            })
+            .catch((err) => invoiceLogger.error('Failed to load settings:', err));
+        } else {
+          // Creation mode
+          setClientId('');
+          setLineItems([]);
 
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-        const due = new Date(today);
-        due.setDate(due.getDate() + 30);
-        const dueStr = due.toISOString().split('T')[0];
+          const today = new Date();
+          const todayStr = today.toISOString().split('T')[0];
+          const due = new Date(today);
+          due.setDate(due.getDate() + 30);
+          const dueStr = due.toISOString().split('T')[0];
 
-        setIssueDate(todayStr);
-        setDueDate(dueStr);
-        setNotes('');
-        setDownPayment(0);
+          setIssueDate(todayStr);
+          setDueDate(dueStr);
+          setNotes('');
+          setDownPayment(0);
 
-        // Load default options from settings
-        settingsService
-          .load()
-          .then((settings) => {
-            if (settings.defaultTaxRate !== undefined) {
-              setTaxRate(settings.defaultTaxRate * 100);
-            } else {
-              setTaxRate(0);
-            }
-            setPaymentTerms(settings.paymentTerms || '');
-          })
-          .catch((err) => invoiceLogger.error('Failed to load settings:', err));
-      }
+          // Load default options from settings
+          settingsService
+            .load()
+            .then((settings) => {
+              if (settings.defaultTaxRate !== undefined) {
+                setTaxRate(settings.defaultTaxRate * 100);
+              } else {
+                setTaxRate(0);
+              }
+              setPaymentTerms(settings.paymentTerms || '');
+            })
+            .catch((err) => invoiceLogger.error('Failed to load settings:', err));
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, initialData]);
 
   // Load products
   useEffect(() => {
     if (isOpen) {
-      productService.getAll().then(setProducts).catch((err) => invoiceLogger.error('Failed to load products:', err));
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        productService
+          .getAll()
+          .then(setProducts)
+          .catch((err) => invoiceLogger.error('Failed to load products:', err));
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
@@ -698,7 +742,9 @@ function CreateInvoiceModal({
               label='Down Payment'
               type='number'
               value={downPayment || ''}
-              onChange={(e) => setDownPayment(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+              onChange={(e) =>
+                setDownPayment(e.target.value === '' ? 0 : parseFloat(e.target.value))
+              }
               min={0}
               step={0.01}
               helperText='Amount already paid upfront (subtracted from total)'
@@ -815,7 +861,10 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    settingsService.load().then(setSettings).catch((err) => invoiceLogger.error('Failed to load settings for preview:', err));
+    settingsService
+      .load()
+      .then(setSettings)
+      .catch((err) => invoiceLogger.error('Failed to load settings for preview:', err));
   }, []);
 
   const formatDate = (isoString: string) => {
@@ -864,7 +913,7 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
       };
 
       // === HEADER: Logo (left) + INVOICE title (right) ===
-      let headerRightY = y;
+      const headerRightY = y;
       if (settings?.businessLogo) {
         try {
           doc.addImage(settings.businessLogo, 'PNG', MARGIN, y, 40, 20);
@@ -881,7 +930,9 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...GRAY_TEXT);
-      doc.text(`#${invoice.invoiceNumber}`, pageWidth - MARGIN, headerRightY + 16, { align: 'right' });
+      doc.text(`#${invoice.invoiceNumber}`, pageWidth - MARGIN, headerRightY + 16, {
+        align: 'right',
+      });
 
       y = Math.max(y + 25, headerRightY + 22);
 
@@ -1047,7 +1098,9 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
         doc.text(descText[0] || item.description.substring(0, 50), colDesc + 4, y);
         doc.text(`${currencySymbol}${item.unitPrice.toFixed(2)}`, colRate, y, { align: 'right' });
         doc.text(item.quantity.toString(), colQty + 8, y, { align: 'right' });
-        doc.text(`${currencySymbol}${(item.quantity * item.unitPrice).toFixed(2)}`, colAmount, y, { align: 'right' });
+        doc.text(`${currencySymbol}${(item.quantity * item.unitPrice).toFixed(2)}`, colAmount, y, {
+          align: 'right',
+        });
         y += 7;
       });
 
@@ -1067,14 +1120,18 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
       doc.setTextColor(...GRAY_TEXT);
       doc.text('Subtotal', totalsX, y);
       doc.setTextColor(...BLACK);
-      doc.text(`${currencySymbol}${invoice.subtotal.toFixed(2)}`, totalsValX, y, { align: 'right' });
+      doc.text(`${currencySymbol}${invoice.subtotal.toFixed(2)}`, totalsValX, y, {
+        align: 'right',
+      });
       y += 6;
 
       if (invoice.taxRate > 0) {
         doc.setTextColor(...GRAY_TEXT);
         doc.text(`VAT (${(invoice.taxRate * 100).toFixed(1)}%)`, totalsX, y);
         doc.setTextColor(...BLACK);
-        doc.text(`${currencySymbol}${invoice.taxAmount.toFixed(2)}`, totalsValX, y, { align: 'right' });
+        doc.text(`${currencySymbol}${invoice.taxAmount.toFixed(2)}`, totalsValX, y, {
+          align: 'right',
+        });
         y += 8;
       }
 
@@ -1084,7 +1141,9 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
         doc.setTextColor(...GRAY_TEXT);
         doc.text('Down Payment', totalsX, y);
         doc.setTextColor(22, 163, 74); // green-600
-        doc.text(`-${currencySymbol}${invoice.downPayment.toFixed(2)}`, totalsValX, y, { align: 'right' });
+        doc.text(`-${currencySymbol}${invoice.downPayment.toFixed(2)}`, totalsValX, y, {
+          align: 'right',
+        });
         doc.setTextColor(...BLACK);
         y += 8;
       }
@@ -1122,17 +1181,26 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
       // Calculate box height dynamically
       let paymentContentHeight = 10; // header
       if (settings?.paymentTerms) {
-        const termLines = doc.splitTextToSize(settings.paymentTerms, settings?.paymentQrCode ? CONTENT_WIDTH - 55 : CONTENT_WIDTH - boxPadding * 2);
+        const termLines = doc.splitTextToSize(
+          settings.paymentTerms,
+          settings?.paymentQrCode ? CONTENT_WIDTH - 55 : CONTENT_WIDTH - boxPadding * 2,
+        );
         paymentContentHeight += termLines.length * 4 + 4;
       }
       if (settings?.paymentBankDetails) {
-        const bankLines = doc.splitTextToSize(settings.paymentBankDetails, settings?.paymentQrCode ? CONTENT_WIDTH - 55 : CONTENT_WIDTH - boxPadding * 2);
+        const bankLines = doc.splitTextToSize(
+          settings.paymentBankDetails,
+          settings?.paymentQrCode ? CONTENT_WIDTH - 55 : CONTENT_WIDTH - boxPadding * 2,
+        );
         paymentContentHeight += bankLines.length * 4 + 8;
       }
       if (settings?.paymentLink || settings?.paymentLink2) paymentContentHeight += 12;
       paymentContentHeight += 8; // Invoice ref line
       const qrHeight = settings?.paymentQrCode ? 45 : 0;
-      const boxHeight = Math.max(paymentContentHeight + boxPadding * 2, qrHeight + boxPadding * 2 + 10);
+      const boxHeight = Math.max(
+        paymentContentHeight + boxPadding * 2,
+        qrHeight + boxPadding * 2 + 10,
+      );
 
       // Box border (rounded corners via rect)
       doc.setDrawColor(...TEAL);
@@ -1161,7 +1229,9 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor(...BLACK);
-      const textWidth = settings?.paymentQrCode ? CONTENT_WIDTH - 55 - boxPadding : CONTENT_WIDTH - boxPadding * 2;
+      const textWidth = settings?.paymentQrCode
+        ? CONTENT_WIDTH - 55 - boxPadding
+        : CONTENT_WIDTH - boxPadding * 2;
 
       if (settings?.paymentTerms) {
         const termLines = doc.splitTextToSize(settings.paymentTerms, textWidth);
@@ -1188,7 +1258,12 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
         doc.text(settings.paymentLinkTitle || 'Payment Link:', textStartX, payY);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(0, 0, 238);
-        doc.textWithLink(settings.paymentLink, textStartX + doc.getTextWidth((settings.paymentLinkTitle || 'Payment Link:') + ' '), payY, { url: settings.paymentLink });
+        doc.textWithLink(
+          settings.paymentLink,
+          textStartX + doc.getTextWidth((settings.paymentLinkTitle || 'Payment Link:') + ' '),
+          payY,
+          { url: settings.paymentLink },
+        );
         doc.setTextColor(...BLACK);
         payY += 5;
       }
@@ -1198,7 +1273,12 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
         doc.text(settings.paymentLink2Title || 'Payment Link 2:', textStartX, payY);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(0, 0, 238);
-        doc.textWithLink(settings.paymentLink2, textStartX + doc.getTextWidth((settings.paymentLink2Title || 'Payment Link 2:') + ' '), payY, { url: settings.paymentLink2 });
+        doc.textWithLink(
+          settings.paymentLink2,
+          textStartX + doc.getTextWidth((settings.paymentLink2Title || 'Payment Link 2:') + ' '),
+          payY,
+          { url: settings.paymentLink2 },
+        );
         doc.setTextColor(...BLACK);
         payY += 5;
       }
@@ -1233,7 +1313,9 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
 
         // Page number
         if (totalPages > 1) {
-          doc.text(`Page ${i} of ${totalPages}`, pageWidth - MARGIN, pageHeight - 12, { align: 'right' });
+          doc.text(`Page ${i} of ${totalPages}`, pageWidth - MARGIN, pageHeight - 12, {
+            align: 'right',
+          });
         }
 
         doc.setTextColor(...BLACK);
@@ -1406,7 +1488,8 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
               <div className='flex justify-between py-1 text-primary'>
                 <span>Down Payment:</span>
                 <span>
-                  -{formatCurrency(
+                  -
+                  {formatCurrency(
                     invoice.downPayment,
                     clients.find((c) => c.id === invoice.clientId)?.currency,
                   )}

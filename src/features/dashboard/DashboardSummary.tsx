@@ -56,11 +56,16 @@ export function DashboardSummary() {
       }
     };
     fetchChart();
-    return () => { cancelled = true; };
-  }, [chartRange]);
+    return () => {
+      cancelled = true;
+    };
+  }, [chartRange, data]);
 
   useEffect(() => {
-    loadData();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
 
     // Refresh every minute to keep data current
     const interval = setInterval(loadData, 60000);
@@ -72,6 +77,7 @@ export function DashboardSummary() {
     });
 
     return () => {
+      clearTimeout(timer);
       clearInterval(interval);
       unlisten
         .then((f) => f())
@@ -79,6 +85,7 @@ export function DashboardSummary() {
           /* Already unlistened */
         });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

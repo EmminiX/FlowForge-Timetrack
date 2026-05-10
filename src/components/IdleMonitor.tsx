@@ -44,7 +44,9 @@ export function IdleMonitor() {
         pausedByIdleRef.current = true;
         timerPause();
         // Emit idle state for flashing animation
-        emit('timer-idle-toggle', { active: true }).catch((err) => uiLogger.error('Failed to emit idle toggle:', err));
+        emit('timer-idle-toggle', { active: true }).catch((err) =>
+          uiLogger.error('Failed to emit idle toggle:', err),
+        );
       }
 
       // User returned from being idle - show dialog

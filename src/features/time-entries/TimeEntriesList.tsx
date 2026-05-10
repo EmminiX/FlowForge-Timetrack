@@ -75,7 +75,11 @@ export function TimeEntriesList() {
   };
 
   useEffect(() => {
-    loadData();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Apply filters
@@ -391,12 +395,14 @@ export function TimeEntriesList() {
       {entries.length === 0 ? (
         <EmptyState
           icon={<Clock className='w-8 h-8' />}
+          variant='guided'
           title='No time entries yet'
           description='Start tracking time on a project to see entries here.'
         />
       ) : filteredEntries.length === 0 ? (
         <EmptyState
           icon={<Search className='w-8 h-8' />}
+          variant='minimal'
           title='No matching entries'
           description='Try adjusting your filters.'
         />
