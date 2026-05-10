@@ -10,16 +10,18 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading, disabled, children, ...props }, ref) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-lg transition-colors btn-press focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+      'inline-flex items-center justify-center rounded-md border font-semibold transition-colors btn-press focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50';
 
     const variants = {
-      primary: 'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary',
+      primary:
+        'border-primary bg-primary text-primary-foreground shadow-[var(--shadow-subtle)] hover:bg-primary/90',
       secondary:
-        'bg-secondary text-secondary-foreground hover:bg-secondary/80 focus:ring-secondary',
+        'border-border bg-secondary text-secondary-foreground hover:border-primary/40 hover:bg-muted',
       destructive:
-        'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive',
-      ghost: 'hover:bg-muted focus:ring-muted',
-      outline: 'border border-border bg-background hover:bg-muted focus:ring-muted',
+        'border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90',
+      ghost: 'border-transparent bg-transparent text-foreground hover:bg-muted',
+      outline:
+        'border-border bg-[var(--surface-raised)] text-foreground hover:border-primary/40 hover:bg-muted',
     };
 
     const sizes = {

@@ -2,7 +2,7 @@
                                                                                
   ## Reporting a Vulnerability                                                 
                                                                                
-  If you discover a security vulnerability in FlowForge-Track, please report it 
+  If you discover a security vulnerability in TimeSage, please report it
   by emailing e.covasa@me.com.                 
                                                                                
   **Please do not** report security vulnerabilities through public GitHub      

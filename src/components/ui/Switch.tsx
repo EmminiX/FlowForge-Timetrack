@@ -18,15 +18,15 @@ export function Switch({ checked, onCheckedChange, className, ...props }: Switch
         onCheckedChange(!checked);
       }}
       className={clsx(
-        'w-10 h-6 rounded-full transition-colors relative focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
-        checked ? 'bg-primary' : 'bg-muted',
+        'relative h-6 w-10 rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
+        checked ? 'border-primary bg-primary' : 'border-border bg-muted',
         className,
       )}
       {...props}
     >
       <div
         className={clsx(
-          'w-4 h-4 bg-white rounded-full absolute top-1 transition-transform shadow',
+          'absolute top-1 h-4 w-4 rounded-full bg-primary-foreground shadow transition-transform',
           checked ? 'translate-x-5' : 'translate-x-1',
         )}
       />

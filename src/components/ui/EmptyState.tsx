@@ -18,7 +18,7 @@ export function EmptyState({ icon, title, description, action, className }: Empt
         className,
       )}
     >
-      <div className='w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4 text-muted-foreground'>
+      <div className='mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground'>
         {icon || <FileQuestion className='w-8 h-8' />}
       </div>
       <h3 className='text-lg font-semibold text-foreground mb-1'>{title}</h3>

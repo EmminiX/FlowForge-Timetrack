@@ -208,8 +208,8 @@ export function TimerView() {
 
   const statusColors = {
     idle: 'text-muted-foreground',
-    running: 'text-green-500',
-    paused: 'text-orange-500',
+    running: 'text-[var(--accent-green)]',
+    paused: 'text-[var(--accent-amber)]',
   };
 
   const statusLabels = {
@@ -219,18 +219,18 @@ export function TimerView() {
   };
 
   return (
-    <div className='space-y-8'>
+    <div className='space-y-6'>
       <div className='flex items-center justify-between'>
         <h1 className='text-2xl font-bold text-foreground'>Timer</h1>
       </div>
 
       {/* Idle Warning Banner */}
       {isIdlePaused && (
-        <div className='bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 animate-pulse'>
+        <div className='rounded-lg border border-accent/40 bg-accent/15 p-4 animate-pulse'>
           <div className='flex items-center gap-3'>
-            <AlertTriangle className='w-6 h-6 text-amber-500' />
+            <AlertTriangle className='w-6 h-6 text-accent' />
             <div>
-              <p className='font-medium text-amber-500'>IDLE - Timer Paused</p>
+              <p className='font-medium text-accent'>IDLE - Timer Paused</p>
               <p className='text-sm text-muted-foreground'>
                 You've been away. The timer has been automatically paused.
               </p>
@@ -241,14 +241,14 @@ export function TimerView() {
 
       {/* Break Reminder Banner */}
       {showBreakReminder && (
-        <div className='bg-orange-500/10 border border-orange-500/30 rounded-xl p-4'>
+        <div className='rounded-lg border border-accent/40 bg-accent/15 p-4'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
-              <Coffee className='w-6 h-6 text-orange-500' />
+              <Coffee className='w-6 h-6 text-accent' />
               <div>
                 {isOnBreak ? (
                   <>
-                    <p className='font-medium text-orange-500'>
+                    <p className='font-medium text-accent'>
                       {breakSecondsRemaining === 0 ? 'Break Finished!' : 'On Break'}
                     </p>
                     <p className='text-sm text-muted-foreground'>
@@ -266,7 +266,7 @@ export function TimerView() {
                   </>
                 ) : (
                   <>
-                    <p className='font-medium text-orange-500'>Time for a break!</p>
+                    <p className='font-medium text-accent'>Time for a break!</p>
                     <p className='text-sm text-muted-foreground'>
                       You've been working for {settings?.pomodoroWorkMinutes || 25} minutes. Take a{' '}
                       {settings?.pomodoroBreakMinutes || 5} minute break.
@@ -308,15 +308,15 @@ export function TimerView() {
         </div>
       )}
 
-      <Card className='p-8 text-center'>
+      <Card className='mx-auto max-w-4xl p-6 text-center lg:p-8'>
         {/* Status indicator */}
         <div className='flex items-center justify-center gap-2 mb-6'>
           <div
             className={clsx(
-              'w-3 h-3 rounded-full',
+              'h-3 w-3 rounded-full',
               timerState === 'idle' && 'bg-muted-foreground',
-              timerState === 'running' && 'bg-green-500 animate-pulse',
-              timerState === 'paused' && 'bg-orange-500',
+              timerState === 'running' && 'bg-[var(--accent-green)] animate-pulse',
+              timerState === 'paused' && 'bg-[var(--accent-amber)]',
             )}
           />
           <span className={clsx('text-sm font-medium', statusColors[timerState])}>
@@ -327,12 +327,12 @@ export function TimerView() {
         {/* Time display */}
         <div
           className={clsx(
-            'text-7xl font-light font-mono tracking-wider mb-8',
+            'mb-8 font-mono text-6xl font-light tracking-wider text-foreground sm:text-7xl',
             isIdlePaused && 'animate-flicker-timer',
           )}
           style={{
             color: isIdlePaused
-              ? '#f59e0b'
+              ? 'var(--accent-amber)'
               : timerState !== 'idle' && projectColor
                 ? projectColor
                 : undefined,

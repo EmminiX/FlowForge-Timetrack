@@ -50,26 +50,32 @@ export function Header() {
   };
 
   return (
-    <header className='h-16 border-b border-border flex items-center px-8 bg-background shrink-0'>
-      <h1 className='text-xl font-semibold'>FlowForge-Track</h1>
+    <header className='h-16 border-b border-border flex items-center gap-4 px-6 bg-[var(--surface)] shrink-0'>
+      <div className='flex items-center gap-3 min-w-0'>
+        <div className='grid h-9 w-9 place-items-center rounded-md border border-primary/35 bg-primary/10 text-sm font-bold text-primary'>
+          TS
+        </div>
+        <h1 className='text-xl font-semibold text-foreground'>TimeSage</h1>
+      </div>
 
       <div className='ml-auto relative'>
         <button
           onClick={open}
-          className='flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground bg-secondary border border-border rounded-lg hover:bg-secondary/80 transition-colors'
+          className='flex min-h-11 items-center gap-2 rounded-md border border-border bg-[var(--surface-raised)] px-3 py-1.5 text-sm text-muted-foreground shadow-[var(--shadow-subtle)] transition-colors hover:border-primary/40 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'
+          aria-label='Open search'
         >
           <Search className='w-4 h-4' />
           <span>Search...</span>
-          <kbd className='ml-2 px-1.5 py-0.5 text-xs font-mono bg-background border border-border rounded'>
+          <kbd className='ml-2 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground'>
             {/Mac/.test(navigator.userAgent) ? '⌘' : 'Ctrl'}+K
           </kbd>
         </button>
 
         {isOpen && (
           <>
-            <div className='fixed inset-0 bg-black/50 z-40' onClick={close} />
+            <div className='fixed inset-0 bg-black/55 z-40 backdrop-blur-sm' onClick={close} />
             <div className='fixed top-[20vh] left-1/2 -translate-x-1/2 w-full max-w-lg z-50'>
-              <div className='bg-background border border-border rounded-xl shadow-xl overflow-hidden'>
+              <div className='overflow-hidden rounded-lg border border-border bg-[var(--surface-raised)] shadow-[var(--shadow-modal)]'>
                 <div className='flex items-center gap-3 px-4 py-3 border-b border-border'>
                   <Search className='w-5 h-5 text-muted-foreground shrink-0' />
                   <input
@@ -78,10 +84,14 @@ export function Header() {
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder='Search clients, projects, invoices...'
-                    className='flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground'
+                    className='flex-1 bg-transparent text-foreground outline-none placeholder:text-muted-foreground'
                   />
                   {query && (
-                    <button onClick={() => setQuery('')} className='text-muted-foreground hover:text-foreground'>
+                    <button
+                      onClick={() => setQuery('')}
+                      className='rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring'
+                      aria-label='Clear search'
+                    >
                       <X className='w-4 h-4' />
                     </button>
                   )}
@@ -100,8 +110,8 @@ export function Header() {
                           <button
                             key={result.id}
                             onClick={() => handleSelect(result)}
-                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-secondary transition-colors ${
-                              index === selectedIndex ? 'bg-secondary' : ''
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-muted ${
+                              index === selectedIndex ? 'bg-muted' : ''
                             }`}
                           >
                             <Icon className='w-4 h-4 text-muted-foreground shrink-0' />
@@ -122,9 +132,9 @@ export function Header() {
                 )}
 
                 <div className='px-4 py-2 border-t border-border flex items-center gap-4 text-xs text-muted-foreground'>
-                  <span><kbd className='px-1 bg-secondary rounded'>↑↓</kbd> Navigate</span>
-                  <span><kbd className='px-1 bg-secondary rounded'>↵</kbd> Select</span>
-                  <span><kbd className='px-1 bg-secondary rounded'>Esc</kbd> Close</span>
+                  <span><kbd className='rounded bg-muted px-1'>↑↓</kbd> Navigate</span>
+                  <span><kbd className='rounded bg-muted px-1'>↵</kbd> Select</span>
+                  <span><kbd className='rounded bg-muted px-1'>Esc</kbd> Close</span>
                 </div>
               </div>
             </div>

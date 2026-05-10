@@ -70,10 +70,10 @@ export function ClientGroup({
                       onClick={(e) => e.stopPropagation()}
                       className={`appearance-none cursor-pointer pl-2 pr-1 py-0.5 text-xs font-medium rounded-full border-0 ring-1 ring-inset focus:ring-2 focus:ring-primary ${
                         project.status === 'active'
-                          ? 'bg-green-100 text-green-800 ring-green-600/20 dark:bg-green-900/30 dark:text-green-400 dark:ring-green-500/20'
+                          ? 'bg-primary/12 text-primary ring-primary/25'
                           : project.status === 'paused'
-                            ? 'bg-orange-100 text-orange-800 ring-orange-600/20 dark:bg-orange-900/30 dark:text-orange-400 dark:ring-orange-500/20'
-                            : 'bg-muted text-muted-foreground ring-gray-500/10 dark:ring-gray-400/20'
+                            ? 'bg-accent/15 text-accent-foreground ring-accent/30 dark:text-accent'
+                            : 'bg-muted text-muted-foreground ring-muted-foreground/20'
                       }`}
                     >
                       {PROJECT_STATUS_OPTIONS.map((option) => (

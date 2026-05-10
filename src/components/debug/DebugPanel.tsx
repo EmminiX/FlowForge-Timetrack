@@ -3,17 +3,17 @@ import { Bug, X, Trash2, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { logger, type LogEntry, type LogLevel } from '../../lib/logger';
 
 const LOG_LEVEL_COLORS: Record<LogLevel, string> = {
-  debug: 'text-gray-400',
-  info: 'text-blue-400',
-  warn: 'text-yellow-400',
-  error: 'text-red-400',
+  debug: 'text-muted-foreground',
+  info: 'text-primary',
+  warn: 'text-accent-foreground dark:text-accent',
+  error: 'text-destructive',
 };
 
 const LOG_LEVEL_BG: Record<LogLevel, string> = {
-  debug: 'bg-gray-500/10',
-  info: 'bg-blue-500/10',
-  warn: 'bg-yellow-500/10',
-  error: 'bg-red-500/10',
+  debug: 'bg-muted/50',
+  info: 'bg-primary/10',
+  warn: 'bg-accent/15',
+  error: 'bg-destructive/10',
 };
 
 export function DebugPanel() {
@@ -77,17 +77,17 @@ export function DebugPanel() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className='fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg shadow-lg hover:bg-surface-hover transition-colors'
+        className='fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg shadow-lg hover:bg-muted transition-colors'
         title='Open Debug Panel'
       >
         <Bug className='w-4 h-4' />
         {errorCount > 0 && (
-          <span className='px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full'>
+          <span className='rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground'>
             {errorCount}
           </span>
         )}
         {warnCount > 0 && errorCount === 0 && (
-          <span className='px-1.5 py-0.5 text-xs bg-yellow-500 text-white rounded-full'>
+          <span className='rounded-full bg-accent px-1.5 py-0.5 text-xs text-accent-foreground'>
             {warnCount}
           </span>
         )}
@@ -102,7 +102,7 @@ export function DebugPanel() {
       }`}
     >
       {/* Header */}
-      <div className='flex items-center justify-between px-3 py-2 border-b border-border bg-surface-hover rounded-t-lg'>
+      <div className='flex items-center justify-between px-3 py-2 border-b border-border bg-muted/60 rounded-t-lg'>
         <div className='flex items-center gap-2'>
           <Bug className='w-4 h-4 text-muted-foreground' />
           <span className='font-medium text-sm'>Debug Log</span>
@@ -200,7 +200,7 @@ export function DebugPanel() {
                       </pre>
                     )}
                     {entry.stack && (
-                      <pre className='mt-1 ml-[88px] text-red-300 text-[10px] overflow-x-auto whitespace-pre-wrap'>
+                      <pre className='mt-1 ml-[88px] text-[10px] text-destructive overflow-x-auto whitespace-pre-wrap'>
                         {entry.stack}
                       </pre>
                     )}

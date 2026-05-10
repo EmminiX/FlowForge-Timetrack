@@ -399,13 +399,13 @@ export function Settings() {
             </CardContent>
           </Card>
 
-          <Card className='bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'>
+          <Card className='border-primary/25 bg-primary/10'>
             <CardContent>
-              <CardTitle className='text-blue-800 dark:text-blue-300 mb-2'>
+              <CardTitle className='mb-2 text-foreground'>
                 Neurodivergent-Friendly Design
               </CardTitle>
-              <CardDescription className='text-blue-700 dark:text-blue-400'>
-                FlowForge-Track was designed with neurodivergent users in mind. Features include:
+              <CardDescription className='text-muted-foreground'>
+                TimeSage was designed with neurodivergent users in mind. Features include:
                 <ul className='list-disc list-inside mt-2 space-y-1'>
                   <li>Large touch targets (minimum 44pt)</li>
                   <li>Clear labels with icons</li>
@@ -681,7 +681,7 @@ export function Settings() {
           <Card>
             <CardTitle className='px-6 pt-6 text-base'>Data Management</CardTitle>
             <CardDescription className='px-6 pb-2'>
-              Export or import your FlowForge-Track database for backup purposes.
+              Export or import your TimeSage database for backup purposes.
             </CardDescription>
             <CardContent className='space-y-4'>
               <div className='flex gap-4'>
@@ -730,7 +730,7 @@ export function Settings() {
                   try {
                     const { message } = await import('@tauri-apps/plugin-dialog');
                     await message('Backup imported! The app will now restart.', {
-                      title: 'FlowForge-Track',
+                      title: 'TimeSage',
                       kind: 'info',
                     });
                   } catch (e) {
@@ -760,14 +760,14 @@ export function Settings() {
       {/* Guide Tab */}
       {activeTab === 'guide' && (
         <div className='space-y-4'>
-          <Card className='bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'>
+          <Card className='border-primary/25 bg-primary/10'>
             <CardContent className='py-6'>
               <div className='flex items-center gap-3 mb-2'>
                 <Zap className='w-6 h-6 text-primary' />
-                <CardTitle className='text-xl'>Welcome to FlowForge-Track!</CardTitle>
+                <CardTitle className='text-xl'>Welcome to TimeSage!</CardTitle>
               </div>
               <CardDescription className='text-base'>
-                FlowForge-Track is your all-in-one time tracking and invoicing companion. This guide
+                TimeSage is your all-in-one time tracking and invoicing companion. This guide
                 will walk you through every feature step by step.
               </CardDescription>
             </CardContent>
@@ -805,8 +805,8 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> When you stop the timer, a time entry is automatically
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> When you stop the timer, a time entry is automatically
                 created and saved.
               </div>
             </div>
@@ -819,7 +819,7 @@ export function Settings() {
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
                 The floating widget is a small, always-on-top window that shows your timer status
-                even when FlowForge-Track is minimized.
+                even when TimeSage is minimized.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Widget Features</h4>
@@ -832,15 +832,15 @@ export function Settings() {
                     • <strong>Stop button:</strong> End the current session
                   </li>
                   <li>
-                    • <strong>Open App button:</strong> Bring FlowForge-Track to focus
+                    • <strong>Open App button:</strong> Bring TimeSage to focus
                   </li>
                   <li>
                     • <strong>Drag handle:</strong> Move the widget anywhere on screen
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> Enable or disable the widget in Settings → General → "Show
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> Enable or disable the widget in Settings → General → "Show
                 Floating Timer Widget"
               </div>
             </div>
@@ -918,8 +918,8 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> The selected currency will automatically apply to all
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> The selected currency will automatically apply to all
                 invoices created for this client.
               </div>
             </div>
@@ -962,8 +962,8 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> Only Active projects appear in the timer dropdown. Change
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> Only Active projects appear in the timer dropdown. Change
                 status to control visibility.
               </div>
             </div>
@@ -1031,7 +1031,7 @@ export function Settings() {
           <GuideSection icon={<FileText className='w-5 h-5' />} title='Creating Invoices'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                FlowForge-Track makes invoicing easy by automatically importing your unbilled time
+                TimeSage makes invoicing easy by automatically importing your unbilled time
                 entries.
               </p>
               <div>
@@ -1096,8 +1096,8 @@ export function Settings() {
                   payment details box including your QR code for quick mobile payments.
                 </p>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> Only the time entries included in the final saved invoice
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> Only the time entries included in the final saved invoice
                 are marked as "billed". If you remove an entry before saving, it stays unbilled.
               </div>
             </div>
@@ -1141,8 +1141,8 @@ export function Settings() {
                   that you can customize before saving.
                 </p>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> Click the eye icon on any product card to view its full
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> Click the eye icon on any product card to view its full
                 description.
               </div>
             </div>
@@ -1266,8 +1266,8 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> All appearance changes save automatically – no need to
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> All appearance changes save automatically – no need to
                 click Save!
               </div>
             </div>
@@ -1276,7 +1276,7 @@ export function Settings() {
           <GuideSection icon={<Keyboard className='w-5 h-5' />} title='Global Shortcuts'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                Control FlowForge-Track from anywhere, even when the app is in the background.
+                Control TimeSage from anywhere, even when the app is in the background.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Available Shortcuts</h4>
@@ -1298,8 +1298,8 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> These work globally! You don't need to have the FlowForge
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> These work globally! You don't need to have the TimeSage
                 window focused.
               </div>
             </div>
@@ -1399,7 +1399,7 @@ export function Settings() {
               <div>
                 <h4 className='font-medium mb-2'>App Updates</h4>
                 <p className='text-sm text-muted-foreground'>
-                  FlowForge-Track automatically checks for updates on startup. If a new version is
+                  TimeSage automatically checks for updates on startup. If a new version is
                   available, a <strong>banner</strong> will appear at the top of the screen with a
                   link to download the latest release.
                 </p>
@@ -1407,10 +1407,10 @@ export function Settings() {
             </div>
           </GuideSection>
 
-          <GuideSection icon={<Globe className='w-5 h-5' />} title='About FlowForge-Track'>
+          <GuideSection icon={<Globe className='w-5 h-5' />} title='About TimeSage'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                FlowForge-Track is built by{' '}
+                TimeSage is built by{' '}
                 <a
                   href='https://emmi.engineer'
                   target='_blank'
@@ -1427,12 +1427,12 @@ export function Settings() {
                   <li>
                     •{' '}
                     <a
-                      href='https://flowforge.emmi.zone/'
+                      href='https://timesage.emmi.zone/'
                       target='_blank'
                       rel='noopener noreferrer'
                       className='text-primary hover:underline'
                     >
-                      flowforge.emmi.zone
+                      Product website
                     </a>{' '}
                     — Product website
                   </li>
@@ -1450,19 +1450,19 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
                 <strong>Version:</strong> 0.2.0
               </div>
             </div>
           </GuideSection>
 
-          <Card className='bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'>
+          <Card className='border-primary/25 bg-primary/10'>
             <CardContent className='py-6'>
-              <CardTitle className='text-green-800 dark:text-green-300 mb-2'>
-                🎉 You're All Set!
+              <CardTitle className='mb-2 text-foreground'>
+                You're all set
               </CardTitle>
-              <CardDescription className='text-green-700 dark:text-green-400'>
-                You now know everything FlowForge-Track can do. Start tracking your time and
+              <CardDescription className='text-muted-foreground'>
+                You now know everything TimeSage can do. Start tracking your time and
                 creating invoices with ease!
               </CardDescription>
             </CardContent>
@@ -1493,6 +1493,10 @@ function ToggleSetting({ label, description, checked, onChange, icon }: ToggleSe
         </div>
       </div>
       <button
+        type='button'
+        role='switch'
+        aria-checked={checked}
+        aria-label={label}
         onClick={() => onChange(!checked)}
         className={clsx(
           'w-12 h-7 rounded-full transition-colors relative',
@@ -1501,7 +1505,7 @@ function ToggleSetting({ label, description, checked, onChange, icon }: ToggleSe
       >
         <div
           className={clsx(
-            'w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow',
+            'w-5 h-5 rounded-full border border-border bg-background absolute top-1 transition-transform shadow',
             checked ? 'translate-x-6' : 'translate-x-1',
           )}
         />
@@ -1522,6 +1526,8 @@ interface ThemeButtonProps {
 function ThemeButton({ theme, current, onClick, icon, label }: ThemeButtonProps) {
   return (
     <button
+      type='button'
+      aria-pressed={current === theme}
       onClick={onClick}
       className={clsx(
         'flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors min-w-[80px]',

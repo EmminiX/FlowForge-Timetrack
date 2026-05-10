@@ -84,9 +84,9 @@ export function DashboardSummary() {
   if (loading) {
     return (
       <div className='space-y-4 mt-6'>
-        <div className='bg-background border border-border rounded-xl p-4 animate-pulse h-32' />
-        <div className='bg-background border border-border rounded-xl p-4 animate-pulse h-24' />
-        <div className='bg-background border border-border rounded-xl p-4 animate-pulse h-20' />
+        <div className='app-card h-32 animate-pulse p-4' />
+        <div className='app-card h-24 animate-pulse p-4' />
+        <div className='app-card h-20 animate-pulse p-4' />
       </div>
     );
   }

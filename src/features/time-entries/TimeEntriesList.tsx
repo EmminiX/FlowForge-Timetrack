@@ -386,7 +386,7 @@ export function TimeEntriesList() {
           {Object.keys(unbilledGroups).length > 0 && (
             <div className='space-y-4'>
               <div className='flex items-center gap-2 pb-2 border-b border-border'>
-                <div className='w-2 h-2 rounded-full bg-yellow-500' />
+                <div className='w-2 h-2 rounded-full bg-accent' />
                 <h2 className='font-semibold'>Unbilled</h2>
               </div>
               {Object.entries(unbilledGroups).map(([clientId, group]) => (
@@ -415,7 +415,7 @@ export function TimeEntriesList() {
                 >
                   ▶
                 </span>
-                <div className='w-2 h-2 rounded-full bg-green-500' />
+                <div className='w-2 h-2 rounded-full bg-primary' />
                 <h2 className='font-semibold'>Billed</h2>
               </button>
 

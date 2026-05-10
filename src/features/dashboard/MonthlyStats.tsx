@@ -84,7 +84,7 @@ export function MonthlyStats({ initialData }: MonthlyStatsProps) {
           {percentChange !== null && (
             <div
               className={`flex items-center justify-center gap-0.5 mt-1 text-xs font-medium ${
-                percentChange >= 0 ? 'text-green-500' : 'text-red-500'
+                percentChange >= 0 ? 'text-primary' : 'text-destructive'
               }`}
             >
               {percentChange >= 0 ? (

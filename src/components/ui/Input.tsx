@@ -22,11 +22,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={clsx(
-            'w-full h-10 px-3 rounded-lg border bg-background text-foreground',
+            'app-field w-full h-10 px-3 text-foreground',
             'placeholder:text-muted-foreground',
-            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent',
+            'focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent',
             'disabled:opacity-50 disabled:cursor-not-allowed',
-            error ? 'border-destructive focus:ring-destructive' : 'border-border',
+            error ? 'border-destructive focus:ring-destructive' : 'border-input',
             className,
           )}
           {...props}

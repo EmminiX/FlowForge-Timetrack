@@ -10,11 +10,11 @@ export interface BadgeProps {
 
 export function Badge({ children, variant = 'default', size = 'sm', className }: BadgeProps) {
   const variants = {
-    default: 'bg-muted text-muted-foreground',
-    success: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    warning: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-    danger: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    info: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    default: 'border-border bg-muted text-muted-foreground',
+    success: 'border-primary/30 bg-primary/12 text-primary',
+    warning: 'border-accent/40 bg-accent/15 text-accent-foreground dark:text-accent',
+    danger: 'border-destructive/30 bg-destructive/12 text-destructive',
+    info: 'border-primary/25 bg-primary/10 text-primary',
   };
 
   const sizes = {
@@ -25,7 +25,7 @@ export function Badge({ children, variant = 'default', size = 'sm', className }:
   return (
     <span
       className={clsx(
-        'inline-flex items-center font-medium rounded-full',
+        'inline-flex items-center rounded-md border font-medium',
         variants[variant],
         sizes[size],
         className,

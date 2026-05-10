@@ -95,15 +95,15 @@ export function Widget() {
 
   // Determine if we should show flashing (break or idle while running)
   const shouldFlash = isBreakActive || isIdlePaused;
-  const flashColor = '#f97316'; // orange-500
+  const flashColor = 'var(--accent-amber)';
 
   // Use muted styling for idle state
   const isIdle = timerState.status === 'idle';
   const displayColor = isIdle
-    ? '#64748b'
+    ? 'var(--muted-foreground)'
     : shouldFlash
       ? flashColor
-      : timerState.projectColor || '#007AFF';
+      : timerState.projectColor || 'var(--primary)';
 
   return (
     <div
@@ -113,8 +113,8 @@ export function Widget() {
         boxShadow: isIdle
           ? 'none'
           : shouldFlash
-            ? '0 0 12px rgba(249, 115, 22, 0.5)'
-            : `0 0 12px ${timerState.projectColor}15`,
+            ? '0 0 0 2px color-mix(in oklch, var(--accent-amber) 20%, transparent)'
+            : 'var(--shadow-card)',
       }}
       onMouseDown={handleDrag}
     >
@@ -149,6 +149,7 @@ export function Widget() {
           }}
           onMouseDown={(e) => e.stopPropagation()}
           title={timerState.status === 'running' ? 'Pause' : 'Resume'}
+          aria-label={timerState.status === 'running' ? 'Pause timer' : 'Resume timer'}
         >
           {timerState.status === 'running' ? (
             <Pause className='w-3.5 h-3.5' />
@@ -169,6 +170,7 @@ export function Widget() {
           }}
           onMouseDown={(e) => e.stopPropagation()}
           title='Open App'
+          aria-label='Open TimeSage'
         >
           <Layout className='w-3.5 h-3.5' />
         </button>
@@ -180,6 +182,7 @@ export function Widget() {
           }}
           onMouseDown={(e) => e.stopPropagation()}
           title='Stop'
+          aria-label='Stop timer'
         >
           <Square className='w-3.5 h-3.5' />
         </button>

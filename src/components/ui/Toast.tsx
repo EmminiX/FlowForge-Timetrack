@@ -28,7 +28,7 @@ function ToastItem({
   }, [toast.duration, onDismiss]);
 
   return (
-    <div className='bg-foreground text-background px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom duration-200'>
+    <div className='app-toast flex items-center gap-3 rounded-lg px-4 py-3 animate-in slide-in-from-bottom duration-200'>
       <span className='text-sm flex-1'>{toast.message}</span>
       {toast.action && (
         <button
@@ -36,12 +36,16 @@ function ToastItem({
             toast.action!.onClick();
             onDismiss();
           }}
-          className='text-sm font-medium text-primary-foreground bg-primary px-3 py-1 rounded-md hover:opacity-90 transition-opacity shrink-0'
+          className='shrink-0 rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring'
         >
           {toast.action.label}
         </button>
       )}
-      <button onClick={onDismiss} className='opacity-60 hover:opacity-100 shrink-0' aria-label='Dismiss'>
+      <button
+        onClick={onDismiss}
+        className='shrink-0 rounded-md p-1 opacity-60 hover:bg-muted hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring'
+        aria-label='Dismiss'
+      >
         <X className='w-4 h-4' />
       </button>
     </div>

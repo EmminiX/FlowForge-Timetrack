@@ -13,13 +13,13 @@ export function Layout() {
   useFontSizeEffect();
 
   return (
-    <div className='flex h-screen bg-background text-foreground overflow-hidden'>
+    <div className='app-shell flex h-screen overflow-hidden bg-background text-foreground'>
       <TimerSync />
       <Sidebar />
       <div className='flex-1 flex flex-col min-w-0'>
         <UpdateBanner />
         <Header />
-        <main className='flex-1 overflow-auto p-8'>
+        <main className='app-main flex-1 overflow-auto p-6 lg:p-8'>
           <ErrorBoundary name='page-content'>
             <div className='page-enter'>
               <Outlet />

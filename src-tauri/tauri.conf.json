@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "FlowForge-Track",
+  "productName": "TimeSage",
   "version": "0.2.0",
   "identifier": "com.emmi.flowforge",
   "build": {
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "FlowForge-Track",
+        "title": "TimeSage",
         "width": 1024,
         "height": 768,
         "minWidth": 800,

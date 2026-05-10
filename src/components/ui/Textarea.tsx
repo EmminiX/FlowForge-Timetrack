@@ -22,11 +22,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           className={clsx(
-            'w-full min-h-[80px] px-3 py-2 rounded-lg border bg-background text-foreground',
+            'app-field w-full min-h-[80px] px-3 py-2 text-foreground',
             'placeholder:text-muted-foreground resize-y',
-            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent',
+            'focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent',
             'disabled:opacity-50 disabled:cursor-not-allowed',
-            error ? 'border-destructive focus:ring-destructive' : 'border-border',
+            error ? 'border-destructive focus:ring-destructive' : 'border-input',
             className,
           )}
           {...props}

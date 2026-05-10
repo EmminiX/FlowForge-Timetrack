@@ -100,8 +100,8 @@ export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
     <Modal isOpen={true} onClose={onClose} title='Welcome Back!' size='sm'>
       <div className='space-y-4'>
         <div className='flex items-center gap-3'>
-          <div className='p-3 bg-amber-500/10 rounded-full'>
-            <Clock className='w-6 h-6 text-amber-600 dark:text-amber-400' />
+          <div className='p-3 bg-accent/15 rounded-full'>
+            <Clock className='w-6 h-6 text-accent-foreground dark:text-accent' />
           </div>
           <p className='text-sm text-muted-foreground'>
             You were away for {formatDuration(idleDuration)}
