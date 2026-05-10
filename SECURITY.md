@@ -21,6 +21,7 @@ Supported user-selected file operations are limited to:
 
 - Backup export and import of `.db` files from Desktop, Documents, or Downloads.
 - CSV export of `.csv` files to Desktop, Documents, or Downloads.
+- Invoice PDF export of `.pdf` files to Desktop, Documents, or Downloads.
 
 Service code rejects selected paths outside those directories before invoking
 Tauri filesystem commands. Tauri capabilities also scope the filesystem plugin
