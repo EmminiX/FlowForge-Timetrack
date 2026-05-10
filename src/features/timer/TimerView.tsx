@@ -46,7 +46,10 @@ export function TimerView() {
 
   // Load active projects
   useEffect(() => {
-    projectService.getActive().then(setProjects).catch((err) => timeEntryLogger.error('Failed to load active projects:', err));
+    projectService
+      .getActive()
+      .then(setProjects)
+      .catch((err) => timeEntryLogger.error('Failed to load active projects:', err));
   }, []);
 
   // Update elapsed time every second when running
@@ -107,7 +110,9 @@ export function TimerView() {
 
   // Emit break status to widget
   useEffect(() => {
-    emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch((err) => timeEntryLogger.error('Failed to emit break toggle:', err));
+    emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch((err) =>
+      timeEntryLogger.error('Failed to emit break toggle:', err),
+    );
   }, [showBreakReminder, isOnBreak]);
 
   // Listen for idle toggle events
@@ -230,7 +235,7 @@ export function TimerView() {
           <div className='flex items-center gap-3'>
             <AlertTriangle className='w-6 h-6 text-accent' />
             <div>
-              <p className='font-medium text-accent'>IDLE - Timer Paused</p>
+              <p className='font-medium text-accent'>Idle pause active</p>
               <p className='text-sm text-muted-foreground'>
                 You've been away. The timer has been automatically paused.
               </p>
@@ -242,7 +247,7 @@ export function TimerView() {
       {/* Break Reminder Banner */}
       {showBreakReminder && (
         <div className='rounded-lg border border-accent/40 bg-accent/15 p-4'>
-          <div className='flex items-center justify-between'>
+          <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
             <div className='flex items-center gap-3'>
               <Coffee className='w-6 h-6 text-accent' />
               <div>
@@ -275,7 +280,7 @@ export function TimerView() {
                 )}
               </div>
             </div>
-            <div className='flex gap-2'>
+            <div className='flex flex-wrap gap-2'>
               {isOnBreak ? (
                 <Button
                   variant='primary'
@@ -318,6 +323,7 @@ export function TimerView() {
               timerState === 'running' && 'bg-[var(--accent-green)] animate-pulse',
               timerState === 'paused' && 'bg-[var(--accent-amber)]',
             )}
+            aria-hidden='true'
           />
           <span className={clsx('text-sm font-medium', statusColors[timerState])}>
             {statusLabels[timerState]}
@@ -327,9 +333,10 @@ export function TimerView() {
         {/* Time display */}
         <div
           className={clsx(
-            'mb-8 font-mono text-6xl font-light tracking-wider text-foreground sm:text-7xl',
+            'mb-8 font-mono text-5xl font-light tracking-wider text-foreground sm:text-6xl',
             isIdlePaused && 'animate-flicker-timer',
           )}
+          aria-live='polite'
           style={{
             color: isIdlePaused
               ? 'var(--accent-amber)'

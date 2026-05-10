@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -60,7 +60,9 @@
     --accent-green: oklch(0.72 0.18 154);
     --accent-amber: oklch(0.76 0.16 78);
     --shadow-subtle: 0 1px 2px color-mix(in oklch, var(--foreground) 10%, transparent);
-    --shadow-card: 0 1px 2px color-mix(in oklch, var(--foreground) 8%, transparent), 0 12px 32px -28px color-mix(in oklch, var(--foreground) 28%, transparent);
+    --shadow-card:
+      0 1px 2px color-mix(in oklch, var(--foreground) 8%, transparent),
+      0 12px 32px -28px color-mix(in oklch, var(--foreground) 28%, transparent);
     --shadow-modal: 0 24px 70px -34px color-mix(in oklch, var(--foreground) 42%, transparent);
 
     --radius: 0.5rem;
@@ -94,7 +96,9 @@
     --accent-green: oklch(0.79 0.18 154);
     --accent-amber: oklch(0.78 0.15 78);
     --shadow-subtle: 0 1px 2px color-mix(in oklch, black 28%, transparent);
-    --shadow-card: 0 1px 2px color-mix(in oklch, black 24%, transparent), 0 18px 36px -30px color-mix(in oklch, black 70%, transparent);
+    --shadow-card:
+      0 1px 2px color-mix(in oklch, black 24%, transparent),
+      0 18px 36px -30px color-mix(in oklch, black 70%, transparent);
     --shadow-modal: 0 28px 90px -34px color-mix(in oklch, black 82%, transparent);
   }
 
@@ -153,23 +157,65 @@
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .animate-in,
+  .animate-out,
+  .animate-spin,
+  .animate-pulse,
+  .animate-flicker,
+  .animate-flicker-timer,
+  .active-pulse,
+  .icon-spin-hover:hover svg,
+  .list-item,
+  .page-enter,
+  .shimmer {
+    animation: none !important;
+  }
+
+  .btn-press:active,
+  .card-hover:hover,
+  .hover-scale:hover,
+  .widget-button:hover,
+  .widget-button:active {
+    transform: none !important;
   }
 }
 
 /* Manual reduced motion toggle via data attribute */
-[data-reduce-motion="true"] *,
-[data-reduce-motion="true"] *::before,
-[data-reduce-motion="true"] *::after {
+[data-reduce-motion='true'] *,
+[data-reduce-motion='true'] *::before,
+[data-reduce-motion='true'] *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+[data-reduce-motion='true'] .animate-in,
+[data-reduce-motion='true'] .animate-out,
+[data-reduce-motion='true'] .animate-spin,
+[data-reduce-motion='true'] .animate-pulse,
+[data-reduce-motion='true'] .animate-flicker,
+[data-reduce-motion='true'] .animate-flicker-timer,
+[data-reduce-motion='true'] .active-pulse,
+[data-reduce-motion='true'] .icon-spin-hover:hover svg,
+[data-reduce-motion='true'] .list-item,
+[data-reduce-motion='true'] .page-enter,
+[data-reduce-motion='true'] .shimmer {
+  animation: none !important;
 }
 
 /* Disable hover translate effects when animations disabled */
-[data-reduce-motion="true"] .card-hover:hover,
-[data-reduce-motion="true"] .hover-scale:hover,
-[data-reduce-motion="true"] .widget-button:hover {
+[data-reduce-motion='true'] .btn-press:active,
+[data-reduce-motion='true'] .card-hover:hover,
+[data-reduce-motion='true'] .hover-scale:hover,
+[data-reduce-motion='true'] .widget-button:hover,
+[data-reduce-motion='true'] .widget-button:active {
   transform: none !important;
 }
 
@@ -180,15 +226,18 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04";
+    font-feature-settings: 'cv02', 'cv03', 'cv04';
     min-height: 100vh;
   }
 }
 
 @layer components {
   .app-shell {
-    background:
-      linear-gradient(180deg, var(--background) 0%, color-mix(in oklch, var(--background) 86%, var(--surface) 14%) 100%);
+    background: linear-gradient(
+      180deg,
+      var(--background) 0%,
+      color-mix(in oklch, var(--background) 86%, var(--surface) 14%) 100%
+    );
   }
 
   .app-main {
@@ -239,7 +288,7 @@
 }
 
 /* Density-aware components */
-[data-density="compact"] {
+[data-density='compact'] {
   --card-padding: 0.75rem;
   --button-padding-y: 0.375rem;
   --button-padding-x: 0.75rem;
@@ -247,7 +296,7 @@
   --gap-default: 0.5rem;
 }
 
-[data-density="comfortable"] {
+[data-density='comfortable'] {
   --card-padding: 1rem;
   --button-padding-y: 0.5rem;
   --button-padding-x: 1rem;
@@ -255,7 +304,7 @@
   --gap-default: 0.75rem;
 }
 
-[data-density="spacious"] {
+[data-density='spacious'] {
   --card-padding: 1.5rem;
   --button-padding-y: 0.75rem;
   --button-padding-x: 1.25rem;
@@ -359,7 +408,6 @@
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -371,7 +419,6 @@
 }
 
 @keyframes flicker {
-
   0%,
   100% {
     opacity: 1;
@@ -448,7 +495,6 @@
 
 /* Text flicker animation for timer display */
 @keyframes flicker-timer {
-
   0%,
   100% {
     opacity: 1;
@@ -494,7 +540,9 @@
 
 /* Page content fade-in */
 .page-enter {
-  animation: fade-in 300ms ease-out, slide-up 300ms ease-out;
+  animation:
+    fade-in 300ms ease-out,
+    slide-up 300ms ease-out;
 }
 
 @keyframes slide-up {
@@ -511,7 +559,10 @@
 
 /* Card hover lift effect */
 .card-hover {
-  transition: transform 180ms ease-out, box-shadow 180ms ease-out, border-color 180ms ease-out;
+  transition:
+    transform 180ms ease-out,
+    box-shadow 180ms ease-out,
+    border-color 180ms ease-out;
 }
 
 .card-hover:hover {
@@ -522,7 +573,9 @@
 
 /* Button press effect */
 .btn-press {
-  transition: transform 100ms ease-out, background-color 150ms ease-out;
+  transition:
+    transform 100ms ease-out,
+    background-color 150ms ease-out;
 }
 
 .btn-press:active {
@@ -604,7 +657,6 @@
 }
 
 @keyframes gentle-pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -617,10 +669,7 @@
 
 /* Loading shimmer effect */
 .shimmer {
-  background: linear-gradient(90deg,
-      var(--muted) 25%,
-      var(--background) 50%,
-      var(--muted) 75%);
+  background: linear-gradient(90deg, var(--muted) 25%, var(--background) 50%, var(--muted) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -676,6 +725,7 @@
   align-items: center;
   justify-content: center;
   cursor: grab;
+  min-width: 18px;
   margin-right: -2px;
 }
 
@@ -710,22 +760,25 @@
 .widget-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .widget-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 38px;
-  width: 38px;
-  height: 34px;
+  min-width: 44px;
+  width: 44px;
+  height: 40px;
   border: 1px solid color-mix(in oklch, var(--primary) 24%, var(--border));
   border-radius: 8px;
   background: color-mix(in oklch, var(--primary) 12%, transparent);
   color: var(--primary);
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .widget-button:hover {
@@ -741,6 +794,12 @@
 .widget-button:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+.widget-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
 }
 
 .widget-button-stop {

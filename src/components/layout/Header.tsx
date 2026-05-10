@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Users, FolderKanban, FileText, X } from 'lucide-react';
 import { useGlobalSearch, type SearchResult } from '../../hooks/useGlobalSearch';
@@ -14,6 +14,9 @@ export function Header() {
   const navigate = useNavigate();
   const { query, setQuery, isOpen, open, close, results } = useGlobalSearch();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const searchInputId = useId();
+  const searchResultsId = useId();
+  const activeResultId = results[selectedIndex] ? `${searchResultsId}-${selectedIndex}` : undefined;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -73,12 +76,27 @@ export function Header() {
 
         {isOpen && (
           <>
-            <div className='fixed inset-0 bg-black/55 z-40 backdrop-blur-sm' onClick={close} />
-            <div className='fixed top-[20vh] left-1/2 -translate-x-1/2 w-full max-w-lg z-50'>
-              <div className='overflow-hidden rounded-lg border border-border bg-[var(--surface-raised)] shadow-[var(--shadow-modal)]'>
+            <div
+              className='fixed inset-0 bg-black/55 z-40 backdrop-blur-sm animate-in fade-in duration-150'
+              onClick={close}
+            />
+            <div className='fixed top-[20vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2'>
+              <div
+                role='dialog'
+                aria-modal='true'
+                aria-label='Global search'
+                className='overflow-hidden rounded-lg border border-border bg-[var(--surface-raised)] shadow-[var(--shadow-modal)] animate-in fade-in zoom-in-95 duration-150'
+              >
                 <div className='flex items-center gap-3 px-4 py-3 border-b border-border'>
                   <Search className='w-5 h-5 text-muted-foreground shrink-0' />
                   <input
+                    id={searchInputId}
+                    type='search'
+                    role='searchbox'
+                    aria-label='Search'
+                    aria-controls={searchResultsId}
+                    aria-expanded={isOpen}
+                    aria-activedescendant={activeResultId}
                     autoFocus
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -89,7 +107,7 @@ export function Header() {
                   {query && (
                     <button
                       onClick={() => setQuery('')}
-                      className='rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring'
+                      className='grid min-h-11 min-w-11 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring'
                       aria-label='Clear search'
                     >
                       <X className='w-4 h-4' />
@@ -97,44 +115,62 @@ export function Header() {
                   )}
                 </div>
 
-                {query.trim() && (
-                  <div className='max-h-64 overflow-y-auto'>
-                    {results.length === 0 ? (
-                      <div className='px-4 py-8 text-center text-sm text-muted-foreground'>
-                        No results found
-                      </div>
-                    ) : (
-                      results.map((result, index) => {
-                        const Icon = TYPE_ICONS[result.type] || FileText;
-                        return (
-                          <button
-                            key={result.id}
-                            onClick={() => handleSelect(result)}
-                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-muted ${
-                              index === selectedIndex ? 'bg-muted' : ''
-                            }`}
-                          >
-                            <Icon className='w-4 h-4 text-muted-foreground shrink-0' />
-                            <div className='flex-1 min-w-0'>
-                              <p className='text-sm font-medium truncate'>{result.title}</p>
-                              {result.subtitle && (
-                                <p className='text-xs text-muted-foreground truncate'>{result.subtitle}</p>
-                              )}
-                            </div>
-                            <span className='text-xs text-muted-foreground capitalize shrink-0'>
-                              {result.type.replace('-', ' ')}
-                            </span>
-                          </button>
-                        );
-                      })
-                    )}
-                  </div>
-                )}
+                <div
+                  id={searchResultsId}
+                  role='listbox'
+                  aria-label='Search results'
+                  className='max-h-64 overflow-y-auto'
+                >
+                  {query.trim() && (
+                    <>
+                      {results.length === 0 ? (
+                        <div className='px-4 py-8 text-center text-sm text-muted-foreground'>
+                          No results found
+                        </div>
+                      ) : (
+                        results.map((result, index) => {
+                          const Icon = TYPE_ICONS[result.type] || FileText;
+                          return (
+                            <button
+                              key={result.id}
+                              id={`${searchResultsId}-${index}`}
+                              role='option'
+                              aria-selected={index === selectedIndex}
+                              onClick={() => handleSelect(result)}
+                              className={`w-full flex min-h-11 items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring ${
+                                index === selectedIndex ? 'bg-muted' : ''
+                              }`}
+                            >
+                              <Icon className='w-4 h-4 text-muted-foreground shrink-0' />
+                              <div className='flex-1 min-w-0'>
+                                <p className='text-sm font-medium truncate'>{result.title}</p>
+                                {result.subtitle && (
+                                  <p className='text-xs text-muted-foreground truncate'>
+                                    {result.subtitle}
+                                  </p>
+                                )}
+                              </div>
+                              <span className='text-xs text-muted-foreground capitalize shrink-0'>
+                                {result.type.replace('-', ' ')}
+                              </span>
+                            </button>
+                          );
+                        })
+                      )}
+                    </>
+                  )}
+                </div>
 
                 <div className='px-4 py-2 border-t border-border flex items-center gap-4 text-xs text-muted-foreground'>
-                  <span><kbd className='rounded bg-muted px-1'>↑↓</kbd> Navigate</span>
-                  <span><kbd className='rounded bg-muted px-1'>↵</kbd> Select</span>
-                  <span><kbd className='rounded bg-muted px-1'>Esc</kbd> Close</span>
+                  <span>
+                    <kbd className='rounded bg-muted px-1'>↑↓</kbd> Navigate
+                  </span>
+                  <span>
+                    <kbd className='rounded bg-muted px-1'>↵</kbd> Select
+                  </span>
+                  <span>
+                    <kbd className='rounded bg-muted px-1'>Esc</kbd> Close
+                  </span>
                 </div>
               </div>
             </div>

@@ -124,6 +124,7 @@ export function Modal({
         role='dialog'
         aria-modal='true'
         aria-labelledby={title ? modalTitleId : undefined}
+        aria-label={title ? undefined : 'Dialog'}
         className={clsx(
           'app-modal w-full mx-4',
           'animate-in fade-in zoom-in-95 duration-200',
@@ -134,7 +135,11 @@ export function Modal({
         {/* Header */}
         {(title || showCloseButton) && (
           <div className='flex items-center justify-between px-6 py-4 border-b border-border shrink-0'>
-            {title && <h2 id={modalTitleId} className='text-lg font-semibold text-foreground'>{title}</h2>}
+            {title && (
+              <h2 id={modalTitleId} className='text-lg font-semibold text-foreground'>
+                {title}
+              </h2>
+            )}
             {showCloseButton && (
               <Button
                 variant='ghost'

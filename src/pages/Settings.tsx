@@ -58,6 +58,7 @@ export function Settings() {
     applyTheme,
     applyFontSize,
     applyDensity,
+    applyAnimations,
   } = useSettings();
 
   // Local state for immediate feedback and input handling
@@ -78,6 +79,7 @@ export function Settings() {
     if (key === 'theme') applyTheme(value as Theme);
     if (key === 'fontSize') applyFontSize(value as FontSize);
     if (key === 'density') applyDensity(value as Density);
+    if (key === 'animationPreference') applyAnimations(value as AppSettings['animationPreference']);
 
     // Broadcast preview to other windows
     emit('setting-preview', { key, value });
@@ -113,13 +115,15 @@ export function Settings() {
       </div>
 
       {/* Tabs */}
-      <div className='flex gap-2 border-b border-border'>
+      <div className='flex gap-2 border-b border-border' aria-label='Settings sections'>
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            type='button'
+            aria-pressed={activeTab === tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={clsx(
-              'flex items-center gap-2 px-4 py-2 -mb-px border-b-2 transition-colors text-sm font-medium',
+              'flex min-h-11 items-center gap-2 px-4 py-2 -mb-px border-b-2 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
               activeTab === tab.id
                 ? 'border-primary text-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground',
@@ -181,10 +185,9 @@ export function Settings() {
                 <>
                   <div className='grid grid-cols-2 gap-4 pt-4 border-t border-border'>
                     <div>
-                      <label className='block text-sm font-medium mb-2'>
-                        Work Duration (minutes)
-                      </label>
                       <Input
+                        id='pomodoro-work-minutes'
+                        label='Work Duration (minutes)'
                         type='number'
                         value={localSettings.pomodoroWorkMinutes || ''}
                         onChange={(e) =>
@@ -203,10 +206,9 @@ export function Settings() {
                       />
                     </div>
                     <div>
-                      <label className='block text-sm font-medium mb-2'>
-                        Break Duration (minutes)
-                      </label>
                       <Input
+                        id='pomodoro-break-minutes'
+                        label='Break Duration (minutes)'
                         type='number'
                         value={localSettings.pomodoroBreakMinutes || ''}
                         onChange={(e) =>
@@ -265,9 +267,11 @@ export function Settings() {
                     {[2, 5, 10, 15, 30].map((minutes) => (
                       <button
                         key={minutes}
+                        type='button'
+                        aria-pressed={localSettings.idleThresholdMinutes === minutes}
                         onClick={() => handleAutoSave('idleThresholdMinutes', minutes)}
                         className={clsx(
-                          'px-4 py-2 rounded-lg border transition-colors',
+                          'min-h-11 px-4 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                           localSettings.idleThresholdMinutes === minutes
                             ? 'bg-primary text-primary-foreground border-primary'
                             : 'border-border hover:bg-muted',
@@ -339,9 +343,11 @@ export function Settings() {
                   {FONT_SIZE_OPTIONS.map((option) => (
                     <button
                       key={option.value}
+                      type='button'
+                      aria-pressed={localSettings.fontSize === option.value}
                       onClick={() => handleAutoSave('fontSize', option.value)}
                       className={clsx(
-                        'px-4 py-2 rounded-lg border transition-colors',
+                        'min-h-11 px-4 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                         localSettings.fontSize === option.value
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'border-border hover:bg-muted',
@@ -366,9 +372,11 @@ export function Settings() {
                   {DENSITY_OPTIONS.map((option) => (
                     <button
                       key={option.value}
+                      type='button'
+                      aria-pressed={localSettings.density === option.value}
                       onClick={() => handleAutoSave('density', option.value)}
                       className={clsx(
-                        'px-4 py-2 rounded-lg border transition-colors',
+                        'min-h-11 px-4 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                         localSettings.density === option.value
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'border-border hover:bg-muted',
@@ -401,9 +409,7 @@ export function Settings() {
 
           <Card className='border-primary/25 bg-primary/10'>
             <CardContent>
-              <CardTitle className='mb-2 text-foreground'>
-                Neurodivergent-Friendly Design
-              </CardTitle>
+              <CardTitle className='mb-2 text-foreground'>Neurodivergent-Friendly Design</CardTitle>
               <CardDescription className='text-muted-foreground'>
                 TimeSage was designed with neurodivergent users in mind. Features include:
                 <ul className='list-disc list-inside mt-2 space-y-1'>
@@ -625,7 +631,9 @@ export function Settings() {
                         <span className='font-medium text-primary'>Click to upload</span> or drag
                         and drop
                       </p>
-                      <p className='text-xs text-muted-foreground mt-1'>PNG, JPG up to 1MB. Used on all invoices.</p>
+                      <p className='text-xs text-muted-foreground mt-1'>
+                        PNG, JPG up to 1MB. Used on all invoices.
+                      </p>
                     </div>
                     <input
                       type='file'
@@ -671,7 +679,9 @@ export function Settings() {
                 label='Bank Transfer Details'
                 value={localSettings.paymentBankDetails}
                 onChange={(e) => handleLocalChange('paymentBankDetails', e.target.value)}
-                onBlur={() => handleAutoSave('paymentBankDetails', localSettings.paymentBankDetails)}
+                onBlur={() =>
+                  handleAutoSave('paymentBankDetails', localSettings.paymentBankDetails)
+                }
                 placeholder={'IBAN: NL00 BANK 0000 0000 00\nBIC: BANKCODE\nBank Name'}
                 rows={4}
               />
@@ -767,8 +777,8 @@ export function Settings() {
                 <CardTitle className='text-xl'>Welcome to TimeSage!</CardTitle>
               </div>
               <CardDescription className='text-base'>
-                TimeSage is your all-in-one time tracking and invoicing companion. This guide
-                will walk you through every feature step by step.
+                TimeSage is your all-in-one time tracking and invoicing companion. This guide will
+                walk you through every feature step by step.
               </CardDescription>
             </CardContent>
           </Card>
@@ -806,8 +816,8 @@ export function Settings() {
                 </ul>
               </div>
               <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
-                <strong>Tip:</strong> When you stop the timer, a time entry is automatically
-                created and saved.
+                <strong>Tip:</strong> When you stop the timer, a time entry is automatically created
+                and saved.
               </div>
             </div>
           </GuideSection>
@@ -919,8 +929,8 @@ export function Settings() {
                 </ul>
               </div>
               <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
-                <strong>Tip:</strong> The selected currency will automatically apply to all
-                invoices created for this client.
+                <strong>Tip:</strong> The selected currency will automatically apply to all invoices
+                created for this client.
               </div>
             </div>
           </GuideSection>
@@ -1031,8 +1041,7 @@ export function Settings() {
           <GuideSection icon={<FileText className='w-5 h-5' />} title='Creating Invoices'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                TimeSage makes invoicing easy by automatically importing your unbilled time
-                entries.
+                TimeSage makes invoicing easy by automatically importing your unbilled time entries.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Step-by-Step Invoice Creation</h4>
@@ -1097,8 +1106,8 @@ export function Settings() {
                 </p>
               </div>
               <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
-                <strong>Tip:</strong> Only the time entries included in the final saved invoice
-                are marked as "billed". If you remove an entry before saving, it stays unbilled.
+                <strong>Tip:</strong> Only the time entries included in the final saved invoice are
+                marked as "billed". If you remove an entry before saving, it stays unbilled.
               </div>
             </div>
           </GuideSection>
@@ -1137,8 +1146,8 @@ export function Settings() {
                 <h4 className='font-medium mb-2'>Quick Add Templates</h4>
                 <p className='text-sm text-muted-foreground'>
                   Use the "Quick Add" button to instantly create products from pre-filled templates.
-                  Templates provide suggested names, descriptions, and prices for common service types
-                  that you can customize before saving.
+                  Templates provide suggested names, descriptions, and prices for common service
+                  types that you can customize before saving.
                 </p>
               </div>
               <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
@@ -1205,8 +1214,8 @@ export function Settings() {
                     payments (appears on PDF invoices).
                   </li>
                   <li>
-                    • <strong>Bank Transfer Details:</strong> Add IBAN, bank name, and reference info
-                    for direct transfers.
+                    • <strong>Bank Transfer Details:</strong> Add IBAN, bank name, and reference
+                    info for direct transfers.
                   </li>
                 </ul>
               </div>
@@ -1267,8 +1276,8 @@ export function Settings() {
                 </ul>
               </div>
               <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
-                <strong>Tip:</strong> All appearance changes save automatically – no need to
-                click Save!
+                <strong>Tip:</strong> All appearance changes save automatically – no need to click
+                Save!
               </div>
             </div>
           </GuideSection>
@@ -1335,8 +1344,8 @@ export function Settings() {
                     previous month.
                   </li>
                   <li>
-                    • <strong>Project Breakdown:</strong> All-time hours per project with color-coded
-                    progress bars showing each project's share of total time.
+                    • <strong>Project Breakdown:</strong> All-time hours per project with
+                    color-coded progress bars showing each project's share of total time.
                   </li>
                 </ul>
               </div>
@@ -1419,7 +1428,8 @@ export function Settings() {
                 >
                   emmi.engineer
                 </a>{' '}
-                — a freelance-first time tracking and invoicing app designed for simplicity and speed.
+                — a freelance-first time tracking and invoicing app designed for simplicity and
+                speed.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Links</h4>
@@ -1458,12 +1468,10 @@ export function Settings() {
 
           <Card className='border-primary/25 bg-primary/10'>
             <CardContent className='py-6'>
-              <CardTitle className='mb-2 text-foreground'>
-                You're all set
-              </CardTitle>
+              <CardTitle className='mb-2 text-foreground'>You're all set</CardTitle>
               <CardDescription className='text-muted-foreground'>
-                You now know everything TimeSage can do. Start tracking your time and
-                creating invoices with ease!
+                You now know everything TimeSage can do. Start tracking your time and creating
+                invoices with ease!
               </CardDescription>
             </CardContent>
           </Card>
@@ -1484,10 +1492,10 @@ interface ToggleSettingProps {
 
 function ToggleSetting({ label, description, checked, onChange, icon }: ToggleSettingProps) {
   return (
-    <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-3'>
+    <div className='flex items-center justify-between gap-4'>
+      <div className='flex min-w-0 items-center gap-3'>
         {icon && <div className='text-muted-foreground'>{icon}</div>}
-        <div>
+        <div className='min-w-0'>
           <p className='font-medium text-foreground'>{label}</p>
           <p className='text-sm text-muted-foreground'>{description}</p>
         </div>
@@ -1499,14 +1507,14 @@ function ToggleSetting({ label, description, checked, onChange, icon }: ToggleSe
         aria-label={label}
         onClick={() => onChange(!checked)}
         className={clsx(
-          'w-12 h-7 rounded-full transition-colors relative',
+          'relative min-h-11 min-w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
           checked ? 'bg-primary' : 'bg-muted',
         )}
       >
         <div
           className={clsx(
-            'w-5 h-5 rounded-full border border-border bg-background absolute top-1 transition-transform shadow',
-            checked ? 'translate-x-6' : 'translate-x-1',
+            'absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border border-border bg-background shadow transition-transform',
+            checked ? 'translate-x-6' : 'translate-x-1.5',
           )}
         />
       </button>
@@ -1530,7 +1538,7 @@ function ThemeButton({ theme, current, onClick, icon, label }: ThemeButtonProps)
       aria-pressed={current === theme}
       onClick={onClick}
       className={clsx(
-        'flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors min-w-[80px]',
+        'flex min-h-24 min-w-[92px] flex-col items-center justify-center gap-2 rounded-lg border-2 p-4 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
         current === theme
           ? 'border-primary bg-primary/10'
           : 'border-border hover:border-muted-foreground',
@@ -1556,8 +1564,10 @@ function GuideSection({ icon, title, children, defaultOpen = false }: GuideSecti
   return (
     <Card className='overflow-hidden'>
       <button
+        type='button'
+        aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
-        className='w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left'
+        className='w-full flex min-h-11 items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
       >
         <div className='flex items-center gap-3'>
           <div className='text-primary'>{icon}</div>

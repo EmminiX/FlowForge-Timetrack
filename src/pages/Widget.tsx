@@ -104,6 +104,12 @@ export function Widget() {
     : shouldFlash
       ? flashColor
       : timerState.projectColor || 'var(--primary)';
+  const pauseResumeLabel = isIdle
+    ? 'Pause or resume timer unavailable'
+    : timerState.status === 'running'
+      ? 'Pause timer'
+      : 'Resume timer';
+  const stopLabel = isIdle ? 'Stop timer unavailable' : 'Stop timer';
 
   return (
     <div
@@ -117,6 +123,8 @@ export function Widget() {
             : 'var(--shadow-card)',
       }}
       onMouseDown={handleDrag}
+      role='group'
+      aria-label={`Timer widget: ${isIdle ? 'ready' : `${timerState.status}, ${formatDuration(timerState.elapsedSeconds)}`}`}
     >
       {/* Drag Handle */}
       <div className='widget-drag-handle' title='Drag to move'>
@@ -125,7 +133,7 @@ export function Widget() {
 
       {/* Timer display */}
       <div className='widget-content' style={{ pointerEvents: 'none' }}>
-        <span className='widget-time' style={{ color: displayColor }}>
+        <span className='widget-time' style={{ color: displayColor }} aria-live='polite'>
           {formatDuration(timerState.elapsedSeconds)}
         </span>
         <span className='widget-project'>
@@ -148,8 +156,9 @@ export function Widget() {
             handlePauseResume(e);
           }}
           onMouseDown={(e) => e.stopPropagation()}
-          title={timerState.status === 'running' ? 'Pause' : 'Resume'}
-          aria-label={timerState.status === 'running' ? 'Pause timer' : 'Resume timer'}
+          title={pauseResumeLabel}
+          aria-label={pauseResumeLabel}
+          disabled={timerState.status === 'idle'}
         >
           {timerState.status === 'running' ? (
             <Pause className='w-3.5 h-3.5' />
@@ -181,8 +190,9 @@ export function Widget() {
             handleStop(e);
           }}
           onMouseDown={(e) => e.stopPropagation()}
-          title='Stop'
-          aria-label='Stop timer'
+          title={stopLabel}
+          aria-label={stopLabel}
+          disabled={timerState.status === 'idle'}
         >
           <Square className='w-3.5 h-3.5' />
         </button>

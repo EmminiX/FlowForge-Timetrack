@@ -22,7 +22,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={clsx(
-            'app-field w-full h-10 px-3 text-foreground',
+            'app-field w-full min-h-11 px-3 text-foreground',
             'placeholder:text-muted-foreground',
             'focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent',
             'disabled:opacity-50 disabled:cursor-not-allowed',

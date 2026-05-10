@@ -31,7 +31,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             className={clsx(
-              'app-field w-full h-10 px-3 pr-10 text-foreground appearance-none cursor-pointer',
+              'app-field w-full min-h-11 px-3 pr-10 text-foreground appearance-none cursor-pointer',
               'focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               error ? 'border-destructive focus:ring-destructive' : 'border-input',
