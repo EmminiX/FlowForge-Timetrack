@@ -97,7 +97,7 @@ export function DebugPanel() {
 
   return (
     <div
-      className={`fixed bottom-4 right-4 z-50 bg-surface border border-border rounded-lg shadow-xl transition-all ${
+      className={`fixed bottom-4 right-4 z-50 bg-surface border border-border rounded-lg shadow-xl transition-[width,background-color,border-color,box-shadow] duration-150 ${
         isMinimized ? 'w-80' : 'w-[600px]'
       }`}
     >
@@ -113,22 +113,25 @@ export function DebugPanel() {
         <div className='flex items-center gap-1'>
           <button
             onClick={handleExport}
-            className='p-1 hover:bg-background rounded'
+            className='min-h-11 min-w-11 rounded transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring'
             title='Export logs'
+            aria-label='Export logs'
           >
             <Download className='w-4 h-4 text-muted-foreground' />
           </button>
           <button
             onClick={() => logger.clear()}
-            className='p-1 hover:bg-background rounded'
+            className='min-h-11 min-w-11 rounded transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring'
             title='Clear logs'
+            aria-label='Clear logs'
           >
             <Trash2 className='w-4 h-4 text-muted-foreground' />
           </button>
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className='p-1 hover:bg-background rounded'
+            className='min-h-11 min-w-11 rounded transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring'
             title={isMinimized ? 'Expand' : 'Minimize'}
+            aria-label={isMinimized ? 'Expand debug panel' : 'Minimize debug panel'}
           >
             {isMinimized ? (
               <ChevronUp className='w-4 h-4 text-muted-foreground' />
@@ -138,8 +141,9 @@ export function DebugPanel() {
           </button>
           <button
             onClick={() => setIsOpen(false)}
-            className='p-1 hover:bg-background rounded'
+            className='min-h-11 min-w-11 rounded transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring'
             title='Close'
+            aria-label='Close debug panel'
           >
             <X className='w-4 h-4 text-muted-foreground' />
           </button>

@@ -35,27 +35,31 @@ export function TodaySummary({ totalSeconds, projects }: TodaySummaryProps) {
         <p className='text-muted-foreground text-sm'>No time tracked today</p>
       ) : (
         <div className='space-y-2'>
-          {projects.map((project) => (
-            <div key={project.projectId} className='flex items-center gap-3'>
-              <div
-                className='w-3 h-3 rounded-full shrink-0'
-                style={{ backgroundColor: project.projectColor }}
-              />
-              <span className='flex-1 text-sm truncate'>{project.projectName}</span>
-              <span className='text-sm text-muted-foreground whitespace-nowrap'>
-                {formatDuration(project.totalSeconds)}
-              </span>
-              <div className='h-2 w-32 overflow-hidden rounded-full bg-muted'>
+          {projects.map((project) => {
+            const progress = project.totalSeconds / maxSeconds;
+
+            return (
+              <div key={project.projectId} className='flex items-center gap-3'>
                 <div
-                  className='h-full rounded-full transition-all duration-500'
-                  style={{
-                    width: `${(project.totalSeconds / maxSeconds) * 100}%`,
-                    backgroundColor: project.projectColor,
-                  }}
+                  className='w-3 h-3 rounded-full shrink-0'
+                  style={{ backgroundColor: project.projectColor }}
                 />
+                <span className='flex-1 text-sm truncate'>{project.projectName}</span>
+                <span className='text-sm text-muted-foreground whitespace-nowrap'>
+                  {formatDuration(project.totalSeconds)}
+                </span>
+                <div className='h-2 w-32 overflow-hidden rounded-full bg-muted'>
+                  <div
+                    className='h-full origin-left rounded-full transition-transform duration-500'
+                    style={{
+                      transform: `scaleX(${progress})`,
+                      backgroundColor: project.projectColor,
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </Card>

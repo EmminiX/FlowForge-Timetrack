@@ -61,7 +61,7 @@ export function UpdateBanner() {
           </button>
           <button
             onClick={() => setDismissed(true)}
-            className='rounded-md p-1.5 transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring'
+            className='flex min-h-11 min-w-11 items-center justify-center rounded-md transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring'
             aria-label='Dismiss'
           >
             <X className='w-4 h-4 text-muted-foreground' />

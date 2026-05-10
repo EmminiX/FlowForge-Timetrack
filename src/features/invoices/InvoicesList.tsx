@@ -234,7 +234,8 @@ export function InvoicesList() {
                 <select
                   value={invoice.status}
                   onChange={(e) => handleStatusChange(invoice.id, e.target.value as InvoiceStatus)}
-                  className='w-full h-8 px-2 text-xs rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer'
+                  className='w-full min-h-11 px-3 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer'
+                  aria-label={`Change status for invoice ${invoice.invoiceNumber}`}
                   style={{
                     color:
                       INVOICE_STATUS_OPTIONS.find((s) => s.value === invoice.status)?.color ||

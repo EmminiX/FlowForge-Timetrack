@@ -198,7 +198,7 @@ export function ClientsList() {
       ) : (
         <div className='space-y-3'>
           {filteredClients.map((client) => (
-            <Card key={client.id} className='flex flex-col p-4 transition-all'>
+            <Card key={client.id} className='flex flex-col p-4 transition-[background-color,border-color,box-shadow] duration-150'>
               <div className='flex items-center justify-between'>
                 <div className='flex-1 min-w-0'>
                   <h3 className='font-medium text-foreground truncate'>{client.name}</h3>

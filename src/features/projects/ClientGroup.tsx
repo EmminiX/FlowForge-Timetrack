@@ -68,7 +68,7 @@ export function ClientGroup({
                       value={project.status}
                       onChange={(e) => onStatusChange(project.id, e.target.value as ProjectStatus)}
                       onClick={(e) => e.stopPropagation()}
-                      className={`appearance-none cursor-pointer pl-2 pr-1 py-0.5 text-xs font-medium rounded-full border-0 ring-1 ring-inset focus:ring-2 focus:ring-primary ${
+                      className={`min-h-9 appearance-none cursor-pointer rounded-full border-0 py-1 pl-3 pr-3 text-xs font-medium ring-1 ring-inset focus:ring-2 focus:ring-primary ${
                         project.status === 'active'
                           ? 'bg-primary/12 text-primary ring-primary/25'
                           : project.status === 'paused'

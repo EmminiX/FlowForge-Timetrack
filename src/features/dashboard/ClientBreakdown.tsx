@@ -29,7 +29,7 @@ export function ClientBreakdown({ clients }: ClientBreakdownProps) {
       <div className="space-y-3">
         {clients.map((client) => {
           const totalAmount = client.unbilledAmount + client.billedAmount;
-          const billedPercent = totalAmount > 0 ? (client.billedAmount / totalAmount) * 100 : 0;
+          const billedProgress = totalAmount > 0 ? Math.max(client.billedAmount / totalAmount, 0.02) : 0;
 
           return (
             <div key={client.clientId} className="space-y-1.5">
@@ -44,8 +44,8 @@ export function ClientBreakdown({ clients }: ClientBreakdownProps) {
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary rounded-full transition-all duration-300"
-                    style={{ width: `${Math.max(billedPercent, 2)}%` }}
+                    className="h-full origin-left rounded-full bg-primary transition-transform duration-300"
+                    style={{ transform: `scaleX(${billedProgress})` }}
                   />
                 </div>
                 <div className="flex gap-2 text-xs whitespace-nowrap">
