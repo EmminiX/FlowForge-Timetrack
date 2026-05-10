@@ -20,6 +20,7 @@ import {
 } from '../../services';
 import { invoiceLogger } from '../../lib/logger';
 import { generateCSV, downloadCSV } from '../../lib/exportUtils';
+import { assertSafeUserFilePath } from '../../lib/safeFilePaths';
 import { ListSkeleton } from '../../components/ui';
 import { useUndoableAction } from '../../hooks/useUndoableAction';
 import {
@@ -1257,11 +1258,12 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
         invoiceLogger.debug('Save dialog returned', { filePath });
 
         if (filePath) {
-          invoiceLogger.debug('Writing file...', { path: filePath, size: pdfOutput.byteLength });
+          const safeFilePath = await assertSafeUserFilePath(filePath, '.pdf', 'Invoice PDF export');
+          invoiceLogger.debug('Writing file...', { path: safeFilePath, size: pdfOutput.byteLength });
           try {
-            await writeFile(filePath, new Uint8Array(pdfOutput));
-            invoiceLogger.info('PDF saved successfully', { path: filePath });
-            alert(`Invoice saved to:\n${filePath}`);
+            await writeFile(safeFilePath, new Uint8Array(pdfOutput));
+            invoiceLogger.info('PDF saved successfully', { path: safeFilePath });
+            alert(`Invoice saved to:\n${safeFilePath}`);
           } catch (writeError) {
             invoiceLogger.error('writeFile failed', writeError);
             throw writeError;
