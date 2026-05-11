@@ -201,7 +201,11 @@ export function TimerView() {
         };
         timeEntryLogger.debug('Creating time entry with data:', entryData);
         const entry = await timeEntryService.create(entryData);
-        await emit('time-entry-saved');
+        // emit is informational only -- don't let event-bus failures cause a
+        // persistence rollback when the DB row already exists
+        emit('time-entry-saved').catch((err) => {
+          console.warn('Failed to emit time-entry-saved:', err);
+        });
         return entry.id;
       });
 

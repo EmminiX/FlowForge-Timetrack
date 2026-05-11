@@ -61,7 +61,11 @@ export function useShortcuts() {
                   isBillable: true,
                   isBilled: false,
                 });
-                await emit('time-entry-saved');
+                // emit is informational only -- don't let event-bus failures cause a
+                // persistence rollback when the DB row already exists
+                emit('time-entry-saved').catch((err) => {
+                  console.warn('Failed to emit time-entry-saved:', err);
+                });
                 return entry.id;
               });
               if (stopped) {
