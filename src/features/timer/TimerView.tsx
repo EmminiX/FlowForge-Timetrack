@@ -200,8 +200,13 @@ export function TimerView() {
           isBilled: false,
         };
         timeEntryLogger.debug('Creating time entry with data:', entryData);
-        await timeEntryService.create(entryData);
-        await emit('time-entry-saved');
+        const entry = await timeEntryService.create(entryData);
+        // emit is informational only -- don't let event-bus failures cause a
+        // persistence rollback when the DB row already exists
+        emit('time-entry-saved').catch((err) => {
+          console.warn('Failed to emit time-entry-saved:', err);
+        });
+        return entry.id;
       });
 
       if (stopped) {
@@ -209,8 +214,11 @@ export function TimerView() {
           message: 'Timer stopped',
           action: {
             label: 'Undo',
-            onClick: () => {
-              undoStop();
+            onClick: async () => {
+              const undone = await undoStop();
+              if (!undone) {
+                addToast({ message: 'Could not undo, time entry may have been saved' });
+              }
             },
           },
           duration: 10000,

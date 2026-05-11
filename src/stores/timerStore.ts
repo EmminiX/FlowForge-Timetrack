@@ -2,6 +2,8 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { emit } from '@tauri-apps/api/event';
+import { timeEntryService } from '../services';
 
 export type TimerState = 'idle' | 'running' | 'paused';
 
@@ -17,6 +19,7 @@ interface LastStoppedState {
   projectColor: string;
   startTime: string;
   accumulatedPauseDuration: number;
+  timeEntryId?: string;
 }
 
 interface TimerStore {
@@ -48,9 +51,9 @@ interface TimerStore {
    * the running state is preserved and stoppingInFlight is cleared so the
    * caller can retry. Concurrent callers receive false immediately.
    */
-  atomicStop: (persistFn: (interval: StopResult) => Promise<void>) => Promise<boolean>;
+  atomicStop: (persistFn: (interval: StopResult) => Promise<string>) => Promise<boolean>;
   reset: () => void;
-  undoStop: () => boolean;
+  undoStop: () => Promise<boolean>;
   clearLastStopped: () => void;
 
   // Computed (not stored, but helper)
@@ -192,7 +195,7 @@ export const useTimerStore = create<TimerStore>()(
         set({ stoppingInFlight: true });
 
         try {
-          await persistFn(interval);
+          const timeEntryId = await persistFn(interval);
 
           // Persist succeeded: commit the state transition.
           // Store totalPauseDuration (not the pre-stop accumulatedPauseDuration) so
@@ -206,6 +209,7 @@ export const useTimerStore = create<TimerStore>()(
               projectColor: projectColor!,
               startTime: startTime!,
               accumulatedPauseDuration: totalPauseDuration,
+              timeEntryId,
             },
             state: 'idle',
             projectId: null,
@@ -238,9 +242,21 @@ export const useTimerStore = create<TimerStore>()(
         });
       },
 
-      undoStop: () => {
+      undoStop: async () => {
         const { lastStoppedState } = get();
         if (!lastStoppedState) return false;
+
+        if (lastStoppedState.timeEntryId) {
+          try {
+            await timeEntryService.delete(lastStoppedState.timeEntryId);
+          } catch {
+            return false;
+          }
+          // notify UI subscribers that the persisted entries changed
+          emit('time-entry-saved').catch((err) => {
+            console.warn('Failed to emit time-entry-saved after undo:', err);
+          });
+        }
 
         set({
           state: 'running',
