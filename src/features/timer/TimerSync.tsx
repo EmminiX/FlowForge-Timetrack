@@ -8,7 +8,7 @@ import { uiLogger } from '../../lib/logger';
 
 export function TimerSync() {
   const { state, projectId, projectName, projectColor, getElapsedSeconds } = useTimerStore();
-  const { pause, resume, stop } = useTimerWithEffects();
+  const { pause, resume, atomicStop } = useTimerWithEffects();
 
   // Emit state updates to widget
   useEffect(() => {
@@ -48,23 +48,24 @@ export function TimerSync() {
       } else if (action === 'resume') {
         resume();
       } else if (action === 'stop') {
-        const result = await stop();
-        if (result) {
-          try {
+        try {
+          const stopped = await atomicStop(async (interval) => {
             await timeEntryService.create({
-              projectId: result.projectId,
-              startTime: result.startTime,
+              projectId: interval.projectId,
+              startTime: interval.startTime,
               endTime: new Date().toISOString(),
-              pauseDuration: result.pauseDuration,
+              pauseDuration: interval.pauseDuration,
               notes: '',
               isBillable: true,
               isBilled: false,
             });
             await emit('time-entry-saved');
+          });
+          if (stopped) {
             uiLogger.debug('Saved time entry from widget stop');
-          } catch (err) {
-            uiLogger.error('Failed to save time entry from widget:', err);
           }
+        } catch (err) {
+          uiLogger.error('Failed to save time entry from widget:', err);
         }
       }
     });
@@ -91,7 +92,7 @@ export function TimerSync() {
           /* Already unlistened */
         });
     };
-  }, [state, projectId, projectName, projectColor, getElapsedSeconds, pause, resume, stop]);
+  }, [state, projectId, projectName, projectColor, getElapsedSeconds, pause, resume, atomicStop]);
 
   return null; // Headless component
 }

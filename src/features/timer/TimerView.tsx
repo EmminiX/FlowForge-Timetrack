@@ -22,7 +22,7 @@ export function TimerView() {
     start,
     pause,
     resume,
-    stop,
+    atomicStop,
     getElapsedSeconds,
   } = useTimerWithEffects();
 
@@ -187,36 +187,38 @@ export function TimerView() {
   };
 
   const handleStop = async () => {
-    const result = await stop();
-    if (!result) return;
-
     setSaving(true);
     try {
-      const entryData = {
-        projectId: result.projectId,
-        startTime: result.startTime,
-        endTime: new Date().toISOString(),
-        pauseDuration: result.pauseDuration,
-        notes: '',
-        isBillable: true,
-        isBilled: false,
-      };
-      timeEntryLogger.debug('Creating time entry with data:', entryData);
-      await timeEntryService.create(entryData);
-      await emit('time-entry-saved');
-
-      addToast({
-        message: 'Timer stopped',
-        action: {
-          label: 'Undo',
-          onClick: () => {
-            undoStop();
-          },
-        },
-        duration: 10000,
+      const stopped = await atomicStop(async (interval) => {
+        const entryData = {
+          projectId: interval.projectId,
+          startTime: interval.startTime,
+          endTime: new Date().toISOString(),
+          pauseDuration: interval.pauseDuration,
+          notes: '',
+          isBillable: true,
+          isBilled: false,
+        };
+        timeEntryLogger.debug('Creating time entry with data:', entryData);
+        await timeEntryService.create(entryData);
+        await emit('time-entry-saved');
       });
+
+      if (stopped) {
+        addToast({
+          message: 'Timer stopped',
+          action: {
+            label: 'Undo',
+            onClick: () => {
+              undoStop();
+            },
+          },
+          duration: 10000,
+        });
+      }
     } catch (err) {
       timeEntryLogger.error('Failed to save time entry:', err);
+      addToast({ message: 'Failed to save time entry. Timer is still running.' });
     } finally {
       setSaving(false);
     }
