@@ -3,6 +3,7 @@
 
 import { useCallback } from 'react';
 import { useTimerStore } from '../stores/timerStore';
+import type { StopResult } from '../stores/timerStore';
 import { settingsService } from '../services';
 import { playStartSound, playPauseSound, playResumeSound, playStopSound } from '../lib/sounds';
 import { notifyTimerStarted, notifyTimerStopped } from '../lib/notifications';
@@ -66,6 +67,33 @@ export function useTimerWithEffects() {
     return result;
   }, [timerStore]);
 
+  /**
+   * Atomic stop: wraps the store's atomicStop with sound and notification
+   * effects that fire only after persistence succeeds. Throws on failure so
+   * the caller can show a user-visible error and retry.
+   */
+  const atomicStop = useCallback(
+    async (persistFn: (interval: StopResult) => Promise<void>) => {
+      const settings = await settingsService.load();
+      const projectName = timerStore.projectName;
+      const elapsedSeconds = timerStore.getElapsedSeconds();
+
+      const stopped = await timerStore.atomicStop(persistFn);
+
+      if (stopped) {
+        if (settings.enableSoundFeedback) {
+          playStopSound();
+        }
+        if (settings.enableNotifications && projectName) {
+          notifyTimerStopped(projectName, formatDuration(elapsedSeconds)).catch(console.warn);
+        }
+      }
+
+      return stopped;
+    },
+    [timerStore],
+  );
+
   return {
     // State from store
     state: timerStore.state,
@@ -82,5 +110,6 @@ export function useTimerWithEffects() {
     pause,
     resume,
     stop,
+    atomicStop,
   };
 }

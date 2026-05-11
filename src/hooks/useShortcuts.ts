@@ -12,7 +12,7 @@ export function useShortcuts() {
   const timerState = useTimerStore((state) => state.state);
   const timerPause = useTimerStore((state) => state.pause);
   const timerResume = useTimerStore((state) => state.resume);
-  const timerStop = useTimerStore((state) => state.stop);
+  const timerAtomicStop = useTimerStore((state) => state.atomicStop);
   const { settings, updateSetting } = useSettings();
 
   // Use refs to avoid stale closures
@@ -50,24 +50,25 @@ export function useShortcuts() {
 
         case 'stop':
           if (currentTimerState !== 'idle') {
-            const result = timerStop();
-            if (result) {
-              try {
+            try {
+              const stopped = await timerAtomicStop(async (interval) => {
                 await timeEntryService.create({
-                  projectId: result.projectId,
-                  startTime: result.startTime,
+                  projectId: interval.projectId,
+                  startTime: interval.startTime,
                   endTime: new Date().toISOString(),
-                  pauseDuration: result.pauseDuration,
+                  pauseDuration: interval.pauseDuration,
                   notes: '',
                   isBillable: true,
                   isBilled: false,
                 });
                 await emit('time-entry-saved');
+              });
+              if (stopped) {
                 await showNotification('Timer Stopped', 'Time entry has been saved');
-              } catch (err) {
-                console.error('Failed to save time entry via shortcut:', err);
-                await showNotification('Error', 'Failed to save time entry');
               }
+            } catch (err) {
+              console.error('Failed to save time entry via shortcut:', err);
+              await showNotification('Error', 'Failed to save time entry');
             }
           }
           break;
@@ -117,7 +118,7 @@ export function useShortcuts() {
       cancelled = true;
       cleanup?.();
     };
-  }, [timerPause, timerResume, timerStop, updateSetting]);
+  }, [timerPause, timerResume, timerAtomicStop, updateSetting]);
 }
 
 async function showNotification(title: string, body: string) {
