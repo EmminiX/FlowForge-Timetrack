@@ -105,7 +105,7 @@ export function useShortcuts() {
       .subscribe(handleAction)
       .then((fn) => {
         if (cancelled) {
-          fn(); // StrictMode already unmounted — immediately unregister
+          fn(); // StrictMode already unmounted; unregister immediately
         } else {
           cleanup = fn;
         }
