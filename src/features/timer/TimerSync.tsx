@@ -49,7 +49,7 @@ export function TimerSync() {
         resume();
       } else if (action === 'stop') {
         try {
-          await atomicStop(async (interval) => {
+          const stopped = await atomicStop(async (interval) => {
             await timeEntryService.create({
               projectId: interval.projectId,
               startTime: interval.startTime,
@@ -61,7 +61,9 @@ export function TimerSync() {
             });
             await emit('time-entry-saved');
           });
-          uiLogger.debug('Saved time entry from widget stop');
+          if (stopped) {
+            uiLogger.debug('Saved time entry from widget stop');
+          }
         } catch (err) {
           uiLogger.error('Failed to save time entry from widget:', err);
         }

@@ -187,6 +187,9 @@ export const useTimerStore = create<TimerStore>()(
           await persistFn(interval);
 
           // Persist succeeded: commit the state transition.
+          // Store totalPauseDuration (not the pre-stop accumulatedPauseDuration) so
+          // that undoStop restores a running timer with the correct pause total and
+          // getElapsedSeconds() is accurate after an undo of a stop-while-paused.
           set({
             stoppingInFlight: false,
             lastStoppedState: {
@@ -194,7 +197,7 @@ export const useTimerStore = create<TimerStore>()(
               projectName: projectName!,
               projectColor: projectColor!,
               startTime: startTime!,
-              accumulatedPauseDuration,
+              accumulatedPauseDuration: totalPauseDuration,
             },
             state: 'idle',
             projectId: null,
