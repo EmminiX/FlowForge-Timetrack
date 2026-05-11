@@ -36,6 +36,11 @@ interface TimerStore {
   start: (projectId: string, projectName: string, projectColor: string) => void;
   pause: () => void;
   resume: () => void;
+  /**
+   * @deprecated Use `atomicStop` instead. Legacy non-atomic stop retained for
+   * backwards compatibility with callers outside the src tree. Will be removed
+   * in a future release once external usage is audited.
+   */
   stop: () => StopResult | null;
   /**
    * Atomic stop: captures the interval, calls persistFn, then commits the
@@ -76,6 +81,7 @@ export const useTimerStore = create<TimerStore>()(
           pauseStartTime: null,
           accumulatedPauseDuration: 0,
           lastStoppedState: null,
+          stoppingInFlight: false,
         });
       },
 
@@ -104,6 +110,11 @@ export const useTimerStore = create<TimerStore>()(
         });
       },
 
+      /**
+       * @deprecated Use `atomicStop` instead. Legacy non-atomic stop retained for
+       * backwards compatibility with callers outside the src tree. Will be removed
+       * in a future release once external usage is audited.
+       */
       stop: () => {
         const { state, projectId, projectName, projectColor, startTime, pauseStartTime, accumulatedPauseDuration } = get();
         if (state === 'idle' || !projectId || !startTime) return null;
@@ -212,6 +223,7 @@ export const useTimerStore = create<TimerStore>()(
           pauseStartTime: null,
           accumulatedPauseDuration: 0,
           lastStoppedState: null,
+          stoppingInFlight: false,
         });
       },
 
@@ -228,6 +240,7 @@ export const useTimerStore = create<TimerStore>()(
           pauseStartTime: null,
           accumulatedPauseDuration: lastStoppedState.accumulatedPauseDuration,
           lastStoppedState: null,
+          stoppingInFlight: false,
         });
 
         return true;
