@@ -200,8 +200,9 @@ export function TimerView() {
           isBilled: false,
         };
         timeEntryLogger.debug('Creating time entry with data:', entryData);
-        await timeEntryService.create(entryData);
+        const entry = await timeEntryService.create(entryData);
         await emit('time-entry-saved');
+        return entry.id;
       });
 
       if (stopped) {
@@ -209,8 +210,11 @@ export function TimerView() {
           message: 'Timer stopped',
           action: {
             label: 'Undo',
-            onClick: () => {
-              undoStop();
+            onClick: async () => {
+              const undone = await undoStop();
+              if (!undone) {
+                addToast({ message: 'Could not undo, time entry may have been saved' });
+              }
             },
           },
           duration: 10000,

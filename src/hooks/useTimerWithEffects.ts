@@ -78,7 +78,7 @@ export function useTimerWithEffects() {
    * the caller can show a user-visible error and retry.
    */
   const atomicStop = useCallback(
-    async (persistFn: (interval: StopResult) => Promise<void>) => {
+    async (persistFn: (interval: StopResult) => Promise<string>) => {
       const settings = await settingsService.load();
       const projectName = timerStore.projectName;
       const elapsedSeconds = timerStore.getElapsedSeconds();

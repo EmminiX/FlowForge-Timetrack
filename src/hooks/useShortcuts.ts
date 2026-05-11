@@ -52,7 +52,7 @@ export function useShortcuts() {
           if (currentTimerState !== 'idle') {
             try {
               const stopped = await timerAtomicStop(async (interval) => {
-                await timeEntryService.create({
+                const entry = await timeEntryService.create({
                   projectId: interval.projectId,
                   startTime: interval.startTime,
                   endTime: new Date().toISOString(),
@@ -62,6 +62,7 @@ export function useShortcuts() {
                   isBilled: false,
                 });
                 await emit('time-entry-saved');
+                return entry.id;
               });
               if (stopped) {
                 await showNotification('Timer Stopped', 'Time entry has been saved');
