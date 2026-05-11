@@ -47,7 +47,11 @@ function ProjectsListContent() {
   };
 
   useEffect(() => {
-    loadProjects();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadProjects();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Filter projects
@@ -220,6 +224,7 @@ function ProjectsListContent() {
       {projects.length === 0 ? (
         <EmptyState
           icon={<Briefcase className='w-8 h-8' />}
+          variant='guided'
           title='No projects yet'
           description='Create your first project to start tracking time.'
           action={
@@ -232,6 +237,7 @@ function ProjectsListContent() {
       ) : filteredProjects.length === 0 ? (
         <EmptyState
           icon={<Search className='w-8 h-8' />}
+          variant='minimal'
           title='No results'
           description='Try adjusting your search or filters.'
         />

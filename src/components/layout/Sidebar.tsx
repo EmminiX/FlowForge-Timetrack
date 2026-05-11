@@ -15,7 +15,11 @@ import { useSettings } from '../../contexts/SettingsContext';
 
 import { Switch } from '../ui';
 
-export function Sidebar() {
+interface SidebarProps {
+  topPadding?: string;
+}
+
+export function Sidebar({ topPadding = '0' }: SidebarProps) {
   const { settings, updateSetting } = useSettings();
   const mainLinks = [
     { to: '/', label: 'Timer', icon: Timer },
@@ -27,7 +31,10 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className='flex h-screen w-64 shrink-0 flex-col border-r border-border bg-[var(--sidebar)] p-4'>
+    <aside
+      className='flex h-screen w-64 shrink-0 flex-col border-r border-border bg-[var(--sidebar)] p-4'
+      style={topPadding && topPadding !== '0' ? { paddingTop: `calc(${topPadding} + 1rem)` } : undefined}
+    >
       <div className='mb-8 flex items-center gap-3 px-3'>
         <div className='grid h-10 w-10 place-items-center rounded-md border border-primary/35 bg-primary/10 text-sm font-bold text-primary'>
           TS
@@ -38,7 +45,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className='flex-1 space-y-1'>
+      <nav className='flex-1 flex flex-col gap-1'>
         {mainLinks.map((link) => (
           <NavLink
             key={link.to}

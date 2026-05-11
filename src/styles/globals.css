@@ -104,25 +104,27 @@
 
   /* High Contrast Theme for Accessibility */
   .high-contrast {
-    --background: #000000;
-    --foreground: #ffffff;
+    /* Pure black/white base for maximum contrast (OKLCH) */
+    --background: oklch(0% 0 0);
+    --foreground: oklch(100% 0 0);
 
-    --primary: #ffff00;
-    /* Yellow for maximum contrast */
-    --primary-foreground: #000000;
+    --primary: oklch(85% 0.18 100);
+    /* Bright warm yellow-green instead of pure yellow - less harsh */
+    --primary-foreground: oklch(0% 0 0);
 
-    --secondary: #1a1a1a;
-    --secondary-foreground: #ffffff;
+    --secondary: oklch(10% 0 0);
+    --secondary-foreground: oklch(100% 0 0);
 
-    --muted: #1a1a1a;
-    --muted-foreground: #cccccc;
+    --muted: oklch(10% 0 0);
+    --muted-foreground: oklch(80% 0 0);
 
-    --accent: #00ffff;
-    /* Cyan for accents */
-    --accent-foreground: #000000;
+    --accent: oklch(80% 0.20 200);
+    /* Bright cyan-blue for accents - calmer than pure cyan */
+    --accent-foreground: oklch(0% 0 0);
 
-    --destructive: #ff0000;
-    --destructive-foreground: #ffffff;
+    --destructive: oklch(65% 0.28 25);
+    /* Bright red with high contrast */
+    --destructive-foreground: oklch(100% 0 0);
 
     --border: #ffffff;
     --input: #333333;
@@ -290,6 +292,15 @@
   --spacing-md: calc(1rem * var(--density-scale));
   --spacing-lg: calc(1.5rem * var(--density-scale));
   --spacing-xl: calc(2rem * var(--density-scale));
+
+  /* Shell layout tokens — default matches comfortable */
+  --shell-sidebar-padding: 1rem;
+  --shell-main-padding: 2rem;
+  --shell-header-px: 2rem;
+  --shell-nav-item-py: 0.75rem;
+  --shell-nav-item-px: 1rem;
+  --shell-brand-mb: 2rem;
+  --shell-section-gap: 0.25rem;
 }
 
 /* Density-aware components */
@@ -299,6 +310,15 @@
   --button-padding-x: 0.75rem;
   --input-padding: 0.375rem 0.5rem;
   --gap-default: 0.5rem;
+
+  /* Shell layout tokens — tighter but nav py stays ≥ 0.625 rem for touch targets */
+  --shell-sidebar-padding: 0.75rem;
+  --shell-main-padding: 1.5rem;
+  --shell-header-px: 1.5rem;
+  --shell-nav-item-py: 0.625rem;
+  --shell-nav-item-px: 0.875rem;
+  --shell-brand-mb: 1.5rem;
+  --shell-section-gap: 0.125rem;
 }
 
 [data-density='comfortable'] {
@@ -307,6 +327,15 @@
   --button-padding-x: 1rem;
   --input-padding: 0.5rem 0.75rem;
   --gap-default: 0.75rem;
+
+  /* Shell layout tokens */
+  --shell-sidebar-padding: 1rem;
+  --shell-main-padding: 2rem;
+  --shell-header-px: 2rem;
+  --shell-nav-item-py: 0.75rem;
+  --shell-nav-item-px: 1rem;
+  --shell-brand-mb: 2rem;
+  --shell-section-gap: 0.25rem;
 }
 
 [data-density='spacious'] {
@@ -315,6 +344,15 @@
   --button-padding-x: 1.25rem;
   --input-padding: 0.75rem 1rem;
   --gap-default: 1rem;
+
+  /* Shell layout tokens */
+  --shell-sidebar-padding: 1.25rem;
+  --shell-main-padding: 2.5rem;
+  --shell-header-px: 2.5rem;
+  --shell-nav-item-py: 0.875rem;
+  --shell-nav-item-px: 1.125rem;
+  --shell-brand-mb: 2.5rem;
+  --shell-section-gap: 0.375rem;
 }
 
 /* ========================================
