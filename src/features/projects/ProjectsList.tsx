@@ -47,7 +47,11 @@ function ProjectsListContent() {
   };
 
   useEffect(() => {
-    loadProjects();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadProjects();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Filter projects
@@ -199,9 +203,10 @@ function ProjectsListContent() {
             <input
               type='text'
               placeholder='Search projects...'
+              aria-label='Search projects'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className='w-full h-10 pl-10 pr-4 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary'
+              className='min-h-11 w-full rounded-md border border-border bg-background pl-10 pr-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring'
             />
           </div>
           <div className='w-48'>
@@ -209,6 +214,7 @@ function ProjectsListContent() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | '')}
               options={statusOptions}
+              aria-label='Filter projects by status'
             />
           </div>
         </div>
@@ -218,6 +224,7 @@ function ProjectsListContent() {
       {projects.length === 0 ? (
         <EmptyState
           icon={<Briefcase className='w-8 h-8' />}
+          variant='guided'
           title='No projects yet'
           description='Create your first project to start tracking time.'
           action={
@@ -230,6 +237,7 @@ function ProjectsListContent() {
       ) : filteredProjects.length === 0 ? (
         <EmptyState
           icon={<Search className='w-8 h-8' />}
+          variant='minimal'
           title='No results'
           description='Try adjusting your search or filters.'
         />

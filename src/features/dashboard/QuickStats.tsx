@@ -34,13 +34,13 @@ export function QuickStats({
         Quick Stats
       </h3>
 
-      <div className='flex flex-wrap gap-4'>
+      <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
         {/* Unbilled amounts by currency */}
         {unbilledAmounts.length > 0 ? (
           unbilledAmounts.map(({ currency, amount }) => (
-            <div key={currency} className='flex items-center gap-3'>
-              <div className='p-2 rounded-lg bg-green-500/10'>
-                <Wallet className='w-5 h-5 text-green-600 dark:text-green-400' />
+            <div key={currency} className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-2'>
+                <Wallet className='w-5 h-5 text-primary' />
               </div>
               <div>
                 <div className='text-lg font-bold'>{formatCurrencyAmount(amount, currency)}</div>
@@ -51,9 +51,9 @@ export function QuickStats({
             </div>
           ))
         ) : (
-          <div className='flex items-center gap-3'>
-            <div className='p-2 rounded-lg bg-green-500/10'>
-              <Wallet className='w-5 h-5 text-green-600 dark:text-green-400' />
+          <div className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
+            <div className='rounded-md border border-primary/25 bg-primary/10 p-2'>
+              <Wallet className='w-5 h-5 text-primary' />
             </div>
             <div>
               <div className='text-lg font-bold'>€0.00</div>
@@ -64,9 +64,9 @@ export function QuickStats({
         {/* Billed amounts by currency */}
         {billedAmounts.length > 0 ? (
           billedAmounts.map(({ currency, amount }) => (
-            <div key={`billed-${currency}`} className='flex items-center gap-3'>
-              <div className='p-2 rounded-lg bg-indigo-500/10'>
-                <Wallet className='w-5 h-5 text-indigo-600 dark:text-indigo-400' />
+            <div key={`billed-${currency}`} className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
+              <div className='rounded-md border border-accent/30 bg-accent/10 p-2'>
+                <Wallet className='w-5 h-5 text-accent' />
               </div>
               <div>
                 <div className='text-lg font-bold'>{formatCurrencyAmount(amount, currency)}</div>
@@ -77,9 +77,9 @@ export function QuickStats({
             </div>
           ))
         ) : (
-          <div className='flex items-center gap-3'>
-            <div className='p-2 rounded-lg bg-indigo-500/10'>
-              <Wallet className='w-5 h-5 text-indigo-600 dark:text-indigo-400' />
+          <div className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
+            <div className='rounded-md border border-accent/30 bg-accent/10 p-2'>
+              <Wallet className='w-5 h-5 text-accent' />
             </div>
             <div>
               <div className='text-lg font-bold'>€0.00</div>
@@ -89,9 +89,9 @@ export function QuickStats({
         )}
 
         {/* Weekly hours */}
-        <div className='flex items-center gap-3'>
-          <div className='p-2 rounded-lg bg-blue-500/10'>
-            <Clock className='w-5 h-5 text-blue-600 dark:text-blue-400' />
+        <div className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
+          <div className='rounded-md border border-border bg-[var(--surface-raised)] p-2'>
+            <Clock className='w-5 h-5 text-muted-foreground' />
           </div>
           <div>
             <div className='text-lg font-bold'>{formatDuration(weeklySeconds)}</div>
@@ -100,9 +100,9 @@ export function QuickStats({
         </div>
 
         {/* Total hours */}
-        <div className='flex items-center gap-3'>
-          <div className='p-2 rounded-lg bg-purple-500/10'>
-            <Clock className='w-5 h-5 text-purple-600 dark:text-purple-400' />
+        <div className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
+          <div className='rounded-md border border-border bg-[var(--surface-raised)] p-2'>
+            <Clock className='w-5 h-5 text-muted-foreground' />
           </div>
           <div>
             <div className='text-lg font-bold'>{formatDuration(totalSeconds)}</div>

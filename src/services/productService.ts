@@ -12,25 +12,114 @@ export interface ProductTemplate {
 
 export const PRODUCT_TEMPLATES: ProductTemplate[] = [
   // Software Development
-  { field: 'Software Development', name: 'Website Development', description: 'Custom website design and development including responsive layout, CMS integration, and deployment.', price: 2500 },
-  { field: 'Software Development', name: 'Mobile App Development', description: 'Native or cross-platform mobile application development with UI/UX design and app store deployment.', price: 5000 },
-  { field: 'Software Development', name: 'API Integration', description: 'Third-party API integration, custom middleware development, and data synchronization setup.', price: 1500 },
+  {
+    field: 'Software Development',
+    name: 'Website Development',
+    description:
+      'Custom website design and development including responsive layout, CMS integration, and deployment.',
+    price: 2500,
+  },
+  {
+    field: 'Software Development',
+    name: 'Mobile App Development',
+    description:
+      'Native or cross-platform mobile application development with UI/UX design and app store deployment.',
+    price: 5000,
+  },
+  {
+    field: 'Software Development',
+    name: 'API Integration',
+    description:
+      'Third-party API integration, custom middleware development, and data synchronization setup.',
+    price: 1500,
+  },
   // Design & Creative
-  { field: 'Design & Creative', name: 'Logo & Brand Identity', description: 'Professional logo design with brand guidelines, color palette, and typography specifications.', price: 800 },
-  { field: 'Design & Creative', name: 'UI/UX Design', description: 'User interface and experience design including wireframes, prototypes, and design system.', price: 2000 },
-  { field: 'Design & Creative', name: 'Social Media Graphics', description: 'Custom social media post templates, banners, and visual content package.', price: 500 },
+  {
+    field: 'Design & Creative',
+    name: 'Logo & Brand Identity',
+    description:
+      'Professional logo design with brand guidelines, color palette, and typography specifications.',
+    price: 800,
+  },
+  {
+    field: 'Design & Creative',
+    name: 'UI/UX Design',
+    description:
+      'User interface and experience design including wireframes, prototypes, and design system.',
+    price: 2000,
+  },
+  {
+    field: 'Design & Creative',
+    name: 'Social Media Graphics',
+    description: 'Custom social media post templates, banners, and visual content package.',
+    price: 500,
+  },
   // Marketing
-  { field: 'Marketing', name: 'SEO Optimization', description: 'Technical and content SEO audit, keyword research, on-page optimization, and performance tracking.', price: 1200 },
-  { field: 'Marketing', name: 'Content Strategy', description: 'Content calendar creation, topic research, editorial guidelines, and distribution strategy.', price: 1500 },
-  { field: 'Marketing', name: 'Email Campaign', description: 'Email marketing campaign design, copywriting, automation setup, and analytics tracking.', price: 800 },
+  {
+    field: 'Marketing',
+    name: 'SEO Optimization',
+    description:
+      'Technical and content SEO audit, keyword research, on-page optimization, and performance tracking.',
+    price: 1200,
+  },
+  {
+    field: 'Marketing',
+    name: 'Content Strategy',
+    description:
+      'Content calendar creation, topic research, editorial guidelines, and distribution strategy.',
+    price: 1500,
+  },
+  {
+    field: 'Marketing',
+    name: 'Email Campaign',
+    description:
+      'Email marketing campaign design, copywriting, automation setup, and analytics tracking.',
+    price: 800,
+  },
   // Consulting
-  { field: 'Consulting', name: 'Business Strategy Session', description: 'One-on-one strategic consulting session covering business analysis, growth opportunities, and action planning.', price: 300 },
-  { field: 'Consulting', name: 'Technical Audit', description: 'Comprehensive review of technical infrastructure, codebase quality, security posture, and recommendations.', price: 2000 },
-  { field: 'Consulting', name: 'Training Workshop', description: 'Custom training workshop on specified topic, including materials, exercises, and follow-up resources.', price: 1000 },
+  {
+    field: 'Consulting',
+    name: 'Business Strategy Session',
+    description:
+      'One-on-one strategic consulting session covering business analysis, growth opportunities, and action planning.',
+    price: 300,
+  },
+  {
+    field: 'Consulting',
+    name: 'Technical Audit',
+    description:
+      'Comprehensive review of technical infrastructure, codebase quality, security posture, and recommendations.',
+    price: 2000,
+  },
+  {
+    field: 'Consulting',
+    name: 'Training Workshop',
+    description:
+      'Custom training workshop on specified topic, including materials, exercises, and follow-up resources.',
+    price: 1000,
+  },
   // Education
-  { field: 'Education', name: 'Guest Lecture', description: 'Expert guest lecture on specified topic, including presentation materials and Q&A session.', price: 500 },
-  { field: 'Education', name: 'Online Course Module', description: 'Self-paced online learning module with video content, exercises, quizzes, and certificates.', price: 3000 },
-  { field: 'Education', name: '1-on-1 Mentoring', description: 'Personalized mentoring session covering career guidance, skill development, and project feedback.', price: 150 },
+  {
+    field: 'Education',
+    name: 'Guest Lecture',
+    description:
+      'Expert guest lecture on specified topic, including presentation materials and Q&A session.',
+    price: 500,
+  },
+  {
+    field: 'Education',
+    name: 'Online Course Module',
+    description:
+      'Self-paced online learning module with video content, exercises, quizzes, and certificates.',
+    price: 3000,
+  },
+  {
+    field: 'Education',
+    name: '1-on-1 Mentoring',
+    description:
+      'Personalized mentoring session covering career guidance, skill development, and project feedback.',
+    price: 150,
+  },
 ];
 
 function generateId(): string {

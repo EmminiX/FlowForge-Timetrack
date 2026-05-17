@@ -34,7 +34,7 @@ export function ColorPicker({
           type='button'
           onClick={() => onChange(color)}
           className={clsx(
-            'w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+            'h-11 w-11 rounded-full border-2 transition-transform hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
             value === color ? 'border-foreground scale-110' : 'border-transparent',
           )}
           style={{ backgroundColor: color }}
