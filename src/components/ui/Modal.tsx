@@ -116,7 +116,7 @@ export function Modal({
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200'
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm animate-in fade-in duration-200'
     >
       <div
         ref={contentRef}
@@ -124,8 +124,9 @@ export function Modal({
         role='dialog'
         aria-modal='true'
         aria-labelledby={title ? modalTitleId : undefined}
+        aria-label={title ? undefined : 'Dialog'}
         className={clsx(
-          'w-full mx-4 bg-background rounded-xl shadow-xl border border-border',
+          'app-modal w-full mx-4',
           'animate-in fade-in zoom-in-95 duration-200',
           'max-h-[90vh] flex flex-col',
           sizes[size],

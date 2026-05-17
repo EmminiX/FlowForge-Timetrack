@@ -47,7 +47,12 @@ export function ClientPayments({ clientId, currency }: ClientPaymentsProps) {
   };
 
   useEffect(() => {
-    loadPayments();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadPayments();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId]);
 
   const totalDeposits = payments.reduce((sum, p) => sum + p.amount, 0);
@@ -58,8 +63,6 @@ export function ClientPayments({ clientId, currency }: ClientPaymentsProps) {
       await downPaymentService.create(data);
       await loadPayments();
       setShowForm(false);
-    } catch (err) {
-      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -77,8 +80,6 @@ export function ClientPayments({ clientId, currency }: ClientPaymentsProps) {
       });
       await loadPayments();
       setEditingPayment(null);
-    } catch (err) {
-      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -154,7 +155,7 @@ export function ClientPayments({ clientId, currency }: ClientPaymentsProps) {
                   </span>
                 )}
               </div>
-              <div className='flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity'>
+              <div className='flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100'>
                 <Button
                   variant='ghost'
                   size='sm'

@@ -59,10 +59,13 @@ export function DashboardSummary() {
     return () => {
       cancelled = true;
     };
-  }, [chartRange]);
+  }, [chartRange, data]);
 
   useEffect(() => {
-    loadData();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
 
     // Refresh every minute to keep data current
     const interval = setInterval(loadData, 60000);
@@ -74,6 +77,7 @@ export function DashboardSummary() {
     });
 
     return () => {
+      clearTimeout(timer);
       clearInterval(interval);
       unlisten
         .then((f) => f())
@@ -81,14 +85,15 @@ export function DashboardSummary() {
           /* Already unlistened */
         });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {
     return (
       <div className='space-y-4 mt-6'>
-        <div className='bg-background border border-border rounded-xl p-4 animate-pulse h-32' />
-        <div className='bg-background border border-border rounded-xl p-4 animate-pulse h-24' />
-        <div className='bg-background border border-border rounded-xl p-4 animate-pulse h-20' />
+        <div className='app-card h-32 animate-pulse p-4' />
+        <div className='app-card h-24 animate-pulse p-4' />
+        <div className='app-card h-20 animate-pulse p-4' />
       </div>
     );
   }

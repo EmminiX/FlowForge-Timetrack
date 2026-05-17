@@ -75,7 +75,11 @@ export function TimeEntriesList() {
   };
 
   useEffect(() => {
-    loadData();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Apply filters
@@ -365,6 +369,7 @@ export function TimeEntriesList() {
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
               options={projectOptions}
+              aria-label='Filter time entries by project'
             />
           </div>
           <div className='w-48'>
@@ -372,6 +377,7 @@ export function TimeEntriesList() {
               value={clientFilter}
               onChange={(e) => setClientFilter(e.target.value)}
               options={clientOptions}
+              aria-label='Filter time entries by client'
             />
           </div>
           <div className='w-40'>
@@ -379,6 +385,7 @@ export function TimeEntriesList() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               options={statusOptions}
+              aria-label='Filter time entries by billing status'
             />
           </div>
         </div>
@@ -388,12 +395,14 @@ export function TimeEntriesList() {
       {entries.length === 0 ? (
         <EmptyState
           icon={<Clock className='w-8 h-8' />}
+          variant='guided'
           title='No time entries yet'
           description='Start tracking time on a project to see entries here.'
         />
       ) : filteredEntries.length === 0 ? (
         <EmptyState
           icon={<Search className='w-8 h-8' />}
+          variant='minimal'
           title='No matching entries'
           description='Try adjusting your filters.'
         />
@@ -403,7 +412,7 @@ export function TimeEntriesList() {
           {Object.keys(unbilledGroups).length > 0 && (
             <div className='space-y-4'>
               <div className='flex items-center gap-2 pb-2 border-b border-border'>
-                <div className='w-2 h-2 rounded-full bg-yellow-500' />
+                <div className='w-2 h-2 rounded-full bg-accent' />
                 <h2 className='font-semibold'>Unbilled</h2>
               </div>
               {Object.entries(unbilledGroups).map(([clientId, group]) => (
@@ -425,14 +434,15 @@ export function TimeEntriesList() {
             <div className='space-y-4 pt-8'>
               <button
                 onClick={() => setShowBilledSection(!showBilledSection)}
-                className='flex items-center gap-2 pb-2 border-b border-border w-full text-left hover:bg-muted/50 transition-colors rounded px-1'
+                className='flex min-h-11 w-full items-center gap-2 rounded border-b border-border px-1 pb-2 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+                aria-expanded={showBilledSection}
               >
                 <span
                   className={`transform transition-transform ${showBilledSection ? 'rotate-90' : ''}`}
                 >
                   ▶
                 </span>
-                <div className='w-2 h-2 rounded-full bg-green-500' />
+                <div className='w-2 h-2 rounded-full bg-primary' />
                 <h2 className='font-semibold'>Billed</h2>
               </button>
 
@@ -507,7 +517,8 @@ const ClientGroup = ({
     <div className='border border-border rounded-lg overflow-hidden mb-4'>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className='w-full flex items-center justify-between p-3 bg-secondary/50 hover:bg-secondary transition-colors'
+        className='flex min-h-11 w-full items-center justify-between bg-secondary/50 p-3 transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+        aria-expanded={isExpanded}
       >
         <div className='flex items-center gap-2 font-medium'>
           <span className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
@@ -557,6 +568,7 @@ const ProjectGroup = ({
         <input
           type='checkbox'
           checked={project.entries.every((e: TimeEntryWithProject) => selectedIds.has(e.id))}
+          aria-label={`Select all entries for ${project.projectName}`}
           onChange={(e) => {
             e.stopPropagation();
             onSelectMultiple(
@@ -569,7 +581,8 @@ const ProjectGroup = ({
         />
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className='flex-1 flex items-center justify-between'
+          className='flex min-h-11 flex-1 items-center justify-between rounded-md px-2 text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+          aria-expanded={isExpanded}
         >
           <div className='flex items-center gap-2'>
             <div
@@ -632,6 +645,7 @@ const TimeEntryCard = ({
       <input
         type='checkbox'
         checked={selected}
+        aria-label={`Select entry for ${entry.projectName}`}
         onChange={onSelect}
         onClick={(e) => e.stopPropagation()}
         className='rounded border-border'

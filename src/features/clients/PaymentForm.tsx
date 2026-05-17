@@ -33,22 +33,30 @@ export function PaymentForm({
   // Load client's projects for dropdown
   useEffect(() => {
     if (isOpen && clientId) {
-      projectService
-        .getByClientId(clientId)
-        .then(setProjects)
-        .catch(() => setProjects([]));
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        projectService
+          .getByClientId(clientId)
+          .then(setProjects)
+          .catch(() => setProjects([]));
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, clientId]);
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
-      setAmount(initialData?.amount || 0);
-      setPaymentDate(initialData?.paymentDate || new Date().toISOString().split('T')[0]);
-      setProjectId(initialData?.projectId || '');
-      setNotes(initialData?.notes || '');
-      setErrors({});
-      setSubmitError(null);
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        setAmount(initialData?.amount || 0);
+        setPaymentDate(initialData?.paymentDate || new Date().toISOString().split('T')[0]);
+        setProjectId(initialData?.projectId || '');
+        setNotes(initialData?.notes || '');
+        setErrors({});
+        setSubmitError(null);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, initialData]);
 

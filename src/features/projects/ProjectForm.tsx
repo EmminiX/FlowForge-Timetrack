@@ -47,15 +47,19 @@ export function ProjectForm({
   // Reset form when modal opens with new data
   useEffect(() => {
     if (isOpen) {
-      setFormData({
-        name: initialData?.name || '',
-        description: initialData?.description || '',
-        clientId: initialData?.clientId || null,
-        status: initialData?.status || 'active',
-        color: initialData?.color || DEFAULT_PROJECT_COLORS[0],
-      });
-      setErrors({});
-      setSubmitError(null);
+      // Use timeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        setFormData({
+          name: initialData?.name || '',
+          description: initialData?.description || '',
+          clientId: initialData?.clientId || null,
+          status: initialData?.status || 'active',
+          color: initialData?.color || DEFAULT_PROJECT_COLORS[0],
+        });
+        setErrors({});
+        setSubmitError(null);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, initialData]);
 

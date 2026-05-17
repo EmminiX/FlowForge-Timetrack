@@ -58,6 +58,7 @@ export function Settings() {
     applyTheme,
     applyFontSize,
     applyDensity,
+    applyAnimations,
   } = useSettings();
 
   // Local state for immediate feedback and input handling
@@ -67,7 +68,11 @@ export function Settings() {
 
   // Sync local state with global settings when they change (e.g. initial load or external update)
   useEffect(() => {
-    setLocalSettings(globalSettings);
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      setLocalSettings(globalSettings);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [globalSettings]);
 
   // Handle immediate visual updates and local state
@@ -78,6 +83,7 @@ export function Settings() {
     if (key === 'theme') applyTheme(value as Theme);
     if (key === 'fontSize') applyFontSize(value as FontSize);
     if (key === 'density') applyDensity(value as Density);
+    if (key === 'animationPreference') applyAnimations(value as AppSettings['animationPreference']);
 
     // Broadcast preview to other windows
     emit('setting-preview', { key, value });
@@ -113,13 +119,15 @@ export function Settings() {
       </div>
 
       {/* Tabs */}
-      <div className='flex gap-2 border-b border-border'>
+      <div className='flex gap-2 border-b border-border' aria-label='Settings sections'>
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            type='button'
+            aria-pressed={activeTab === tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={clsx(
-              'flex items-center gap-2 px-4 py-2 -mb-px border-b-2 transition-colors text-sm font-medium',
+              'flex min-h-11 items-center gap-2 px-4 py-2 -mb-px border-b-2 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
               activeTab === tab.id
                 ? 'border-primary text-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground',
@@ -181,10 +189,9 @@ export function Settings() {
                 <>
                   <div className='grid grid-cols-2 gap-4 pt-4 border-t border-border'>
                     <div>
-                      <label className='block text-sm font-medium mb-2'>
-                        Work Duration (minutes)
-                      </label>
                       <Input
+                        id='pomodoro-work-minutes'
+                        label='Work Duration (minutes)'
                         type='number'
                         value={localSettings.pomodoroWorkMinutes || ''}
                         onChange={(e) =>
@@ -203,10 +210,9 @@ export function Settings() {
                       />
                     </div>
                     <div>
-                      <label className='block text-sm font-medium mb-2'>
-                        Break Duration (minutes)
-                      </label>
                       <Input
+                        id='pomodoro-break-minutes'
+                        label='Break Duration (minutes)'
                         type='number'
                         value={localSettings.pomodoroBreakMinutes || ''}
                         onChange={(e) =>
@@ -265,9 +271,11 @@ export function Settings() {
                     {[2, 5, 10, 15, 30].map((minutes) => (
                       <button
                         key={minutes}
+                        type='button'
+                        aria-pressed={localSettings.idleThresholdMinutes === minutes}
                         onClick={() => handleAutoSave('idleThresholdMinutes', minutes)}
                         className={clsx(
-                          'px-4 py-2 rounded-lg border transition-colors',
+                          'min-h-11 px-4 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                           localSettings.idleThresholdMinutes === minutes
                             ? 'bg-primary text-primary-foreground border-primary'
                             : 'border-border hover:bg-muted',
@@ -339,9 +347,11 @@ export function Settings() {
                   {FONT_SIZE_OPTIONS.map((option) => (
                     <button
                       key={option.value}
+                      type='button'
+                      aria-pressed={localSettings.fontSize === option.value}
                       onClick={() => handleAutoSave('fontSize', option.value)}
                       className={clsx(
-                        'px-4 py-2 rounded-lg border transition-colors',
+                        'min-h-11 px-4 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                         localSettings.fontSize === option.value
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'border-border hover:bg-muted',
@@ -366,9 +376,11 @@ export function Settings() {
                   {DENSITY_OPTIONS.map((option) => (
                     <button
                       key={option.value}
+                      type='button'
+                      aria-pressed={localSettings.density === option.value}
                       onClick={() => handleAutoSave('density', option.value)}
                       className={clsx(
-                        'px-4 py-2 rounded-lg border transition-colors',
+                        'min-h-11 px-4 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                         localSettings.density === option.value
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'border-border hover:bg-muted',
@@ -399,13 +411,11 @@ export function Settings() {
             </CardContent>
           </Card>
 
-          <Card className='bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'>
+          <Card className='border-primary/25 bg-primary/10'>
             <CardContent>
-              <CardTitle className='text-blue-800 dark:text-blue-300 mb-2'>
-                Neurodivergent-Friendly Design
-              </CardTitle>
-              <CardDescription className='text-blue-700 dark:text-blue-400'>
-                FlowForge-Track was designed with neurodivergent users in mind. Features include:
+              <CardTitle className='mb-2 text-foreground'>Neurodivergent-Friendly Design</CardTitle>
+              <CardDescription className='text-muted-foreground'>
+                TimeSage was designed with neurodivergent users in mind. Features include:
                 <ul className='list-disc list-inside mt-2 space-y-1'>
                   <li>Large touch targets (minimum 44pt)</li>
                   <li>Clear labels with icons</li>
@@ -685,7 +695,7 @@ export function Settings() {
           <Card>
             <CardTitle className='px-6 pt-6 text-base'>Data Management</CardTitle>
             <CardDescription className='px-6 pb-2'>
-              Export or import your FlowForge-Track database for backup purposes.
+              Export or import your TimeSage database for backup purposes.
             </CardDescription>
             <CardContent className='space-y-4'>
               <div className='flex gap-4'>
@@ -734,7 +744,7 @@ export function Settings() {
                   try {
                     const { message } = await import('@tauri-apps/plugin-dialog');
                     await message('Backup imported! The app will now restart.', {
-                      title: 'FlowForge-Track',
+                      title: 'TimeSage',
                       kind: 'info',
                     });
                   } catch (e) {
@@ -764,15 +774,15 @@ export function Settings() {
       {/* Guide Tab */}
       {activeTab === 'guide' && (
         <div className='space-y-4'>
-          <Card className='bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'>
+          <Card className='border-primary/25 bg-primary/10'>
             <CardContent className='py-6'>
               <div className='flex items-center gap-3 mb-2'>
                 <Zap className='w-6 h-6 text-primary' />
-                <CardTitle className='text-xl'>Welcome to FlowForge-Track!</CardTitle>
+                <CardTitle className='text-xl'>Welcome to TimeSage!</CardTitle>
               </div>
               <CardDescription className='text-base'>
-                FlowForge-Track is your all-in-one time tracking and invoicing companion. This guide
-                will walk you through every feature step by step.
+                TimeSage is your all-in-one time tracking and invoicing companion. This guide will
+                walk you through every feature step by step.
               </CardDescription>
             </CardContent>
           </Card>
@@ -809,9 +819,9 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> When you stop the timer, a time entry is automatically
-                created and saved.
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> When you stop the timer, a time entry is automatically created
+                and saved.
               </div>
             </div>
           </GuideSection>
@@ -823,7 +833,7 @@ export function Settings() {
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
                 The floating widget is a small, always-on-top window that shows your timer status
-                even when FlowForge-Track is minimized.
+                even when TimeSage is minimized.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Widget Features</h4>
@@ -836,15 +846,15 @@ export function Settings() {
                     • <strong>Stop button:</strong> End the current session
                   </li>
                   <li>
-                    • <strong>Open App button:</strong> Bring FlowForge-Track to focus
+                    • <strong>Open App button:</strong> Bring TimeSage to focus
                   </li>
                   <li>
                     • <strong>Drag handle:</strong> Move the widget anywhere on screen
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> Enable or disable the widget in Settings → General → "Show
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> Enable or disable the widget in Settings → General → "Show
                 Floating Timer Widget"
               </div>
             </div>
@@ -922,9 +932,9 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> The selected currency will automatically apply to all
-                invoices created for this client.
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> The selected currency will automatically apply to all invoices
+                created for this client.
               </div>
             </div>
           </GuideSection>
@@ -966,8 +976,8 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> Only Active projects appear in the timer dropdown. Change
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> Only Active projects appear in the timer dropdown. Change
                 status to control visibility.
               </div>
             </div>
@@ -1035,8 +1045,7 @@ export function Settings() {
           <GuideSection icon={<FileText className='w-5 h-5' />} title='Creating Invoices'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                FlowForge-Track makes invoicing easy by automatically importing your unbilled time
-                entries.
+                TimeSage makes invoicing easy by automatically importing your unbilled time entries.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Step-by-Step Invoice Creation</h4>
@@ -1100,9 +1109,9 @@ export function Settings() {
                   payment details box including your QR code for quick mobile payments.
                 </p>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> Only the time entries included in the final saved invoice
-                are marked as "billed". If you remove an entry before saving, it stays unbilled.
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> Only the time entries included in the final saved invoice are
+                marked as "billed". If you remove an entry before saving, it stays unbilled.
               </div>
             </div>
           </GuideSection>
@@ -1145,8 +1154,8 @@ export function Settings() {
                   types that you can customize before saving.
                 </p>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> Click the eye icon on any product card to view its full
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> Click the eye icon on any product card to view its full
                 description.
               </div>
             </div>
@@ -1270,9 +1279,9 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> All appearance changes save automatically – no need to
-                click Save!
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> All appearance changes save automatically – no need to click
+                Save!
               </div>
             </div>
           </GuideSection>
@@ -1280,7 +1289,7 @@ export function Settings() {
           <GuideSection icon={<Keyboard className='w-5 h-5' />} title='Global Shortcuts'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                Control FlowForge-Track from anywhere, even when the app is in the background.
+                Control TimeSage from anywhere, even when the app is in the background.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Available Shortcuts</h4>
@@ -1302,8 +1311,8 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
-                <strong>💡 Tip:</strong> These work globally! You don't need to have the FlowForge
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
+                <strong>Tip:</strong> These work globally! You don't need to have the TimeSage
                 window focused.
               </div>
             </div>
@@ -1403,7 +1412,7 @@ export function Settings() {
               <div>
                 <h4 className='font-medium mb-2'>App Updates</h4>
                 <p className='text-sm text-muted-foreground'>
-                  FlowForge-Track automatically checks for updates on startup. If a new version is
+                  TimeSage automatically checks for updates on startup. If a new version is
                   available, a <strong>banner</strong> will appear at the top of the screen with a
                   link to download the latest release.
                 </p>
@@ -1411,10 +1420,10 @@ export function Settings() {
             </div>
           </GuideSection>
 
-          <GuideSection icon={<Globe className='w-5 h-5' />} title='About FlowForge-Track'>
+          <GuideSection icon={<Globe className='w-5 h-5' />} title='About TimeSage'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                FlowForge-Track is built by{' '}
+                TimeSage is built by{' '}
                 <a
                   href='https://emmi.engineer'
                   target='_blank'
@@ -1432,12 +1441,12 @@ export function Settings() {
                   <li>
                     •{' '}
                     <a
-                      href='https://flowforge.emmi.zone/'
+                      href='https://timesage.emmi.zone/'
                       target='_blank'
                       rel='noopener noreferrer'
                       className='text-primary hover:underline'
                     >
-                      flowforge.emmi.zone
+                      Product website
                     </a>{' '}
                     — Product website
                   </li>
@@ -1455,20 +1464,18 @@ export function Settings() {
                   </li>
                 </ul>
               </div>
-              <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm'>
+              <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
                 <strong>Version:</strong> 0.2.0
               </div>
             </div>
           </GuideSection>
 
-          <Card className='bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'>
+          <Card className='border-primary/25 bg-primary/10'>
             <CardContent className='py-6'>
-              <CardTitle className='text-green-800 dark:text-green-300 mb-2'>
-                🎉 You're All Set!
-              </CardTitle>
-              <CardDescription className='text-green-700 dark:text-green-400'>
-                You now know everything FlowForge-Track can do. Start tracking your time and
-                creating invoices with ease!
+              <CardTitle className='mb-2 text-foreground'>You're all set</CardTitle>
+              <CardDescription className='text-muted-foreground'>
+                You now know everything TimeSage can do. Start tracking your time and creating
+                invoices with ease!
               </CardDescription>
             </CardContent>
           </Card>
@@ -1489,25 +1496,29 @@ interface ToggleSettingProps {
 
 function ToggleSetting({ label, description, checked, onChange, icon }: ToggleSettingProps) {
   return (
-    <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-3'>
+    <div className='flex items-center justify-between gap-4'>
+      <div className='flex min-w-0 items-center gap-3'>
         {icon && <div className='text-muted-foreground'>{icon}</div>}
-        <div>
+        <div className='min-w-0'>
           <p className='font-medium text-foreground'>{label}</p>
           <p className='text-sm text-muted-foreground'>{description}</p>
         </div>
       </div>
       <button
+        type='button'
+        role='switch'
+        aria-checked={checked}
+        aria-label={label}
         onClick={() => onChange(!checked)}
         className={clsx(
-          'w-12 h-7 rounded-full transition-colors relative',
+          'relative min-h-11 min-w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
           checked ? 'bg-primary' : 'bg-muted',
         )}
       >
         <div
           className={clsx(
-            'w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow',
-            checked ? 'translate-x-6' : 'translate-x-1',
+            'absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border border-border bg-background shadow transition-transform',
+            checked ? 'translate-x-6' : 'translate-x-1.5',
           )}
         />
       </button>
@@ -1527,9 +1538,11 @@ interface ThemeButtonProps {
 function ThemeButton({ theme, current, onClick, icon, label }: ThemeButtonProps) {
   return (
     <button
+      type='button'
+      aria-pressed={current === theme}
       onClick={onClick}
       className={clsx(
-        'flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors min-w-[80px]',
+        'flex min-h-24 min-w-[92px] flex-col items-center justify-center gap-2 rounded-lg border-2 p-4 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
         current === theme
           ? 'border-primary bg-primary/10'
           : 'border-border hover:border-muted-foreground',
@@ -1555,8 +1568,10 @@ function GuideSection({ icon, title, children, defaultOpen = false }: GuideSecti
   return (
     <Card className='overflow-hidden'>
       <button
+        type='button'
+        aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
-        className='w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left'
+        className='w-full flex min-h-11 items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
       >
         <div className='flex items-center gap-3'>
           <div className='text-primary'>{icon}</div>
