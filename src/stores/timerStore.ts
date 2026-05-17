@@ -41,8 +41,8 @@ interface TimerStore {
   resume: () => void;
   /**
    * @deprecated Use `atomicStop` instead. Legacy non-atomic stop retained for
-   * backwards compatibility with callers outside the src tree. Will be removed
-   * in a future release once external usage is audited.
+   * backwards compatibility. Will be removed in a future release after
+   * migration to `atomicStop`.
    */
   stop: () => StopResult | null;
   /**
