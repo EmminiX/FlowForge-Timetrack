@@ -2,17 +2,17 @@
   <img src="public/EmmiLogo-noBG.png" alt="Emmi Logo" width="100%" />
 </div>
 
-# FlowForge-Track
+# TimeSage
 
 A simple, focused desktop app for tracking your work time and creating invoices. Built with privacy in mind — all your data stays on your computer.
 
 Designed to be easy to use, especially for people who prefer clear interfaces and minimal distractions.
 
-![FlowForge-Track Screenshot](docs/screenshot.png)
+![TimeSage Screenshot](docs/screenshot.png)
 
 ## 📖 User Guide
 
-For a complete walkthrough of features and settings, read the **[FlowForge-Track User Guide](https://flowforge.emmi.zone/guide)**.
+For the TimeSage setup guide, read the **[TimeSage User Guide](https://timesage.emmi.zone/guide)**.
 
 ## 📥 Download
 
@@ -55,7 +55,7 @@ For a complete walkthrough of features and settings, read the **[FlowForge-Track
 
 ## 🛡️ Data Protection
 
-FlowForge-Track includes built-in protection against accidental data loss:
+TimeSage includes built-in protection against accidental data loss:
 
 - **Cascading Delete Protection** — You cannot delete a client that has projects, or a project that has time entries
 - **Delete Order** — To remove a client completely, you must first delete their time entries, then projects, then the client
@@ -85,11 +85,11 @@ There are no artificial limits imposed by the application. Storage is only limit
 Since the app isn't code-signed yet, macOS will show a security warning:
 
 1. Download the `.dmg` file
-2. Open it and drag FlowForge-Track to Applications
+2. Open it and drag TimeSage to Applications
 3. **First launch:** Right-click the app → Select "Open" → Click "Open" in the dialog
 4. Grant Accessibility permissions for keyboard shortcuts:
    - System Settings → Privacy & Security → Accessibility
-   - Click `+` and add FlowForge-Track
+   - Click `+` and add TimeSage
 
 ### Windows
 
@@ -103,8 +103,8 @@ Windows SmartScreen may show a warning:
 ### Linux
 
 1. Download the `.AppImage` file
-2. Make it executable: `chmod +x FlowForge-Track.AppImage`
-3. Run it: `./FlowForge-Track.AppImage`
+2. Make the downloaded AppImage executable
+3. Run the AppImage
 
 ## 🚀 Quick Start
 
@@ -193,7 +193,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. By contrib
 
 **Made with ❤️ by [Emmi](https://emmi.zone)** — for freelancers and small teams who value simplicity and privacy.
 
-FlowForge-Track was born from the need for a simple, privacy-focused time tracking tool that doesn't require subscriptions, cloud accounts, or complex setup. It's built to respect your data and your workflow.
+TimeSage was born from the need for a simple, privacy-focused time tracking tool that doesn't require subscriptions, cloud accounts, or complex setup. It's built to respect your data and your workflow.
 
 **Connect:**
 - 🌐 Website: [emmi.zone](https://emmi.zone)

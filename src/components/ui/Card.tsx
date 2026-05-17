@@ -21,9 +21,9 @@ export function Card({ children, padding = 'md', hover = false, className, ...pr
   return (
     <div
       className={clsx(
-        'bg-background border border-border rounded-xl card-hover',
+        'app-card',
         paddings[padding],
-        hover && 'cursor-pointer',
+        hover && 'card-hover cursor-pointer',
         className,
       )}
       style={style}

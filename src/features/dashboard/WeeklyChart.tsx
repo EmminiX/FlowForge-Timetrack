@@ -38,13 +38,14 @@ export function WeeklyChart({
             {formatDuration(totalSeconds)} total
           </span>
           {onRangeChange && (
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={() => onRangeChange(range === 'week' ? 'month' : 'week')}
-              className='h-6 w-6 p-0 hover:bg-muted'
-              title={range === 'week' ? 'Show last 30 days' : 'Show this week'}
-            >
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => onRangeChange(range === 'week' ? 'month' : 'week')}
+                className='min-h-11 min-w-11 p-0 hover:bg-muted'
+                aria-label={range === 'week' ? 'Show last 30 days' : 'Show this week'}
+                title={range === 'week' ? 'Show last 30 days' : 'Show this week'}
+              >
               {range === 'week' ? (
                 <Maximize2 className='w-4 h-4 text-muted-foreground' />
               ) : (
@@ -73,13 +74,13 @@ export function WeeklyChart({
           return (
             <div
               key={day.date}
-              className="flex-1 flex flex-col items-center gap-1"
+              className='flex-1 flex flex-col items-center gap-1'
               style={{ minWidth: range === 'month' ? '8px' : 'auto' }}
               title={`${day.date}: ${formatDuration(day.totalSeconds)}`}
             >
               <div className='w-full h-16 flex items-end justify-center'>
                 <div
-                  className={`w-full max-w-[40px] rounded-t transition-all duration-500 ${
+                  className={`h-full w-full max-w-[40px] origin-bottom rounded-t transition-transform duration-500 ${
                     isToday
                       ? 'bg-primary'
                       : day.totalSeconds > 0
@@ -89,8 +90,7 @@ export function WeeklyChart({
                           : 'bg-muted'
                   }`}
                   style={{
-                    height: `${heightPercent}%`,
-                    minHeight: day.totalSeconds > 0 ? '4px' : '2px',
+                    transform: `scaleY(${heightPercent / 100})`,
                   }}
                 />
               </div>

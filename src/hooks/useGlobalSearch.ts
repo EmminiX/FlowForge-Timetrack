@@ -15,25 +15,27 @@ export function useGlobalSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [invoices, setInvoices] = useState<{ id: string; invoiceNumber: string; clientName: string; status: string }[]>([]);
+  const [invoices, setInvoices] = useState<
+    { id: string; invoiceNumber: string; clientName: string; status: string }[]
+  >([]);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    Promise.all([
-      clientService.getAll(),
-      projectService.getAll(),
-      invoiceService.getAll(),
-    ]).then(([c, p, i]) => {
-      setClients(c);
-      setProjects(p);
-      setInvoices(i.map((inv) => ({
-        id: inv.id,
-        invoiceNumber: inv.invoiceNumber,
-        clientName: inv.clientName,
-        status: inv.status,
-      })));
-    });
+    Promise.all([clientService.getAll(), projectService.getAll(), invoiceService.getAll()]).then(
+      ([c, p, i]) => {
+        setClients(c);
+        setProjects(p);
+        setInvoices(
+          i.map((inv) => ({
+            id: inv.id,
+            invoiceNumber: inv.invoiceNumber,
+            clientName: inv.clientName,
+            status: inv.status,
+          })),
+        );
+      },
+    );
   }, [isOpen]);
 
   const results = useMemo((): SearchResult[] => {
