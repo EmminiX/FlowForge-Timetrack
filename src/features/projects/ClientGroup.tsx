@@ -35,7 +35,8 @@ export function ClientGroup({
     <div className='border border-border rounded-lg overflow-hidden mb-4'>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className='w-full flex items-center justify-between p-3 bg-secondary/50 hover:bg-secondary transition-colors'
+        className='flex min-h-11 w-full items-center justify-between bg-secondary/50 p-3 transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring'
+        aria-expanded={isExpanded}
       >
         <div className='flex items-center gap-2 font-medium'>
           <span className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
@@ -68,12 +69,12 @@ export function ClientGroup({
                       value={project.status}
                       onChange={(e) => onStatusChange(project.id, e.target.value as ProjectStatus)}
                       onClick={(e) => e.stopPropagation()}
-                      className={`appearance-none cursor-pointer pl-2 pr-1 py-0.5 text-xs font-medium rounded-full border-0 ring-1 ring-inset focus:ring-2 focus:ring-primary ${
+                      className={`min-h-9 appearance-none cursor-pointer rounded-full border-0 py-1 pl-3 pr-3 text-xs font-medium ring-1 ring-inset focus:ring-2 focus:ring-primary ${
                         project.status === 'active'
-                          ? 'bg-green-100 text-green-800 ring-green-600/20 dark:bg-green-900/30 dark:text-green-400 dark:ring-green-500/20'
+                          ? 'bg-primary/12 text-primary ring-primary/25'
                           : project.status === 'paused'
-                            ? 'bg-orange-100 text-orange-800 ring-orange-600/20 dark:bg-orange-900/30 dark:text-orange-400 dark:ring-orange-500/20'
-                            : 'bg-muted text-muted-foreground ring-gray-500/10 dark:ring-gray-400/20'
+                            ? 'bg-accent/15 text-accent-foreground ring-accent/30 dark:text-accent'
+                            : 'bg-muted text-muted-foreground ring-muted-foreground/20'
                       }`}
                     >
                       {PROJECT_STATUS_OPTIONS.map((option) => (

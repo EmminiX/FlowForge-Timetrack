@@ -26,29 +26,19 @@
     "dialog:default",
     "dialog:allow-save",
     "dialog:allow-open",
-    "fs:default",
+    "fs:create-app-specific-dirs",
+    "fs:deny-default",
     {
       "identifier": "fs:allow-exists",
       "allow": [
         {
-          "path": "$APPDATA/**"
-        }
-      ]
-    },
-    {
-      "identifier": "fs:allow-read-file",
-      "allow": [
-        {
-          "path": "$APPDATA/**"
+          "path": "$APPDATA/flowforge.db"
         },
         {
-          "path": "$HOME/Downloads/**"
+          "path": "$APPDATA/flowforge.db-wal"
         },
         {
-          "path": "$HOME/Desktop/**"
-        },
-        {
-          "path": "$HOME/Documents/**"
+          "path": "$APPDATA/flowforge.db-shm"
         }
       ]
     },
@@ -56,16 +46,28 @@
       "identifier": "fs:allow-copy-file",
       "allow": [
         {
-          "path": "$APPDATA/**"
+          "path": "$APPDATA/flowforge.db"
         },
         {
-          "path": "$HOME/Downloads/**"
+          "path": "$APPDATA/flowforge.db.backup"
         },
         {
-          "path": "$HOME/Desktop/**"
+          "path": "$DOWNLOAD/*.db"
         },
         {
-          "path": "$HOME/Documents/**"
+          "path": "$DOWNLOAD/**/*.db"
+        },
+        {
+          "path": "$DESKTOP/*.db"
+        },
+        {
+          "path": "$DESKTOP/**/*.db"
+        },
+        {
+          "path": "$DOCUMENT/*.db"
+        },
+        {
+          "path": "$DOCUMENT/**/*.db"
         }
       ]
     },
@@ -73,11 +75,62 @@
       "identifier": "fs:allow-remove",
       "allow": [
         {
-          "path": "$APPDATA/**"
+          "path": "$APPDATA/flowforge.db"
+        },
+        {
+          "path": "$APPDATA/flowforge.db-wal"
+        },
+        {
+          "path": "$APPDATA/flowforge.db-shm"
         }
       ]
     },
-    "fs:write-all",
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [
+        {
+          "path": "$DOWNLOAD/*.csv"
+        },
+        {
+          "path": "$DOWNLOAD/**/*.csv"
+        },
+        {
+          "path": "$DESKTOP/*.csv"
+        },
+        {
+          "path": "$DESKTOP/**/*.csv"
+        },
+        {
+          "path": "$DOCUMENT/*.csv"
+        },
+        {
+          "path": "$DOCUMENT/**/*.csv"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": [
+        {
+          "path": "$DOWNLOAD/*.pdf"
+        },
+        {
+          "path": "$DOWNLOAD/**/*.pdf"
+        },
+        {
+          "path": "$DESKTOP/*.pdf"
+        },
+        {
+          "path": "$DESKTOP/**/*.pdf"
+        },
+        {
+          "path": "$DOCUMENT/*.pdf"
+        },
+        {
+          "path": "$DOCUMENT/**/*.pdf"
+        }
+      ]
+    },
     "notification:default",
     "notification:allow-is-permission-granted",
     "notification:allow-request-permission",

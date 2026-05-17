@@ -3,6 +3,8 @@
  * Uses Tauri save dialog when available, browser blob fallback otherwise.
  */
 
+import { assertSafeUserFilePath } from './safeFilePaths';
+
 export function generateCSV(headers: string[], rows: string[][]): string {
   const escape = (val: string): string => {
     if (val.includes(',') || val.includes('\n') || val.includes('"')) {
@@ -29,7 +31,8 @@ export async function downloadCSV(filename: string, csvContent: string): Promise
     });
 
     if (filePath) {
-      await writeTextFile(filePath, csvContent);
+      const safeFilePath = await assertSafeUserFilePath(filePath, '.csv', 'CSV export');
+      await writeTextFile(safeFilePath, csvContent);
     }
   } else {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

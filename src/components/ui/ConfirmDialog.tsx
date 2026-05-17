@@ -30,17 +30,17 @@ export function ConfirmDialog({
       <div className='flex gap-4'>
         {variant !== 'default' && (
           <div
-            className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md border ${
               variant === 'danger'
-                ? 'bg-red-100 dark:bg-red-900/30'
-                : 'bg-orange-100 dark:bg-orange-900/30'
+                ? 'border-destructive/35 bg-destructive/10'
+                : 'border-accent/40 bg-accent/15'
             }`}
           >
             <AlertTriangle
               className={`w-5 h-5 ${
                 variant === 'danger'
-                  ? 'text-red-600 dark:text-red-400'
-                  : 'text-orange-600 dark:text-orange-400'
+                  ? 'text-destructive'
+                  : 'text-accent'
               }`}
             />
           </div>

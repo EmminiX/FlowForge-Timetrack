@@ -41,7 +41,11 @@ export function ClientsList() {
   };
 
   useEffect(() => {
-    loadClients();
+    // Use timeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      loadClients();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Filter clients by search
@@ -169,9 +173,10 @@ export function ClientsList() {
           <input
             type='text'
             placeholder='Search clients...'
+            aria-label='Search clients'
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className='w-full h-10 pl-10 pr-4 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary'
+            className='min-h-11 w-full rounded-md border border-border bg-background pl-10 pr-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring'
           />
         </div>
       )}
@@ -180,6 +185,7 @@ export function ClientsList() {
       {clients.length === 0 ? (
         <EmptyState
           icon={<Users className='w-8 h-8' />}
+          variant='guided'
           title='No clients yet'
           description='Add your first client to start tracking time and generating invoices.'
           action={
@@ -192,13 +198,17 @@ export function ClientsList() {
       ) : filteredClients.length === 0 ? (
         <EmptyState
           icon={<Search className='w-8 h-8' />}
+          variant='minimal'
           title='No results'
           description={`No clients found matching "${searchQuery}"`}
         />
       ) : (
         <div className='space-y-3'>
           {filteredClients.map((client) => (
-            <Card key={client.id} className='flex flex-col p-4 transition-all'>
+            <Card
+              key={client.id}
+              className='flex flex-col p-4 transition-[background-color,border-color,box-shadow] duration-150'
+            >
               <div className='flex items-center justify-between'>
                 <div className='flex-1 min-w-0'>
                   <h3 className='font-medium text-foreground truncate'>{client.name}</h3>

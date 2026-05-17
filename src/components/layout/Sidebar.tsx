@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import type { CSSProperties } from 'react';
 import {
   Timer,
   Users,
@@ -15,7 +16,11 @@ import { useSettings } from '../../contexts/SettingsContext';
 
 import { Switch } from '../ui';
 
-export function Sidebar() {
+interface SidebarProps {
+  topPadding?: string;
+}
+
+export function Sidebar({ topPadding = '0' }: SidebarProps) {
   const { settings, updateSetting } = useSettings();
   const mainLinks = [
     { to: '/', label: 'Timer', icon: Timer },
@@ -32,16 +37,26 @@ export function Sidebar() {
     paddingInline: 'var(--shell-nav-item-px)',
   };
 
+  const asideStyle: CSSProperties = {
+    padding: 'var(--shell-sidebar-padding)',
+    ...(topPadding && topPadding !== '0'
+      ? { paddingTop: `calc(${topPadding} + var(--shell-sidebar-padding))` }
+      : {}),
+  };
+
   return (
     <aside
-      className='w-64 bg-secondary border-r border-border h-screen flex flex-col shrink-0'
-      style={{ padding: 'var(--shell-sidebar-padding)' }}
+      className='flex h-screen w-64 shrink-0 flex-col border-r border-border bg-[var(--sidebar)]'
+      style={asideStyle}
     >
-      <div
-        className='text-2xl font-bold text-primary'
-        style={{ marginBottom: 'var(--shell-brand-mb)', paddingInline: 'var(--shell-nav-item-px)' }}
-      >
-        FlowForge-Track
+      <div className='flex items-center gap-3' style={{ marginBottom: 'var(--shell-brand-mb)', paddingInline: 'var(--shell-nav-item-px)' }}>
+        <div className='grid h-10 w-10 place-items-center rounded-md border border-primary/35 bg-primary/10 text-sm font-bold text-primary'>
+          TS
+        </div>
+        <div className='min-w-0'>
+          <div className='truncate text-xl font-bold text-foreground'>TimeSage</div>
+          <div className='text-xs font-medium text-muted-foreground'>Private time ledger</div>
+        </div>
       </div>
 
       <nav className='flex-1 flex flex-col' style={{ gap: 'var(--shell-section-gap)' }}>
@@ -53,10 +68,10 @@ export function Sidebar() {
             style={navItemStyle}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 rounded-lg transition-all text-base hover-scale',
+                'flex min-h-11 items-center gap-3 rounded-md text-base transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                 isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-muted-foreground/10',
+                  ? 'bg-primary text-primary-foreground shadow-[var(--shadow-subtle)]'
+                  : 'text-foreground hover:bg-muted',
               )
             }
           >
@@ -66,16 +81,15 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Bottom Actions */}
       <div
         className='border-t border-border flex flex-col'
         style={{ paddingTop: 'var(--shell-brand-mb)', gap: 'var(--shell-section-gap)' }}
       >
         <div
-          className='flex items-center justify-between rounded-lg text-foreground hover:bg-muted-foreground/10 transition-colors'
+          className='flex min-h-11 items-center justify-between rounded-md text-foreground transition-colors hover:bg-muted'
           style={navItemStyle}
         >
-          <div className='flex items-center gap-3'>
+          <div id='sound-feedback-label' className='flex items-center gap-3'>
             {settings.enableSoundFeedback ? (
               <Volume2 className='w-5 h-5' />
             ) : (
@@ -88,6 +102,7 @@ export function Sidebar() {
           <Switch
             checked={settings.enableSoundFeedback}
             onCheckedChange={(checked) => updateSetting('enableSoundFeedback', checked)}
+            aria-labelledby='sound-feedback-label'
           />
         </div>
         <NavLink
@@ -95,10 +110,10 @@ export function Sidebar() {
           style={navItemStyle}
           className={({ isActive }) =>
             clsx(
-              'flex items-center gap-3 rounded-lg transition-all text-base hover-scale',
+              'flex min-h-11 items-center gap-3 rounded-md text-base transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
               isActive
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground hover:bg-muted-foreground/10',
+                ? 'bg-primary text-primary-foreground shadow-[var(--shadow-subtle)]'
+                : 'text-foreground hover:bg-muted',
             )
           }
         >
@@ -106,12 +121,20 @@ export function Sidebar() {
           <span>Settings</span>
         </NavLink>
         <div style={{ paddingTop: 'var(--shell-nav-item-py)', paddingBottom: 'var(--spacing-xs)', paddingInline: 'var(--shell-nav-item-px)' }}>
-          <a href='https://flowforge.emmi.zone/' target='_blank' rel='noopener noreferrer'
-             className='block text-xs text-muted-foreground hover:text-foreground transition-colors'>
-            flowforge.emmi.zone
+          <a
+            href='https://timesage.emmi.zone/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='flex min-h-11 items-center rounded-md text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'
+          >
+            Product website
           </a>
-          <a href='https://emmi.engineer' target='_blank' rel='noopener noreferrer'
-             className='block text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors mt-0.5'>
+          <a
+            href='https://emmi.engineer'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='flex min-h-11 items-center rounded-md text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'
+          >
             by emmi.engineer
           </a>
         </div>
