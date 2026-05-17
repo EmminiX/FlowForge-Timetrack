@@ -217,7 +217,9 @@ export function TimerView() {
             onClick: async () => {
               const undone = await undoStop();
               if (!undone) {
-                addToast({ message: 'Failed to undo: could not delete saved time entry' });
+                addToast({
+                  message: 'Failed to undo timer. Delete the saved entry from Time Entries.',
+                });
               }
             },
           },
