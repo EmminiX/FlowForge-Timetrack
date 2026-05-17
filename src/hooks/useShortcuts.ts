@@ -12,7 +12,7 @@ export function useShortcuts() {
   const timerState = useTimerStore((state) => state.state);
   const timerPause = useTimerStore((state) => state.pause);
   const timerResume = useTimerStore((state) => state.resume);
-  const timerStop = useTimerStore((state) => state.stop);
+  const timerAtomicStop = useTimerStore((state) => state.atomicStop);
   const { settings, updateSetting } = useSettings();
 
   // Use refs to avoid stale closures
@@ -50,24 +50,30 @@ export function useShortcuts() {
 
         case 'stop':
           if (currentTimerState !== 'idle') {
-            const result = timerStop();
-            if (result) {
-              try {
-                await timeEntryService.create({
-                  projectId: result.projectId,
-                  startTime: result.startTime,
+            try {
+              const stopped = await timerAtomicStop(async (interval) => {
+                const entry = await timeEntryService.create({
+                  projectId: interval.projectId,
+                  startTime: interval.startTime,
                   endTime: new Date().toISOString(),
-                  pauseDuration: result.pauseDuration,
+                  pauseDuration: interval.pauseDuration,
                   notes: '',
                   isBillable: true,
                   isBilled: false,
                 });
-                await emit('time-entry-saved');
+                // emit is informational only -- don't let event-bus failures cause a
+                // persistence rollback when the DB row already exists
+                emit('time-entry-saved').catch((err) => {
+                  console.warn('Failed to emit time-entry-saved:', err);
+                });
+                return entry.id;
+              });
+              if (stopped) {
                 await showNotification('Timer Stopped', 'Time entry has been saved');
-              } catch (err) {
-                console.error('Failed to save time entry via shortcut:', err);
-                await showNotification('Error', 'Failed to save time entry');
               }
+            } catch (err) {
+              console.error('Failed to save time entry via shortcut:', err);
+              await showNotification('Error', 'Failed to save time entry');
             }
           }
           break;
@@ -104,7 +110,7 @@ export function useShortcuts() {
       .subscribe(handleAction)
       .then((fn) => {
         if (cancelled) {
-          fn(); // StrictMode already unmounted — immediately unregister
+          fn(); // StrictMode already unmounted; unregister immediately
         } else {
           cleanup = fn;
         }
@@ -117,7 +123,7 @@ export function useShortcuts() {
       cancelled = true;
       cleanup?.();
     };
-  }, [timerPause, timerResume, timerStop, updateSetting]);
+  }, [timerPause, timerResume, timerAtomicStop, updateSetting]);
 }
 
 async function showNotification(title: string, body: string) {
