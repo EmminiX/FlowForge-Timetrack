@@ -250,7 +250,7 @@ export const useTimerStore = create<TimerStore>()(
           try {
             await timeEntryService.delete(lastStoppedState.timeEntryId);
           } catch (err) {
-            console.warn('Failed to undo stopped timer entry:', err);
+            console.warn('Failed to delete time entry during undo:', err);
             return false;
           }
           // notify UI subscribers that the persisted entries changed
