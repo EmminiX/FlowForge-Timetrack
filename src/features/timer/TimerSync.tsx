@@ -8,7 +8,7 @@ import { uiLogger } from '../../lib/logger';
 
 export function TimerSync() {
   const { state, projectId, projectName, projectColor, getElapsedSeconds } = useTimerStore();
-  const { pause, resume, stop } = useTimerWithEffects();
+  const { pause, resume, atomicStop } = useTimerWithEffects();
 
   // Emit state updates to widget
   useEffect(() => {
@@ -48,23 +48,29 @@ export function TimerSync() {
       } else if (action === 'resume') {
         resume();
       } else if (action === 'stop') {
-        const result = await stop();
-        if (result) {
-          try {
-            await timeEntryService.create({
-              projectId: result.projectId,
-              startTime: result.startTime,
+        try {
+          const stopped = await atomicStop(async (interval) => {
+            const entry = await timeEntryService.create({
+              projectId: interval.projectId,
+              startTime: interval.startTime,
               endTime: new Date().toISOString(),
-              pauseDuration: result.pauseDuration,
+              pauseDuration: interval.pauseDuration,
               notes: '',
               isBillable: true,
               isBilled: false,
             });
-            await emit('time-entry-saved');
+            // emit is informational only -- don't let event-bus failures cause a
+            // persistence rollback when the DB row already exists
+            emit('time-entry-saved').catch((err) => {
+              console.warn('Failed to emit time-entry-saved:', err);
+            });
+            return entry.id;
+          });
+          if (stopped) {
             uiLogger.debug('Saved time entry from widget stop');
-          } catch (err) {
-            uiLogger.error('Failed to save time entry from widget:', err);
           }
+        } catch (err) {
+          uiLogger.error('Failed to save time entry from widget:', err);
         }
       }
     });
@@ -91,7 +97,7 @@ export function TimerSync() {
           /* Already unlistened */
         });
     };
-  }, [state, projectId, projectName, projectColor, getElapsedSeconds, pause, resume, stop]);
+  }, [state, projectId, projectName, projectColor, getElapsedSeconds, pause, resume, atomicStop]);
 
   return null; // Headless component
 }

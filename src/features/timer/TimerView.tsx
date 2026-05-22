@@ -22,7 +22,7 @@ export function TimerView() {
     start,
     pause,
     resume,
-    stop,
+    atomicStop,
     getElapsedSeconds,
   } = useTimerWithEffects();
 
@@ -187,36 +187,46 @@ export function TimerView() {
   };
 
   const handleStop = async () => {
-    const result = await stop();
-    if (!result) return;
-
     setSaving(true);
     try {
-      const entryData = {
-        projectId: result.projectId,
-        startTime: result.startTime,
-        endTime: new Date().toISOString(),
-        pauseDuration: result.pauseDuration,
-        notes: '',
-        isBillable: true,
-        isBilled: false,
-      };
-      timeEntryLogger.debug('Creating time entry with data:', entryData);
-      await timeEntryService.create(entryData);
-      await emit('time-entry-saved');
-
-      addToast({
-        message: 'Timer stopped',
-        action: {
-          label: 'Undo',
-          onClick: () => {
-            undoStop();
-          },
-        },
-        duration: 10000,
+      const stopped = await atomicStop(async (interval) => {
+        const entryData = {
+          projectId: interval.projectId,
+          startTime: interval.startTime,
+          endTime: new Date().toISOString(),
+          pauseDuration: interval.pauseDuration,
+          notes: '',
+          isBillable: true,
+          isBilled: false,
+        };
+        timeEntryLogger.debug('Creating time entry with data:', entryData);
+        const entry = await timeEntryService.create(entryData);
+        // emit is informational only -- don't let event-bus failures cause a
+        // persistence rollback when the DB row already exists
+        emit('time-entry-saved').catch((err) => {
+          console.warn('Failed to emit time-entry-saved:', err);
+        });
+        return entry.id;
       });
+
+      if (stopped) {
+        addToast({
+          message: 'Timer stopped',
+          action: {
+            label: 'Undo',
+            onClick: async () => {
+              const undone = await undoStop();
+              if (!undone) {
+                addToast({ message: 'Could not undo, time entry may have been saved' });
+              }
+            },
+          },
+          duration: 10000,
+        });
+      }
     } catch (err) {
       timeEntryLogger.error('Failed to save time entry:', err);
+      addToast({ message: 'Failed to save time entry. Timer is still running.' });
     } finally {
       setSaving(false);
     }
