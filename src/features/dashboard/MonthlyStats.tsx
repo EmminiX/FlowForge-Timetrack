@@ -69,20 +69,20 @@ export function MonthlyStats({ initialData }: MonthlyStatsProps) {
   return (
     <div className='bg-background border border-border rounded-xl p-4'>
       {/* Header with month navigation */}
-      <div className="flex items-center justify-between mb-3">
+      <div className='flex items-center justify-between mb-3'>
         <button
           onClick={goPrev}
-          className="min-h-11 min-w-11 rounded-md transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
-          aria-label="Show previous month"
+          className='min-h-11 min-w-11 rounded-md transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring'
+          aria-label='Show previous month'
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className='w-4 h-4' />
         </button>
         <h3 className='text-sm font-semibold'>{monthLabel}</h3>
         <button
           onClick={goNext}
           disabled={isCurrentMonth}
-          className="min-h-11 min-w-11 rounded-md transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-30"
-          aria-label="Show next month"
+          className='min-h-11 min-w-11 rounded-md transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-30'
+          aria-label='Show next month'
         >
           <ChevronRight className='w-4 h-4' />
         </button>

@@ -51,8 +51,8 @@ export function useTimerWithEffects() {
 
   /**
    * @deprecated Use `atomicStop` instead. Legacy non-atomic stop retained for
-   * backwards compatibility with callers outside the src tree. Will be removed
-   * in a future release once external usage is audited.
+   * backwards compatibility with external integrations that still call it.
+   * Will be removed in a future release once external usage is audited.
    */
   const stop = useCallback(async () => {
     const settings = await settingsService.load();

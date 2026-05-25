@@ -41,8 +41,8 @@ interface TimerStore {
   resume: () => void;
   /**
    * @deprecated Use `atomicStop` instead. Legacy non-atomic stop retained for
-   * backwards compatibility with callers outside the src tree. Will be removed
-   * in a future release once external usage is audited.
+   * backwards compatibility with external integrations that still call it.
+   * Will be removed in a future release once external usage is audited.
    */
   stop: () => StopResult | null;
   /**
@@ -249,7 +249,8 @@ export const useTimerStore = create<TimerStore>()(
         if (lastStoppedState.timeEntryId) {
           try {
             await timeEntryService.delete(lastStoppedState.timeEntryId);
-          } catch {
+          } catch (err) {
+            console.warn('Failed to delete time entry during undo:', err);
             return false;
           }
           // notify UI subscribers that the persisted entries changed

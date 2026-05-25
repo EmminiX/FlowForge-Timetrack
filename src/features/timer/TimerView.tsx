@@ -217,7 +217,9 @@ export function TimerView() {
             onClick: async () => {
               const undone = await undoStop();
               if (!undone) {
-                addToast({ message: 'Could not undo, time entry may have been saved' });
+                addToast({
+                  message: 'Failed to undo timer. Delete the saved entry from Time Entries.',
+                });
               }
             },
           },
@@ -226,7 +228,7 @@ export function TimerView() {
       }
     } catch (err) {
       timeEntryLogger.error('Failed to save time entry:', err);
-      addToast({ message: 'Failed to save time entry. Timer is still running.' });
+      addToast({ message: 'Failed to save time entry. Timer is still running; try stopping again.' });
     } finally {
       setSaving(false);
     }

@@ -18,7 +18,7 @@
         "height": 768,
         "minWidth": 800,
         "minHeight": 600,
-        "titleBarStyle": "overlay"
+        "titleBarStyle": "transparent"
       },
       {
         "label": "widget",
