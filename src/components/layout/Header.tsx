@@ -98,7 +98,7 @@ export function Header() {
   };
 
   return (
-    <header className='h-16 border-b border-border flex items-center gap-4 px-6 bg-[var(--surface)] shrink-0'>
+    <header className='h-16 border-b border-border flex items-center gap-4 bg-[var(--surface)] shrink-0' style={{ paddingInline: 'var(--shell-header-px)' }}>
       <div className='flex items-center gap-3 min-w-0'>
         <div className='grid h-9 w-9 place-items-center rounded-md border border-primary/35 bg-primary/10 text-sm font-bold text-primary'>
           TS

@@ -31,7 +31,7 @@ export function Layout() {
       <div className='flex-1 flex flex-col min-w-0' style={{ paddingTop: topPadding }}>
         <UpdateBanner />
         <Header />
-        <main className='app-main flex-1 overflow-auto p-6 lg:p-8'>
+        <main className='app-main flex-1 overflow-auto' style={{ padding: 'var(--shell-main-padding)' }}>
           <ErrorBoundary name='page-content'>
             <div className='page-enter'>
               <Outlet />
