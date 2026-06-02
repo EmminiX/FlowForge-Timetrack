@@ -523,7 +523,10 @@ export function CalendarTimeView({ initialDate }: CalendarTimeViewProps) {
                     <button
                       type='button'
                       aria-label={`Move or edit ${block.entry.projectName} time entry`}
-                      onClick={() => setEditingEntry(block.entry)}
+                      onClick={() => {
+                        if (activeInteractionId === block.id) return;
+                        setEditingEntry(block.entry);
+                      }}
                       onPointerDown={(event) => startMoveInteraction(event, block)}
                       className='flex h-full min-h-14 w-full cursor-grab flex-col overflow-hidden px-2 py-3 text-left transition-colors hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring active:cursor-grabbing'
                     >
