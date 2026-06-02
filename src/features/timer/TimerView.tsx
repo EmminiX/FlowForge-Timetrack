@@ -227,7 +227,7 @@ export function TimerView() {
         });
       }
     } catch (err) {
-      timeEntryLogger.error('Failed to save time entry:', err);
+      timeEntryLogger.error('Failed to save time entry', err);
       addToast({
         message: 'Failed to save time entry. Timer is still running; try stopping again.',
       });
