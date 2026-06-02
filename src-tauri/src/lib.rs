@@ -1,5 +1,8 @@
 use serde::Serialize;
+use tauri::menu::{Menu, MenuItem};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::Manager;
+use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_sql::{Migration, MigrationKind};
 use user_idle::UserIdle;
 
@@ -51,6 +54,60 @@ fn get_active_window_snapshot(include_title: bool) -> Option<ActiveWindowSnapsho
         let _ = include_title;
         None
     }
+}
+
+fn show_main_window(app: &tauri::AppHandle) {
+    if let Some(main_window) = app.get_webview_window("main") {
+        let _ = main_window.show();
+        let _ = main_window.unminimize();
+        let _ = main_window.set_focus();
+    }
+}
+
+fn toggle_widget_window(app: &tauri::AppHandle) {
+    if let Some(widget_window) = app.get_webview_window("widget") {
+        match widget_window.is_visible() {
+            Ok(true) => {
+                let _ = widget_window.hide();
+            }
+            Ok(false) | Err(_) => {
+                let _ = widget_window.show();
+                let _ = widget_window.set_focus();
+            }
+        }
+    }
+}
+
+fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
+    let show_main = MenuItem::with_id(app, "show_main", "Show TimeSage", true, None::<&str>)?;
+    let toggle_widget =
+        MenuItem::with_id(app, "toggle_widget", "Toggle Timer Widget", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+    let menu = Menu::with_items(app, &[&show_main, &toggle_widget, &quit])?;
+
+    TrayIconBuilder::with_id("flowforge-tray")
+        .tooltip("TimeSage")
+        .menu(&menu)
+        .show_menu_on_left_click(false)
+        .on_menu_event(|app, event| match event.id().as_ref() {
+            "show_main" => show_main_window(app),
+            "toggle_widget" => toggle_widget_window(app),
+            "quit" => app.exit(0),
+            _ => {}
+        })
+        .on_tray_icon_event(|tray, event| {
+            if let TrayIconEvent::Click {
+                button: MouseButton::Left,
+                button_state: MouseButtonState::Up,
+                ..
+            } = event
+            {
+                show_main_window(tray.app_handle());
+            }
+        })
+        .build(app)?;
+
+    Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -286,7 +343,15 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_notification::init());
+        .plugin(tauri_plugin_notification::init())
+        .plugin(
+            tauri_plugin_autostart::Builder::new()
+                .app_name("TimeSage")
+                .macos_launcher(MacosLauncher::LaunchAgent)
+                .build(),
+        )
+        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_updater::Builder::new().build());
 
     // Setup global shortcuts plugin on desktop platforms
     // Note: Actual shortcut registration is done via JavaScript API
@@ -296,6 +361,10 @@ pub fn run() {
     }
 
     builder
+        .setup(|app| {
+            setup_tray(app)?;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             greet,
             get_idle_time,

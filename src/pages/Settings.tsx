@@ -48,6 +48,7 @@ import clsx from 'clsx';
 
 import { uiLogger } from '../lib/logger';
 import { safeEmit } from '../lib/tauriRuntime';
+import { DesktopProSettings } from './DesktopProSettings';
 
 type TabId = 'general' | 'appearance' | 'accessibility' | 'business' | 'guide';
 
@@ -342,6 +343,8 @@ export function Settings() {
               )}
             </CardContent>
           </Card>
+
+          <DesktopProSettings />
         </div>
       )}
 

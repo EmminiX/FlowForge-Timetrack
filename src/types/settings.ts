@@ -10,6 +10,8 @@ export interface AppSettings {
   showFloatingWidget: boolean;
   enableNotifications: boolean;
   enableSoundFeedback: boolean;
+  launchAtLogin: boolean;
+  enableNativeUpdaterChecks: boolean;
 
   // Idle Detection
   enableIdleDetection: boolean;
@@ -59,6 +61,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showFloatingWidget: true,
   enableNotifications: true,
   enableSoundFeedback: true,
+  launchAtLogin: false,
+  enableNativeUpdaterChecks: true,
   enableIdleDetection: true,
   idleThresholdMinutes: 5,
   enablePrivateTimeline: false,
