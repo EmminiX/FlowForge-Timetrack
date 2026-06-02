@@ -119,7 +119,13 @@ export function InvoicePaymentHub({ invoice, currency, onChanged }: InvoicePayme
           {summary?.isPaid ? (
             <Badge variant='success'>Paid in full</Badge>
           ) : (
-            <Button variant='outline' size='sm' onClick={handleSendReminder} disabled={saving} className='gap-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handleSendReminder}
+              disabled={saving}
+              className='gap-2 whitespace-nowrap'
+            >
               <Send className='h-4 w-4' />
               Send reminder
             </Button>

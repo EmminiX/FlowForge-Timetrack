@@ -1461,7 +1461,7 @@ function InvoicePreview({ invoice, onClose, clients, onChanged }: InvoicePreview
   };
 
   return (
-    <Modal isOpen={true} onClose={onClose} title={invoice.invoiceNumber} size='lg'>
+    <Modal isOpen={true} onClose={onClose} title={invoice.invoiceNumber} size='xl'>
       <div className='space-y-4 text-sm'>
         {/* Business Header */}
         {settings && (settings.businessName || settings.businessLogo) && (
