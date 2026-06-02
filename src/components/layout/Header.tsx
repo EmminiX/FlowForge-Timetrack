@@ -1,18 +1,43 @@
 import { useState, useEffect, useId, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Users, FolderKanban, FileText, X } from 'lucide-react';
-import { useGlobalSearch, type SearchResult } from '../../hooks/useGlobalSearch';
+import {
+  CheckCircle,
+  Clock,
+  Download,
+  FileText,
+  FolderKanban,
+  Play,
+  Search,
+  UserPlus,
+  Users,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
+import { useGlobalSearch, type CommandCenterItem, type CommandAction } from '../../hooks/useGlobalSearch';
+import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';
+import { executeCommandCenterItem } from '../../services/commandActionService';
+import { exportInvoicePdfById, invoiceService } from '../../services';
 
-const TYPE_ICONS: Record<string, typeof Users> = {
+const TYPE_ICONS: Record<string, LucideIcon> = {
   client: Users,
   project: FolderKanban,
   invoice: FileText,
   'time-entry': FileText,
 };
 
+const ACTION_ICONS: Record<CommandAction, LucideIcon> = {
+  'start-timer': Play,
+  'create-invoice': FileText,
+  'add-client': UserPlus,
+  'mark-paid': CheckCircle,
+  'export-pdf': Download,
+  'quick-add-time': Clock,
+};
+
 export function Header() {
   const navigate = useNavigate();
   const { query, setQuery, isOpen, open, close, results } = useGlobalSearch();
+  const { start: startTimer } = useTimerWithEffects();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const searchInputId = useId();
   const searchResultsId = useId();
@@ -78,9 +103,33 @@ export function Header() {
     wasSearchOpenRef.current = isOpen;
   }, [isOpen]);
 
-  const handleSelect = (result: SearchResult) => {
-    navigate(result.route);
-    close();
+  const handleSelect = async (result: CommandCenterItem) => {
+    try {
+      await executeCommandCenterItem(result, {
+        navigate,
+        startTimer,
+        markInvoicePaid: async (invoiceId) => {
+          await invoiceService.update(invoiceId, { status: 'paid' });
+        },
+        exportInvoicePdf: exportInvoicePdfById,
+      });
+      close();
+    } catch (error) {
+      console.error('Command center action failed', error);
+    }
+  };
+
+  const getResultIcon = (result: CommandCenterItem) => {
+    if (result.kind === 'action') {
+      return ACTION_ICONS[result.action] || FileText;
+    }
+
+    return TYPE_ICONS[result.type] || FileText;
+  };
+
+  const getResultLabel = (result: CommandCenterItem) => {
+    if (result.kind === 'action') return 'Action';
+    return result.type.replace('-', ' ');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -91,7 +140,7 @@ export function Header() {
       e.preventDefault();
       setSelectedIndex((i) => Math.max(i - 1, 0));
     } else if (e.key === 'Enter' && results[selectedIndex]) {
-      handleSelect(results[selectedIndex]);
+      void handleSelect(results[selectedIndex]);
     } else if (e.key === 'Escape') {
       close();
     }
@@ -111,10 +160,10 @@ export function Header() {
           ref={searchButtonRef}
           onClick={open}
           className='flex min-h-11 items-center gap-2 rounded-md border border-border bg-[var(--surface-raised)] px-3 py-1.5 text-sm text-muted-foreground shadow-[var(--shadow-subtle)] transition-colors hover:border-primary/40 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'
-          aria-label='Open search'
+          aria-label='Open command center'
         >
           <Search className='w-4 h-4' />
-          <span>Search</span>
+          <span>Command</span>
           <kbd className='ml-2 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground'>
             {/Mac/.test(navigator.userAgent) ? '⌘' : 'Ctrl'}+K
           </kbd>
@@ -131,7 +180,7 @@ export function Header() {
                 ref={dialogRef}
                 role='dialog'
                 aria-modal='true'
-                aria-label='Global search'
+                aria-label='Command center'
                 className='overflow-hidden rounded-lg border border-border bg-[var(--surface-raised)] shadow-[var(--shadow-modal)] animate-in fade-in zoom-in-95 duration-150'
               >
                 <div className='flex items-center gap-3 px-4 py-3 border-b border-border'>
@@ -140,7 +189,7 @@ export function Header() {
                     id={searchInputId}
                     type='search'
                     role='searchbox'
-                    aria-label='Search'
+                    aria-label='Command'
                     aria-controls={searchResultsId}
                     aria-expanded={isOpen}
                     aria-activedescendant={activeResultId}
@@ -148,7 +197,7 @@ export function Header() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder='Search clients, projects, invoices...'
+                    placeholder='Search or run an action...'
                     className='flex-1 bg-transparent text-foreground outline-none placeholder:text-muted-foreground'
                   />
                   {query && (
@@ -165,7 +214,7 @@ export function Header() {
                 <div
                   id={searchResultsId}
                   role='listbox'
-                  aria-label='Search results'
+                  aria-label='Command center results'
                   className='max-h-64 overflow-y-auto'
                 >
                   {query.trim() && (
@@ -176,14 +225,14 @@ export function Header() {
                         </div>
                       ) : (
                         results.map((result, index) => {
-                          const Icon = TYPE_ICONS[result.type] || FileText;
+                          const Icon = getResultIcon(result);
                           return (
                             <button
                               key={result.id}
                               id={`${searchResultsId}-${index}`}
                               role='option'
                               aria-selected={index === selectedIndex}
-                              onClick={() => handleSelect(result)}
+                              onClick={() => void handleSelect(result)}
                               className={`w-full flex min-h-11 items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring ${
                                 index === selectedIndex ? 'bg-muted' : ''
                               }`}
@@ -198,7 +247,7 @@ export function Header() {
                                 )}
                               </div>
                               <span className='text-xs text-muted-foreground capitalize shrink-0'>
-                                {result.type.replace('-', ' ')}
+                                {getResultLabel(result)}
                               </span>
                             </button>
                           );

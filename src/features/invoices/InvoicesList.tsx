@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Search, FileText, Eye, Download, Trash2, Pencil } from 'lucide-react';
 import type {
   InvoiceWithDetails,
@@ -52,6 +53,8 @@ function formatCurrency(amount: number, currency: Currency = 'EUR'): string {
 }
 
 export function InvoicesList() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState<InvoiceWithDetails[]>([]);
   const [allInvoicesCount, setAllInvoicesCount] = useState(0); // Track total count for filter visibility
   const [clients, setClients] = useState<Client[]>([]);
@@ -94,6 +97,21 @@ export function InvoicesList() {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('new') !== '1') return;
+
+    setShowCreate(true);
+    params.delete('new');
+    navigate(
+      {
+        pathname: location.pathname,
+        search: params.toString() ? `?${params.toString()}` : '',
+      },
+      { replace: true },
+    );
+  }, [location.pathname, location.search, navigate]);
 
   const handleDelete = () => {
     if (!deletingInvoice) return;

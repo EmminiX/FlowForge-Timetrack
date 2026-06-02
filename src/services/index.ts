@@ -10,3 +10,4 @@ export { dashboardService } from './dashboardService';
 export { updateService } from './updateService';
 export { backupService } from './backupService';
 export { downPaymentService } from './downPaymentService';
+export { exportInvoicePdfById } from './invoicePdfService';
