@@ -35,8 +35,8 @@ describe('DesktopProSettings', () => {
     mocks.checkForUpdate.mockResolvedValue({
       source: 'release-feed',
       status: 'none',
-      currentVersion: '0.2.0',
-      latestVersion: '0.2.0',
+      currentVersion: '0.2.1',
+      latestVersion: '0.2.1',
     });
   });
 

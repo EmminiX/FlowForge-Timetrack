@@ -80,10 +80,10 @@ describe('InvoicePaymentHub', () => {
 
     render(<InvoicePaymentHub invoice={invoice} currency='EUR' onChanged={onChanged} />);
 
-    expect(await screen.findByText('Payment Hub')).toBeInTheDocument();
-    expect(screen.getByText('€50.00 paid')).toBeInTheDocument();
-    expect(screen.getByText('€200.00 due')).toBeInTheDocument();
-    expect(screen.getByText('Invoice sent')).toBeInTheDocument();
+    expect(screen.getByText('Payment Hub')).toBeInTheDocument();
+    expect(await screen.findByText('€50.00 paid')).toBeInTheDocument();
+    expect(await screen.findByText('€200.00 due')).toBeInTheDocument();
+    expect(await screen.findByText('Invoice sent')).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText('Payment amount'), { target: { value: '125' } });
     fireEvent.change(screen.getByLabelText('Payment reference'), { target: { value: 'BANK-456' } });

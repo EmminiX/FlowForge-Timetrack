@@ -1518,7 +1518,7 @@ export function Settings() {
                 </ul>
               </div>
               <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
-                <strong>Version:</strong> 0.2.0
+                <strong>Version:</strong> 0.2.1
               </div>
             </div>
           </GuideSection>

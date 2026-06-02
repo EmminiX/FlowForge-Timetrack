@@ -12,6 +12,33 @@ interface ChangelogSection {
 }
 
 const CHANGELOG: Record<string, ChangelogSection[]> = {
+  '0.2.1': [
+    {
+      title: 'Release Highlights',
+      items: [
+        'Command Center 2.0 — Quick actions for timers, clients, invoices, payments, PDFs, and time entry',
+        'Calendar Time View — Day and week planning for spotting gaps and adding missed work',
+        'Private Auto-Timeline — Local-only activity suggestions with user-approved privacy controls',
+        'Project Budgets — Hourly, fixed-fee, and retainer tracking with scope alerts',
+      ],
+    },
+    {
+      title: 'Invoicing & Expenses',
+      items: [
+        'Invoice Payment Hub — Payment history, partial payments, reminders, and invoice status timelines',
+        'Expense Tracking — Billable expenses, receipt attachments, and invoice import flow',
+        'PDF Improvements — Invoice PDF generation moved into a dedicated service for better reliability',
+      ],
+    },
+    {
+      title: 'Desktop & Browser Safety',
+      items: [
+        'Desktop Pro Mode — System tray controls, launch-at-login, saved window state, and updater checks',
+        'Demo Mode — Browser-safe sample data and mocked desktop APIs for screenshots, docs, and testing',
+        'Runtime Guards — Safer Tauri API handling when the app runs in Vite/browser mode',
+      ],
+    },
+  ],
   '0.2.0': [
     {
       title: 'New Features',
@@ -80,7 +107,7 @@ export function WhatsNewModal() {
     await updateSetting('seenChangelogVersion', currentVersion);
   };
 
-  const sections = CHANGELOG[currentVersion] || CHANGELOG['0.2.0'];
+  const sections = CHANGELOG[currentVersion] || CHANGELOG['0.2.1'];
 
   if (!sections) return null;
 

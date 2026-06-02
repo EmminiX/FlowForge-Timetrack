@@ -342,7 +342,7 @@ export function createDemoSeedData(now = new Date()): DemoSeedData {
       businessPhone: '+353 1 555 0199',
       defaultTaxRate: 0.23,
       paymentTerms: 'Payment is due within 14 days.',
-      seenChangelogVersion: '0.2.0',
+      seenChangelogVersion: '0.2.1',
     },
   };
 }
