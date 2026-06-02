@@ -1,6 +1,7 @@
 import { DEFAULT_SETTINGS, type AppSettings } from '../types/settings';
 import type { Client } from '../types/client';
 import type { DownPayment } from '../types/downPayment';
+import type { Expense } from '../types/expense';
 import type { Invoice, InvoiceLineItem } from '../types/invoice';
 import type { Product } from '../types/product';
 import type { Project } from '../types/project';
@@ -26,6 +27,7 @@ export interface DemoSeedData {
   clients: Client[];
   projects: Project[];
   timeEntries: TimeEntry[];
+  expenses: Expense[];
   downPayments: DownPayment[];
   invoices: Invoice[];
   invoiceLineItems: InvoiceLineItem[];
@@ -136,6 +138,39 @@ export function createDemoSeedData(now = new Date()): DemoSeedData {
     },
   ];
 
+  const expenses: Expense[] = [
+    {
+      id: 'demo-expense-stock-photo',
+      clientId: 'demo-client-acme',
+      projectId: 'demo-project-brand',
+      description: 'Stock photo license',
+      amount: 49.5,
+      expenseDate: isoDate(today),
+      receiptPath: '/demo/receipts/stock-photo.pdf',
+      isBillable: true,
+      isBilled: false,
+      invoiceId: null,
+      notes: 'Hero image asset.',
+      createdAt: atTime(today, 12, 0),
+      updatedAt: atTime(today, 12, 0),
+    },
+    {
+      id: 'demo-expense-domain',
+      clientId: 'demo-client-nova',
+      projectId: 'demo-project-analytics',
+      description: 'Dashboard domain renewal',
+      amount: 18,
+      expenseDate: isoDate(lastWeek),
+      receiptPath: null,
+      isBillable: true,
+      isBilled: false,
+      invoiceId: null,
+      notes: '',
+      createdAt: atTime(lastWeek, 12, 30),
+      updatedAt: atTime(lastWeek, 12, 30),
+    },
+  ];
+
   const invoices: Invoice[] = [
     {
       id: 'demo-invoice-1',
@@ -207,6 +242,7 @@ export function createDemoSeedData(now = new Date()): DemoSeedData {
     clients,
     projects,
     timeEntries,
+    expenses,
     downPayments,
     invoices,
     invoiceLineItems,

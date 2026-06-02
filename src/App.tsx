@@ -8,6 +8,7 @@ import { Clients } from './pages/Clients';
 import { Projects } from './pages/Projects';
 import { TimeEntries } from './pages/TimeEntries';
 import { Invoices } from './pages/Invoices';
+import { Expenses } from './pages/Expenses';
 import { Products } from './pages/Products';
 import { Settings } from './pages/Settings';
 import { Widget } from './pages/Widget';
@@ -60,6 +61,7 @@ function AppContent() {
             <Route path='time-entries' element={<TimeEntries />} />
             <Route path='time-entries/calendar' element={<TimeEntries />} />
             <Route path='invoices' element={<Invoices />} />
+            <Route path='expenses' element={<Expenses />} />
             <Route path='products' element={<Products />} />
             <Route path='settings' element={<Settings />} />
           </Route>

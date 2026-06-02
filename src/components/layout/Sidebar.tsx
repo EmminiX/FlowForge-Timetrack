@@ -11,6 +11,7 @@ import {
   Volume2,
   VolumeX,
   Package,
+  Receipt,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useSettings } from '../../contexts/SettingsContext';
@@ -30,6 +31,7 @@ export function Sidebar({ topPadding = '0' }: SidebarProps) {
     { to: '/time-entries', label: 'Time Entries', icon: Clock, end: true },
     { to: '/time-entries/calendar', label: 'Calendar', icon: CalendarDays, end: true },
     { to: '/invoices', label: 'Invoices', icon: FileText, end: true },
+    { to: '/expenses', label: 'Expenses', icon: Receipt, end: true },
     { to: '/products', label: 'Products', icon: Package, end: true },
   ];
 

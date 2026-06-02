@@ -170,6 +170,41 @@ export async function runMigrations(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_down_payments_payment_date ON down_payments(payment_date)
   `);
 
+  // Create expenses table for billable expense and receipt tracking
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS expenses (
+      id TEXT PRIMARY KEY,
+      client_id TEXT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+      project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+      description TEXT NOT NULL,
+      amount REAL NOT NULL,
+      expense_date TEXT NOT NULL,
+      receipt_path TEXT,
+      is_billable INTEGER DEFAULT 1,
+      is_billed INTEGER DEFAULT 0,
+      invoice_id TEXT REFERENCES invoices(id) ON DELETE SET NULL,
+      notes TEXT DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_expenses_client_id ON expenses(client_id)
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_expenses_project_id ON expenses(project_id)
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_expenses_invoice_id ON expenses(invoice_id)
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)
+  `);
+
   const projectBudgetColumns = [
     `ALTER TABLE projects ADD COLUMN budget_type TEXT DEFAULT 'none'`,
     `ALTER TABLE projects ADD COLUMN budget_hours REAL DEFAULT 0`,

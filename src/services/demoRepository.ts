@@ -7,6 +7,13 @@ import type {
   UpdateDownPaymentInput,
 } from '../types/downPayment';
 import type {
+  CreateExpenseInput,
+  Expense,
+  ExpenseFilters,
+  ExpenseWithDetails,
+  UpdateExpenseInput,
+} from '../types/expense';
+import type {
   CreateInvoiceInput,
   CreateLineItemInput,
   Invoice,
@@ -167,6 +174,32 @@ export function createDemoRepository(seed = createDemoSeedData()) {
       clientName: client?.name ?? 'Unknown client',
       projectName: project?.name ?? null,
     };
+  }
+
+  function expenseDetails(expense: Expense): ExpenseWithDetails {
+    const client = state.clients.find((item) => item.id === expense.clientId);
+    const project = expense.projectId
+      ? state.projects.find((item) => item.id === expense.projectId)
+      : undefined;
+
+    return {
+      ...expense,
+      clientName: client?.name ?? 'Unknown client',
+      projectName: project?.name ?? null,
+    };
+  }
+
+  function filteredExpenses(filters: ExpenseFilters = {}): ExpenseWithDetails[] {
+    return state.expenses
+      .map(expenseDetails)
+      .filter((expense) => {
+        if (filters.clientId && expense.clientId !== filters.clientId) return false;
+        if (filters.projectId && expense.projectId !== filters.projectId) return false;
+        if (filters.isBillable !== undefined && expense.isBillable !== filters.isBillable) return false;
+        if (filters.isBilled !== undefined && expense.isBilled !== filters.isBilled) return false;
+        return true;
+      })
+      .sort((a, b) => b.expenseDate.localeCompare(a.expenseDate));
   }
 
   const repository = {
@@ -375,6 +408,66 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         const before = state.downPayments.length;
         state.downPayments = state.downPayments.filter((payment) => payment.id !== id);
         return state.downPayments.length !== before;
+      },
+    },
+
+    expenses: {
+      async getAll(filters: ExpenseFilters = {}): Promise<ExpenseWithDetails[]> {
+        return clone(filteredExpenses(filters));
+      },
+      async getUnbilledByClientId(clientId: string): Promise<ExpenseWithDetails[]> {
+        return clone(
+          filteredExpenses({
+            clientId,
+            isBillable: true,
+            isBilled: false,
+          }).sort((a, b) => a.expenseDate.localeCompare(b.expenseDate)),
+        );
+      },
+      async getById(id: string): Promise<ExpenseWithDetails | null> {
+        const expense = state.expenses.find((item) => item.id === id);
+        return expense ? clone(expenseDetails(expense)) : null;
+      },
+      async create(input: CreateExpenseInput): Promise<Expense> {
+        const timestamp = now();
+        const expense: Expense = {
+          id: createId('demo-expense'),
+          ...input,
+          projectId: input.projectId ?? null,
+          receiptPath: input.receiptPath ?? null,
+          isBilled: false,
+          invoiceId: null,
+          notes: input.notes ?? '',
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        };
+        state.expenses.push(expense);
+        return clone(expense);
+      },
+      async update(id: string, input: UpdateExpenseInput): Promise<Expense | null> {
+        const index = state.expenses.findIndex((expense) => expense.id === id);
+        if (index === -1) return null;
+        state.expenses[index] = {
+          ...state.expenses[index],
+          ...input,
+          projectId: input.projectId === undefined ? state.expenses[index].projectId : input.projectId ?? null,
+          receiptPath:
+            input.receiptPath === undefined
+              ? state.expenses[index].receiptPath
+              : input.receiptPath ?? null,
+          updatedAt: now(),
+        };
+        return clone(state.expenses[index]);
+      },
+      async markAsBilled(ids: string[], invoiceId: string): Promise<void> {
+        state.expenses = state.expenses.map((expense) =>
+          ids.includes(expense.id) ? { ...expense, isBilled: true, invoiceId } : expense,
+        );
+      },
+      async delete(id: string): Promise<boolean> {
+        const before = state.expenses.length;
+        state.expenses = state.expenses.filter((expense) => expense.id !== id);
+        return state.expenses.length !== before;
       },
     },
 

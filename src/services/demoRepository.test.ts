@@ -5,11 +5,12 @@ describe('demo repository', () => {
   it('loads connected sample data for the main app surfaces', async () => {
     const repo = createDemoRepository();
 
-    const [clients, projects, timeEntries, invoices, products, settings, dashboard] =
+    const [clients, projects, timeEntries, expenses, invoices, products, settings, dashboard] =
       await Promise.all([
         repo.clients.getAll(),
         repo.projects.getAll(),
         repo.timeEntries.getAll(),
+        repo.expenses.getAll(),
         repo.invoices.getAll(),
         repo.products.getAll(),
         repo.settings.load(),
@@ -32,6 +33,15 @@ describe('demo repository', () => {
     expect(invoices).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ clientId: 'demo-client-acme', invoiceNumber: 'INV-2026-0001' }),
+      ]),
+    );
+    expect(expenses).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'demo-expense-stock-photo',
+          clientName: 'Acme Studio',
+          receiptPath: '/demo/receipts/stock-photo.pdf',
+        }),
       ]),
     );
     expect(products.length).toBeGreaterThan(0);
@@ -89,6 +99,29 @@ describe('demo repository', () => {
 
     const freshRepo = createDemoRepository();
     await expect(freshRepo.clients.getById(created.id)).resolves.toBeNull();
+  });
+
+  it('tracks billable demo expenses and marks imported expenses as billed', async () => {
+    const repo = createDemoRepository();
+
+    const created = await repo.expenses.create({
+      clientId: 'demo-client-acme',
+      projectId: 'demo-project-brand',
+      description: 'Typeface license',
+      amount: 89,
+      expenseDate: '2026-06-02',
+      receiptPath: '/demo/receipts/typeface-license.pdf',
+      isBillable: true,
+      notes: 'Launch creative',
+    });
+
+    const unbilled = await repo.expenses.getUnbilledByClientId('demo-client-acme');
+    expect(unbilled).toEqual(expect.arrayContaining([expect.objectContaining({ id: created.id })]));
+
+    await repo.expenses.markAsBilled([created.id], 'demo-invoice-2');
+    await expect(repo.expenses.getById(created.id)).resolves.toEqual(
+      expect.objectContaining({ isBilled: true, invoiceId: 'demo-invoice-2' }),
+    );
   });
 
   it('aggregates dashboard currency buckets without duplicate keys', async () => {

@@ -165,6 +165,30 @@ pub fn run() {
             ",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 9,
+            description: "create_expenses_table",
+            sql: "CREATE TABLE IF NOT EXISTS expenses (
+                id TEXT PRIMARY KEY,
+                client_id TEXT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+                project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+                description TEXT NOT NULL,
+                amount REAL NOT NULL,
+                expense_date TEXT NOT NULL,
+                receipt_path TEXT,
+                is_billable INTEGER DEFAULT 1,
+                is_billed INTEGER DEFAULT 0,
+                invoice_id TEXT REFERENCES invoices(id) ON DELETE SET NULL,
+                notes TEXT DEFAULT '',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_expenses_client_id ON expenses(client_id);
+            CREATE INDEX IF NOT EXISTS idx_expenses_project_id ON expenses(project_id);
+            CREATE INDEX IF NOT EXISTS idx_expenses_invoice_id ON expenses(invoice_id);
+            CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date);",
+            kind: MigrationKind::Up,
+        },
     ];
 
     let mut builder = tauri::Builder::default()
