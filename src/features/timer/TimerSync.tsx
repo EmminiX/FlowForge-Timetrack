@@ -2,9 +2,9 @@
 import { useEffect } from 'react';
 import { useTimerStore } from '../../stores/timerStore';
 import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';
-import { listen, emit } from '@tauri-apps/api/event';
 import { timeEntryService } from '../../services';
 import { uiLogger } from '../../lib/logger';
+import { safeEmit, safeListen } from '../../lib/tauriRuntime';
 
 export function TimerSync() {
   const { state, projectId, projectName, projectColor, getElapsedSeconds } = useTimerStore();
@@ -13,7 +13,7 @@ export function TimerSync() {
   // Emit state updates to widget
   useEffect(() => {
     const syncState = () => {
-      emit('timer-sync', {
+      safeEmit('timer-sync', {
         status: state,
         projectId,
         projectName,
@@ -38,7 +38,7 @@ export function TimerSync() {
 
   // Listen for commands from widget
   useEffect(() => {
-    const unlistenCommand = listen<{ action: string }>('timer-command', async (event) => {
+    const unlistenCommand = safeListen<{ action: string }>('timer-command', async (event) => {
       const { action } = event.payload;
 
       uiLogger.debug('Received command:', action);
@@ -61,7 +61,7 @@ export function TimerSync() {
             });
             // emit is informational only -- don't let event-bus failures cause a
             // persistence rollback when the DB row already exists
-            emit('time-entry-saved').catch((err) => {
+            safeEmit('time-entry-saved').catch((err) => {
               console.warn('Failed to emit time-entry-saved:', err);
             });
             return entry.id;
@@ -75,8 +75,8 @@ export function TimerSync() {
       }
     });
 
-    const unlistenRequest = listen('timer-request-sync', () => {
-      emit('timer-sync', {
+    const unlistenRequest = safeListen('timer-request-sync', () => {
+      safeEmit('timer-sync', {
         status: state,
         projectId,
         projectName,

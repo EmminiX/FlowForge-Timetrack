@@ -3,8 +3,14 @@
 
 import { getDb } from './db';
 import { dbLogger } from './logger';
+import { shouldUseDemoMode } from './platform';
 
 export async function runMigrations(): Promise<void> {
+  if (shouldUseDemoMode()) {
+    dbLogger.info('Skipping SQLite migrations in demo mode');
+    return;
+  }
+
   const db = await getDb();
 
   // Create clients table

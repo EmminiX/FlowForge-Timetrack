@@ -2,12 +2,14 @@
 
 import { getDb } from '../lib/db';
 import { downPaymentLogger } from '../lib/logger';
+import { shouldUseDemoMode } from '../lib/platform';
 import type {
   DownPayment,
   DownPaymentWithDetails,
   CreateDownPaymentInput,
   UpdateDownPaymentInput,
 } from '../types';
+import { demoRepository } from './demoRepository';
 
 function generateId(): string {
   return crypto.randomUUID();
@@ -20,6 +22,10 @@ function now(): string {
 export const downPaymentService = {
   // Get all down payments with client/project details
   async getAll(): Promise<DownPaymentWithDetails[]> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.downPayments.getAll();
+    }
+
     const db = await getDb();
     downPaymentLogger.debug('Loading all down payments');
 
@@ -47,6 +53,10 @@ export const downPaymentService = {
 
   // Get down payments for a specific client
   async getByClientId(clientId: string): Promise<DownPaymentWithDetails[]> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.downPayments.getByClientId(clientId);
+    }
+
     const db = await getDb();
     downPaymentLogger.debug('Loading down payments for client', { clientId });
 
@@ -77,6 +87,10 @@ export const downPaymentService = {
 
   // Get total down payments for a client
   async getTotalByClientId(clientId: string): Promise<number> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.downPayments.getTotalByClientId(clientId);
+    }
+
     const db = await getDb();
     const result = await db.select<Array<{ total: number }>>(
       `SELECT COALESCE(SUM(amount), 0) as total FROM down_payments WHERE client_id = $1`,
@@ -87,6 +101,10 @@ export const downPaymentService = {
 
   // Get by ID
   async getById(id: string): Promise<DownPaymentWithDetails | null> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.downPayments.getById(id);
+    }
+
     const db = await getDb();
     const result = await db.select<DownPaymentWithDetails[]>(
       `
@@ -114,6 +132,10 @@ export const downPaymentService = {
 
   // Create a new down payment
   async create(input: CreateDownPaymentInput): Promise<DownPayment> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.downPayments.create(input);
+    }
+
     const db = await getDb();
     const id = generateId();
     const timestamp = now();
@@ -160,6 +182,10 @@ export const downPaymentService = {
 
   // Update a down payment
   async update(id: string, input: UpdateDownPaymentInput): Promise<DownPayment | null> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.downPayments.update(id, input);
+    }
+
     const db = await getDb();
     const existing = await db.select<DownPayment[]>(
       `
@@ -215,6 +241,10 @@ export const downPaymentService = {
 
   // Delete a down payment
   async delete(id: string): Promise<boolean> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.downPayments.delete(id);
+    }
+
     const db = await getDb();
     downPaymentLogger.debug('Deleting down payment', { id });
     await db.execute('DELETE FROM down_payments WHERE id = $1', [id]);

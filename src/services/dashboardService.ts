@@ -1,6 +1,8 @@
 // Dashboard service for aggregating analytics data
 
 import { getDb } from '../lib/db';
+import { shouldUseDemoMode } from '../lib/platform';
+import { demoRepository } from './demoRepository';
 
 export interface ProjectSummary {
   projectId: string;
@@ -74,6 +76,10 @@ export interface DashboardData {
 
 export const dashboardService = {
   async getTodaySummary(): Promise<{ totalSeconds: number; projects: ProjectSummary[] }> {
+    if (shouldUseDemoMode()) {
+      return (await demoRepository.dashboard.getDashboardData()).today;
+    }
+
     const db = await getDb();
     const today = new Date().toISOString().split('T')[0];
 
@@ -120,6 +126,10 @@ export const dashboardService = {
   async getWeekSummary(
     range: 'week' | 'month' = 'week',
   ): Promise<{ totalSeconds: number; days: DaySummary[] }> {
+    if (shouldUseDemoMode()) {
+      return (await demoRepository.dashboard.getDashboardData()).week;
+    }
+
     const db = await getDb();
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -195,6 +205,10 @@ export const dashboardService = {
   },
 
   async getUnbilledSummary(): Promise<{ amountsByCurrency: CurrencyAmount[]; hoursCount: number }> {
+    if (shouldUseDemoMode()) {
+      return (await demoRepository.dashboard.getDashboardData()).unbilled;
+    }
+
     const db = await getDb();
 
     // Get amounts grouped by currency
@@ -252,6 +266,10 @@ export const dashboardService = {
   },
 
   async getBilledSummary(): Promise<{ amountsByCurrency: CurrencyAmount[] }> {
+    if (shouldUseDemoMode()) {
+      return (await demoRepository.dashboard.getDashboardData()).billed;
+    }
+
     const db = await getDb();
 
     // Get amounts grouped by currency for billed entries
@@ -287,6 +305,13 @@ export const dashboardService = {
   },
 
   async getDownPaymentTotalsByClient(): Promise<Array<{ clientId: string; total: number }>> {
+    if (shouldUseDemoMode()) {
+      return (await demoRepository.dashboard.getDashboardData()).clientBreakdown.map((client) => ({
+        clientId: client.clientId,
+        total: client.downPaymentTotal,
+      }));
+    }
+
     const db = await getDb();
     const result = await db.select<Array<{ client_id: string; total: number }>>(
       `SELECT client_id, COALESCE(SUM(amount), 0) as total
@@ -297,6 +322,10 @@ export const dashboardService = {
   },
 
   async getClientBreakdown(): Promise<ClientSummary[]> {
+    if (shouldUseDemoMode()) {
+      return (await demoRepository.dashboard.getDashboardData()).clientBreakdown;
+    }
+
     const db = await getDb();
     const [timeResult, paymentTotals] = await Promise.all([
       db.select<
@@ -364,6 +393,11 @@ export const dashboardService = {
   },
 
   async getMonthSummary(year: number, month: number): Promise<MonthSummary> {
+    if (shouldUseDemoMode()) {
+      const summary = (await demoRepository.dashboard.getDashboardData()).monthSummary;
+      return { ...summary, year, month };
+    }
+
     const db = await getDb();
 
     // Build date range for the requested month
@@ -427,6 +461,10 @@ export const dashboardService = {
   },
 
   async getProjectBreakdown(): Promise<ProjectBreakdownItem[]> {
+    if (shouldUseDemoMode()) {
+      return (await demoRepository.dashboard.getDashboardData()).projectBreakdown;
+    }
+
     const db = await getDb();
 
     const result = await db.select<
@@ -467,6 +505,10 @@ export const dashboardService = {
   },
 
   async getAllTimeTotal(): Promise<{ totalSeconds: number }> {
+    if (shouldUseDemoMode()) {
+      return (await demoRepository.dashboard.getDashboardData()).total;
+    }
+
     const db = await getDb();
     const result = await db.select<Array<{ total_seconds: number }>>(
       `SELECT 
@@ -484,6 +526,10 @@ export const dashboardService = {
   },
 
   async getDashboardData(): Promise<DashboardData> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.dashboard.getDashboardData();
+    }
+
     const now = new Date();
     const [today, week, unbilled, billed, total, clientBreakdown, monthSummary, projectBreakdown] =
       await Promise.all([

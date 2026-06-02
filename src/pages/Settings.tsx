@@ -45,8 +45,8 @@ import {
 } from '../components/ui';
 import clsx from 'clsx';
 
-import { emit } from '@tauri-apps/api/event';
 import { uiLogger } from '../lib/logger';
+import { safeEmit } from '../lib/tauriRuntime';
 
 type TabId = 'general' | 'appearance' | 'accessibility' | 'business' | 'guide';
 
@@ -86,7 +86,7 @@ export function Settings() {
     if (key === 'animationPreference') applyAnimations(value as AppSettings['animationPreference']);
 
     // Broadcast preview to other windows
-    emit('setting-preview', { key, value });
+    safeEmit('setting-preview', { key, value });
   };
 
   // Persist setting to database (Auto-Save)
@@ -98,7 +98,7 @@ export function Settings() {
     try {
       await persistSetting(key, value);
       // Notify other windows to reload settings
-      await emit('settings-sync');
+      await safeEmit('settings-sync');
     } catch (error) {
       uiLogger.error(`Failed to auto-save ${key}:`, error);
     }

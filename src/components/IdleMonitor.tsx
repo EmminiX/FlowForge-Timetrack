@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import { emit } from '@tauri-apps/api/event';
 import { useTimerStore } from '../stores/timerStore';
 import { useSettings } from '../contexts/SettingsContext';
 import { IdleDialog } from './IdleDialog';
 import { uiLogger } from '../lib/logger';
+import { safeEmit, safeInvoke } from '../lib/tauriRuntime';
 
 const POLL_INTERVAL = 5000; // Check every 5 seconds for responsiveness
 const DEFAULT_IDLE_THRESHOLD = 300; // 5 minutes in seconds
@@ -35,7 +34,9 @@ export function IdleMonitor() {
     }
 
     try {
-      const idleSeconds = await invoke<number>('get_idle_time');
+      const idleSeconds = await safeInvoke<number>('get_idle_time');
+      if (idleSeconds === null) return;
+
       // User is idle and timer is running - pause it
       if (idleSeconds >= idleThreshold && timerState === 'running' && !pausedByIdleRef.current) {
         uiLogger.debug(`Pausing timer (idle ${idleSeconds}s)`);
@@ -44,7 +45,7 @@ export function IdleMonitor() {
         pausedByIdleRef.current = true;
         timerPause();
         // Emit idle state for flashing animation
-        emit('timer-idle-toggle', { active: true }).catch((err) =>
+        safeEmit('timer-idle-toggle', { active: true }).catch((err) =>
           uiLogger.error('Failed to emit idle toggle:', err),
         );
       }

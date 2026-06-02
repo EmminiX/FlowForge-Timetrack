@@ -1,6 +1,6 @@
 // Shortcut service using Tauri's global-shortcut plugin JavaScript API
-import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut';
 import { shortcutLogger } from '../lib/logger';
+import { isTauriRuntime } from '../lib/platform';
 
 export type ShortcutAction = 'start' | 'pause' | 'stop' | 'toggle-widget' | 'toggle-sound';
 
@@ -19,6 +19,15 @@ export interface ShortcutService {
 
 export const shortcutService: ShortcutService = {
   subscribe: async (callback) => {
+    if (!isTauriRuntime()) {
+      shortcutLogger.debug('Global shortcuts disabled outside Tauri runtime');
+      return () => undefined;
+    }
+
+    const { register, unregister, isRegistered } = await import(
+      '@tauri-apps/plugin-global-shortcut'
+    );
+
     shortcutLogger.debug('Registering global shortcuts via JS API...');
 
     const registeredKeys: string[] = [];

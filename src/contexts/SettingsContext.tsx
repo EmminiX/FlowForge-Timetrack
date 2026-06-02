@@ -1,11 +1,10 @@
-import { listen } from '@tauri-apps/api/event';
-
 // Settings context and provider for app-wide settings application
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import type { AppSettings, Theme, FontSize, AnimationPreference, Density } from '../types';
 import { DEFAULT_SETTINGS, FONT_SIZE_SCALE } from '../types';
 import { settingsService } from '../services';
 import { toggleWidget } from '../lib/widgetWindow';
+import { safeListen } from '../lib/tauriRuntime';
 
 // Density scale values (padding, gaps, margins)
 const DENSITY_SCALE: Record<Density, number> = {
@@ -153,12 +152,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     motionMedia.addEventListener('change', handleMotion);
 
     // Listen for settings changes from other windows
-    const unlistenSync = listen('settings-sync', () => {
+    const unlistenSync = safeListen('settings-sync', () => {
       loadAndApplySettings();
     });
 
     // Listen for realtime previews from other windows
-    const unlistenPreview = listen<{ key: keyof AppSettings; value: unknown }>(
+    const unlistenPreview = safeListen<{ key: keyof AppSettings; value: unknown }>(
       'setting-preview',
       (event) => {
         const { key, value } = event.payload;

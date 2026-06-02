@@ -1,10 +1,10 @@
 import { useRef, useEffect } from 'react';
-import { emit } from '@tauri-apps/api/event';
 import { useTimerStore } from '../stores/timerStore';
 import { Button, Modal } from './ui';
 import { Clock, Trash2, Check } from 'lucide-react';
 import { formatDuration } from '../types';
 import { uiLogger } from '../lib/logger';
+import { safeEmit } from '../lib/tauriRuntime';
 
 interface IdleDialogProps {
   idleDuration: number; // seconds
@@ -57,7 +57,7 @@ export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
         accumulatedPauseDuration: targetAccumulated,
       });
     }
-    emit('timer-idle-toggle', { active: false }).catch((err) =>
+    safeEmit('timer-idle-toggle', { active: false }).catch((err) =>
       uiLogger.error('Failed to emit idle toggle:', err),
     );
     onClose();
@@ -94,7 +94,7 @@ export function IdleDialog({ idleDuration, onClose }: IdleDialogProps) {
         accumulatedPauseDuration: targetAccumulated,
       });
     }
-    emit('timer-idle-toggle', { active: false }).catch((err) =>
+    safeEmit('timer-idle-toggle', { active: false }).catch((err) =>
       uiLogger.error('Failed to emit idle toggle:', err),
     );
     onClose();

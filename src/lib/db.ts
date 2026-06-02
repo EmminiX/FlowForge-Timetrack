@@ -1,9 +1,14 @@
 import Database from '@tauri-apps/plugin-sql';
 import { dbLogger } from './logger';
+import { shouldUseDemoMode } from './platform';
 
 let dbInstance: Database | null = null;
 
 export const getDb = async (): Promise<Database> => {
+  if (shouldUseDemoMode()) {
+    throw new Error('Tauri database is unavailable in demo mode');
+  }
+
   if (dbInstance) {
     dbLogger.debug('Returning existing database instance');
     return dbInstance;

@@ -2,12 +2,14 @@
 
 import { getDb } from '../lib/db';
 import { timeEntryLogger } from '../lib/logger';
+import { shouldUseDemoMode } from '../lib/platform';
 import type {
   TimeEntry,
   TimeEntryWithProject,
   CreateTimeEntryInput,
   UpdateTimeEntryInput,
 } from '../types';
+import { demoRepository } from './demoRepository';
 
 function generateId(): string {
   return crypto.randomUUID();
@@ -29,6 +31,10 @@ export interface TimeEntryFilters {
 export const timeEntryService = {
   // Get all time entries with project info
   async getAll(filters?: TimeEntryFilters): Promise<TimeEntryWithProject[]> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.getAll(filters);
+    }
+
     const db = await getDb();
 
     let query = `
@@ -94,6 +100,10 @@ export const timeEntryService = {
 
   // Get running time entry (if any)
   async getRunning(): Promise<TimeEntryWithProject | null> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.getRunning();
+    }
+
     const db = await getDb();
     const result = await db.select<TimeEntryWithProject[]>(`
       SELECT 
@@ -131,6 +141,10 @@ export const timeEntryService = {
   async getUnbilledByProject(projectId: string): Promise<TimeEntry[]> {
     timeEntryLogger.debug('getUnbilledByProject called', { projectId });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.timeEntries.getUnbilledByProject(projectId);
+      }
+
       const db = await getDb();
       const result = await db.select<TimeEntry[]>(
         `
@@ -178,6 +192,10 @@ export const timeEntryService = {
 
   // Get by ID
   async getById(id: string): Promise<TimeEntry | null> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.getById(id);
+    }
+
     const db = await getDb();
     const result = await db.select<TimeEntry[]>(
       `
@@ -211,6 +229,10 @@ export const timeEntryService = {
   async create(input: CreateTimeEntryInput): Promise<TimeEntry> {
     timeEntryLogger.info('create called', { projectId: input.projectId });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.timeEntries.create(input);
+      }
+
       const db = await getDb();
       const id = generateId();
       const timestamp = now();
@@ -255,6 +277,10 @@ export const timeEntryService = {
   async update(id: string, input: UpdateTimeEntryInput): Promise<TimeEntry | null> {
     timeEntryLogger.info('update called', { id });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.timeEntries.update(id, input);
+      }
+
       const db = await getDb();
       const existing = await this.getById(id);
       if (!existing) {
@@ -299,6 +325,10 @@ export const timeEntryService = {
 
   // Mark entries as billed
   async markAsBilled(ids: string[]): Promise<void> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.markAsBilled(ids);
+    }
+
     const db = await getDb();
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
     await db.execute(`UPDATE time_entries SET is_billed = 1 WHERE id IN (${placeholders})`, ids);
@@ -306,6 +336,10 @@ export const timeEntryService = {
 
   // Mark entries as unbilled (reverse a billing mistake)
   async markAsUnbilled(ids: string[]): Promise<void> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.markAsUnbilled(ids);
+    }
+
     const db = await getDb();
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
     await db.execute(`UPDATE time_entries SET is_billed = 0 WHERE id IN (${placeholders})`, ids);
@@ -315,6 +349,10 @@ export const timeEntryService = {
   async delete(id: string): Promise<boolean> {
     timeEntryLogger.info('delete called', { id });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.timeEntries.delete(id);
+      }
+
       const db = await getDb();
       await db.execute('DELETE FROM time_entries WHERE id = $1', [id]);
       timeEntryLogger.info('delete successful', { id });
@@ -327,6 +365,10 @@ export const timeEntryService = {
 
   // Bulk delete
   async deleteMany(ids: string[]): Promise<void> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.deleteMany(ids);
+    }
+
     const db = await getDb();
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
     await db.execute(`DELETE FROM time_entries WHERE id IN (${placeholders})`, ids);
@@ -334,6 +376,10 @@ export const timeEntryService = {
 
   async bulkDelete(ids: string[]): Promise<void> {
     if (ids.length === 0) return;
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.bulkDelete(ids);
+    }
+
     const db = await getDb();
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
     await db.execute(`DELETE FROM time_entries WHERE id IN (${placeholders})`, ids);
@@ -342,6 +388,10 @@ export const timeEntryService = {
 
   async bulkUpdateBillable(ids: string[], isBillable: boolean): Promise<void> {
     if (ids.length === 0) return;
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.bulkUpdateBillable(ids, isBillable);
+    }
+
     const db = await getDb();
     const placeholders = ids.map((_, i) => `$${i + 2}`).join(', ');
     await db.execute(`UPDATE time_entries SET is_billable = $1 WHERE id IN (${placeholders})`, [
@@ -353,6 +403,10 @@ export const timeEntryService = {
 
   async bulkUpdateBilled(ids: string[], isBilled: boolean): Promise<void> {
     if (ids.length === 0) return;
+    if (shouldUseDemoMode()) {
+      return demoRepository.timeEntries.bulkUpdateBilled(ids, isBilled);
+    }
+
     const db = await getDb();
     const placeholders = ids.map((_, i) => `$${i + 2}`).join(', ');
     await db.execute(`UPDATE time_entries SET is_billed = $1 WHERE id IN (${placeholders})`, [

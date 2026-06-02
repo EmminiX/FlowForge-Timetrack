@@ -2,7 +2,9 @@
 
 import { getDb } from '../lib/db';
 import { projectLogger } from '../lib/logger';
+import { shouldUseDemoMode } from '../lib/platform';
 import type { Project, ProjectWithStats, CreateProjectInput, UpdateProjectInput } from '../types';
+import { demoRepository } from './demoRepository';
 
 function generateId(): string {
   return crypto.randomUUID();
@@ -17,6 +19,10 @@ export const projectService = {
   async getAll(): Promise<Project[]> {
     projectLogger.debug('getAll called');
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getAll();
+      }
+
       const db = await getDb();
       const result = await db.select<Project[]>(`
         SELECT 
@@ -43,6 +49,10 @@ export const projectService = {
   async getAllWithStats(): Promise<ProjectWithStats[]> {
     projectLogger.debug('getAllWithStats called');
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getAllWithStats();
+      }
+
       const db = await getDb();
       const result = await db.select<ProjectWithStats[]>(`
         SELECT 
@@ -83,6 +93,10 @@ export const projectService = {
   async getByClientId(clientId: string): Promise<Project[]> {
     projectLogger.debug('getByClientId called', { clientId });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getByClientId(clientId);
+      }
+
       const db = await getDb();
       const result = await db.select<Project[]>(
         `
@@ -113,6 +127,10 @@ export const projectService = {
   async getActive(): Promise<Project[]> {
     projectLogger.debug('getActive called');
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getActive();
+      }
+
       const db = await getDb();
       const result = await db.select<Project[]>(`
         SELECT 
@@ -140,6 +158,10 @@ export const projectService = {
   async getById(id: string): Promise<Project | null> {
     projectLogger.debug('getById called', { id });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getById(id);
+      }
+
       const db = await getDb();
       const result = await db.select<Project[]>(
         `
@@ -170,6 +192,10 @@ export const projectService = {
   async create(input: CreateProjectInput): Promise<Project> {
     projectLogger.info('create called', { input });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.create(input);
+      }
+
       const db = await getDb();
       projectLogger.debug('Got database connection');
       const id = generateId();
@@ -214,6 +240,10 @@ export const projectService = {
   async update(id: string, input: UpdateProjectInput): Promise<Project | null> {
     projectLogger.info('update called', { id, input });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.update(id, input);
+      }
+
       const db = await getDb();
       const existing = await this.getById(id);
       if (!existing) {
@@ -261,6 +291,10 @@ export const projectService = {
   async delete(id: string): Promise<boolean> {
     projectLogger.info('delete called', { id });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.delete(id);
+      }
+
       const db = await getDb();
       await db.execute('DELETE FROM projects WHERE id = $1', [id]);
       projectLogger.info('delete successful', { id });
