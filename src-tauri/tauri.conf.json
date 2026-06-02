@@ -18,7 +18,7 @@
         "height": 768,
         "minWidth": 800,
         "minHeight": 600,
-        "titleBarStyle": "transparent"
+        "titleBarStyle": "Transparent"
       },
       {
         "label": "widget",
@@ -39,6 +39,12 @@
     ],
     "security": {
       "csp": null
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [],
+      "pubkey": ""
     }
   },
   "bundle": {

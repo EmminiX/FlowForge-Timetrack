@@ -4,9 +4,9 @@ import { shortcutService, ShortcutAction } from '../services/shortcutService';
 import { useTimerStore } from '../stores/timerStore';
 import { useSettings } from '../contexts/SettingsContext';
 import { toggleWidget } from '../lib/widgetWindow';
-import { isPermissionGranted, sendNotification } from '@tauri-apps/plugin-notification';
 import { timeEntryService } from '../services';
-import { emit } from '@tauri-apps/api/event';
+import { isTauriRuntime } from '../lib/platform';
+import { safeEmit } from '../lib/tauriRuntime';
 
 export function useShortcuts() {
   const timerState = useTimerStore((state) => state.state);
@@ -63,7 +63,7 @@ export function useShortcuts() {
                 });
                 // emit is informational only -- don't let event-bus failures cause a
                 // persistence rollback when the DB row already exists
-                emit('time-entry-saved').catch((err) => {
+                safeEmit('time-entry-saved').catch((err) => {
                   console.warn('Failed to emit time-entry-saved:', err);
                 });
                 return entry.id;
@@ -127,7 +127,14 @@ export function useShortcuts() {
 }
 
 async function showNotification(title: string, body: string) {
+  if (!isTauriRuntime()) {
+    return;
+  }
+
   try {
+    const { isPermissionGranted, sendNotification } = await import(
+      '@tauri-apps/plugin-notification'
+    );
     const permitted = await isPermissionGranted();
     if (permitted) {
       sendNotification({ title, body });

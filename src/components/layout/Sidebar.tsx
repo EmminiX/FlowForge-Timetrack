@@ -5,11 +5,14 @@ import {
   Users,
   Briefcase,
   Clock,
+  CalendarDays,
   FileText,
   Settings,
   Volume2,
   VolumeX,
   Package,
+  Receipt,
+  History,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useSettings } from '../../contexts/SettingsContext';
@@ -23,12 +26,15 @@ interface SidebarProps {
 export function Sidebar({ topPadding = '0' }: SidebarProps) {
   const { settings, updateSetting } = useSettings();
   const mainLinks = [
-    { to: '/', label: 'Timer', icon: Timer },
-    { to: '/clients', label: 'Clients', icon: Users },
-    { to: '/projects', label: 'Projects', icon: Briefcase },
-    { to: '/time-entries', label: 'Time Entries', icon: Clock },
-    { to: '/invoices', label: 'Invoices', icon: FileText },
-    { to: '/products', label: 'Products', icon: Package },
+    { to: '/', label: 'Timer', icon: Timer, end: true },
+    { to: '/clients', label: 'Clients', icon: Users, end: true },
+    { to: '/projects', label: 'Projects', icon: Briefcase, end: true },
+    { to: '/time-entries', label: 'Time Entries', icon: Clock, end: true },
+    { to: '/time-entries/calendar', label: 'Calendar', icon: CalendarDays, end: true },
+    { to: '/invoices', label: 'Invoices', icon: FileText, end: true },
+    { to: '/expenses', label: 'Expenses', icon: Receipt, end: true },
+    { to: '/timeline', label: 'Timeline', icon: History, end: true },
+    { to: '/products', label: 'Products', icon: Package, end: true },
   ];
 
   const navItemStyle = {
@@ -64,7 +70,7 @@ export function Sidebar({ topPadding = '0' }: SidebarProps) {
           <NavLink
             key={link.to}
             to={link.to}
-            end={link.to === '/'}
+            end={link.end}
             style={navItemStyle}
             className={({ isActive }) =>
               clsx(

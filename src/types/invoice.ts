@@ -24,6 +24,30 @@ export interface InvoiceLineItem {
   unitPrice: number;
 }
 
+export type InvoicePaymentMethod = 'bank_transfer' | 'card' | 'cash' | 'other';
+
+export interface InvoicePayment {
+  id: string;
+  invoiceId: string;
+  amount: number;
+  paymentDate: string;
+  method: InvoicePaymentMethod;
+  reference: string;
+  notes: string;
+  createdAt: string;
+}
+
+export type InvoiceEventType = 'sent' | 'viewed' | 'partial_payment' | 'paid' | 'reminder';
+
+export interface InvoiceEvent {
+  id: string;
+  invoiceId: string;
+  eventType: InvoiceEventType;
+  eventDate: string;
+  message: string;
+  createdAt: string;
+}
+
 export interface InvoiceWithDetails extends Invoice {
   clientName: string;
   clientEmail: string;
@@ -40,6 +64,15 @@ export type CreateInvoiceInput = Omit<Invoice, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateInvoiceInput = Partial<Omit<CreateInvoiceInput, 'clientId'>>;
 
 export type CreateLineItemInput = Omit<InvoiceLineItem, 'id'>;
+export type CreateInvoicePaymentInput = Omit<InvoicePayment, 'id' | 'createdAt'>;
+export type CreateInvoiceEventInput = Omit<InvoiceEvent, 'id' | 'createdAt'>;
+
+export interface InvoicePaymentSummary {
+  payments: InvoicePayment[];
+  totalPaid: number;
+  balanceDue: number;
+  isPaid: boolean;
+}
 
 export const INVOICE_STATUS_OPTIONS: { value: InvoiceStatus; label: string; color: string }[] = [
   { value: 'draft', label: 'Draft', color: '#8E8E93' },

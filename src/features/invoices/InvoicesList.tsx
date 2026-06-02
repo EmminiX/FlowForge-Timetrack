@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Search, FileText, Eye, Download, Trash2, Pencil } from 'lucide-react';
 import type {
   InvoiceWithDetails,
@@ -17,6 +18,8 @@ import {
   settingsService,
   productService,
   downPaymentService,
+  expenseService,
+  invoicePaymentService,
 } from '../../services';
 import { invoiceLogger } from '../../lib/logger';
 import { generateCSV, downloadCSV } from '../../lib/exportUtils';
@@ -36,6 +39,7 @@ import {
   Textarea,
 } from '../../components/ui';
 import { QuerySelect } from './QuerySelect';
+import { InvoicePaymentHub } from './InvoicePaymentHub';
 
 // Currency formatting helpers
 const CURRENCY_SYMBOLS: Record<Currency, string> = {
@@ -52,6 +56,8 @@ function formatCurrency(amount: number, currency: Currency = 'EUR'): string {
 }
 
 export function InvoicesList() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState<InvoiceWithDetails[]>([]);
   const [allInvoicesCount, setAllInvoicesCount] = useState(0); // Track total count for filter visibility
   const [clients, setClients] = useState<Client[]>([]);
@@ -94,6 +100,21 @@ export function InvoicesList() {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('new') !== '1') return;
+
+    setShowCreate(true);
+    params.delete('new');
+    navigate(
+      {
+        pathname: location.pathname,
+        search: params.toString() ? `?${params.toString()}` : '',
+      },
+      { replace: true },
+    );
+  }, [location.pathname, location.search, navigate]);
 
   const handleDelete = () => {
     if (!deletingInvoice) return;
@@ -152,6 +173,14 @@ export function InvoicesList() {
   const handleStatusChange = async (invoiceId: string, newStatus: InvoiceStatus) => {
     try {
       await invoiceService.update(invoiceId, { status: newStatus });
+      if (newStatus === 'sent' || newStatus === 'paid') {
+        await invoicePaymentService.recordEvent({
+          invoiceId,
+          eventType: newStatus,
+          eventDate: new Date().toISOString(),
+          message: newStatus === 'sent' ? 'Invoice sent' : 'Invoice marked paid',
+        });
+      }
       await loadData();
     } catch (error) {
       invoiceLogger.error('Failed to update invoice status:', error);
@@ -345,6 +374,7 @@ export function InvoicesList() {
           invoice={viewingInvoice}
           onClose={() => setViewingInvoice(null)}
           clients={clients}
+          onChanged={loadData}
         />
       )}
 
@@ -381,7 +411,13 @@ function CreateInvoiceModal({
   const [step, setStep] = useState(1);
   const [clientId, setClientId] = useState('');
   const [lineItems, setLineItems] = useState<
-    { description: string; quantity: number; unitPrice: number; timeEntryIds?: string[] }[]
+    {
+      description: string;
+      quantity: number;
+      unitPrice: number;
+      timeEntryIds?: string[];
+      expenseIds?: string[];
+    }[]
   >([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
@@ -520,6 +556,31 @@ function CreateInvoiceModal({
     }
   };
 
+  const handleLoadExpenses = async () => {
+    if (!clientId) return;
+
+    const existingExpenseIds = new Set(lineItems.flatMap((item) => item.expenseIds ?? []));
+    const expenses = await expenseService.getUnbilledByClientId(clientId);
+    const items = expenses
+      .filter((expense) => !existingExpenseIds.has(expense.id))
+      .map((expense) => ({
+        description: `Expense: ${expense.description}`,
+        quantity: 1,
+        unitPrice: expense.amount,
+        expenseIds: [expense.id],
+      }));
+
+    if (items.length > 0) {
+      if (lineItems.length > 0 && (lineItems.length > 1 || lineItems[0].description !== '')) {
+        setLineItems([...lineItems, ...items]);
+      } else {
+        setLineItems(items);
+      }
+    } else if (lineItems.length === 0) {
+      setLineItems([{ description: '', quantity: 1, unitPrice: 0 }]);
+    }
+  };
+
   const handleAddLineItem = () => {
     setLineItems([...lineItems, { description: '', quantity: 1, unitPrice: 0 }]);
   };
@@ -558,8 +619,12 @@ function CreateInvoiceModal({
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      // Prepare line items for saving (strip timeEntryIds)
-      const lineItemsToSave = lineItems.map(({ ...item }) => item);
+      // Prepare line items for saving and keep UI-only linkage out of invoice rows.
+      const lineItemsToSave = lineItems.map((item) => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      }));
 
       // Collect IDs to mark as billed from the remaining line items
       const idsToMarkBilled = lineItems.reduce<string[]>((acc, item) => {
@@ -568,6 +633,15 @@ function CreateInvoiceModal({
         }
         return acc;
       }, []);
+
+      const expenseIdsToMarkBilled = lineItems.reduce<string[]>((acc, item) => {
+        if (item.expenseIds) {
+          return [...acc, ...item.expenseIds];
+        }
+        return acc;
+      }, []);
+
+      let savedInvoiceId = initialData?.id;
 
       if (initialData) {
         // Update
@@ -593,7 +667,7 @@ function CreateInvoiceModal({
         const allInvoices = await invoiceService.getAllForNumbering();
         const invoiceNumber = generateInvoiceNumber(allInvoices);
 
-        await invoiceService.create(
+        const createdInvoice = await invoiceService.create(
           {
             clientId,
             invoiceNumber,
@@ -609,11 +683,16 @@ function CreateInvoiceModal({
             ...item,
           })),
         );
+        savedInvoiceId = createdInvoice.id;
       }
 
       // Mark entries as billed if any were linked to the submitted line items
       if (idsToMarkBilled.length > 0) {
         await timeEntryService.markAsBilled(idsToMarkBilled);
+      }
+
+      if (expenseIdsToMarkBilled.length > 0 && savedInvoiceId) {
+        await expenseService.markAsBilled(expenseIdsToMarkBilled, savedInvoiceId);
       }
 
       onCreated();
@@ -730,9 +809,14 @@ function CreateInvoiceModal({
               <QuerySelect products={products} onSelect={handleAddProductLine} />
             </div>
             {!initialData && (
-              <Button variant='ghost' size='sm' onClick={handleLoadHours} className='ml-2'>
-                Reload Hours
-              </Button>
+              <>
+                <Button variant='ghost' size='sm' onClick={handleLoadHours} className='ml-2'>
+                  Reload Hours
+                </Button>
+                <Button variant='ghost' size='sm' onClick={handleLoadExpenses} className='ml-2'>
+                  Import Expenses
+                </Button>
+              </>
             )}
           </div>
 
@@ -854,9 +938,10 @@ interface InvoicePreviewProps {
   invoice: InvoiceWithDetails;
   onClose: () => void;
   clients: Client[];
+  onChanged?: () => void;
 }
 
-function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
+function InvoicePreview({ invoice, onClose, clients, onChanged }: InvoicePreviewProps) {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [exporting, setExporting] = useState(false);
 
@@ -1376,7 +1461,7 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
   };
 
   return (
-    <Modal isOpen={true} onClose={onClose} title={invoice.invoiceNumber} size='lg'>
+    <Modal isOpen={true} onClose={onClose} title={invoice.invoiceNumber} size='xl'>
       <div className='space-y-4 text-sm'>
         {/* Business Header */}
         {settings && (settings.businessName || settings.businessLogo) && (
@@ -1549,6 +1634,12 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
             </a>
           </div>
         )}
+
+        <InvoicePaymentHub
+          invoice={invoice}
+          currency={clients.find((c) => c.id === invoice.clientId)?.currency || 'EUR'}
+          onChanged={onChanged}
+        />
       </div>
 
       <ModalFooter>

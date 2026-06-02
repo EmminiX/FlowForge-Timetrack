@@ -1,7 +1,9 @@
 // Product CRUD service
 
 import { getDb } from '../lib/db';
+import { shouldUseDemoMode } from '../lib/platform';
 import type { Product, CreateProductInput, UpdateProductInput } from '../types';
+import { demoRepository } from './demoRepository';
 
 export interface ProductTemplate {
   name: string;
@@ -133,6 +135,10 @@ function now(): string {
 export const productService = {
   // Get all products
   async getAll(): Promise<Product[]> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.products.getAll();
+    }
+
     const db = await getDb();
     return db.select<Product[]>(`
       SELECT 
@@ -150,6 +156,10 @@ export const productService = {
 
   // Get product by ID
   async getById(id: string): Promise<Product | null> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.products.getById(id);
+    }
+
     const db = await getDb();
     const result = await db.select<Product[]>(
       `
@@ -172,6 +182,10 @@ export const productService = {
 
   // Create product
   async create(input: CreateProductInput): Promise<Product> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.products.create(input);
+    }
+
     const db = await getDb();
     const id = generateId();
     const timestamp = now();
@@ -197,6 +211,10 @@ export const productService = {
 
   // Update product
   async update(id: string, input: UpdateProductInput): Promise<Product | null> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.products.update(id, input);
+    }
+
     const db = await getDb();
     const existing = await this.getById(id);
 
@@ -226,6 +244,10 @@ export const productService = {
 
   // Delete product
   async delete(id: string): Promise<boolean> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.products.delete(id);
+    }
+
     const db = await getDb();
     await db.execute('DELETE FROM products WHERE id = $1', [id]);
     return true;

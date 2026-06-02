@@ -7,8 +7,8 @@ import { ClientBreakdown } from './ClientBreakdown';
 import { MonthlyStats } from './MonthlyStats';
 import { ProjectBreakdown } from './ProjectBreakdown';
 
-import { listen } from '@tauri-apps/api/event';
 import { uiLogger } from '../../lib/logger';
+import { safeListen } from '../../lib/tauriRuntime';
 
 export function DashboardSummary() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -71,7 +71,7 @@ export function DashboardSummary() {
     const interval = setInterval(loadData, 60000);
 
     // Listen for updates from timer stop
-    const unlisten = listen('time-entry-saved', () => {
+    const unlisten = safeListen('time-entry-saved', () => {
       uiLogger.debug('New time entry saved, refreshing data...');
       loadData();
     });

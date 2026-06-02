@@ -3,9 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import { Play, Pause, Square, GripVertical, Layout } from 'lucide-react';
-import { listen, emit } from '@tauri-apps/api/event';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 import { formatDuration } from '../types';
+import { isTauriRuntime } from '../lib/platform';
+import { safeEmit, safeListen } from '../lib/tauriRuntime';
 
 interface TimerSyncState {
   status: 'idle' | 'running' | 'paused';
@@ -38,19 +38,19 @@ export function Widget() {
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
 
-    const unlisten = listen<TimerSyncState>('timer-sync', (event) => {
+    const unlisten = safeListen<TimerSyncState>('timer-sync', (event) => {
       setTimerState(event.payload);
     });
 
-    const unlistenBreak = listen<{ active: boolean }>('timer-break-toggle', (event) => {
+    const unlistenBreak = safeListen<{ active: boolean }>('timer-break-toggle', (event) => {
       setIsBreakActive(event.payload.active);
     });
 
-    const unlistenIdle = listen<{ active: boolean }>('timer-idle-toggle', (event) => {
+    const unlistenIdle = safeListen<{ active: boolean }>('timer-idle-toggle', (event) => {
       setIsIdlePaused(event.payload.active);
     });
 
-    emit('timer-request-sync');
+    safeEmit('timer-request-sync');
 
     return () => {
       unlisten
@@ -74,7 +74,8 @@ export function Widget() {
 
   // Handle window dragging
   const handleDrag = async (e: React.MouseEvent) => {
-    if (e.button === 0) {
+    if (e.button === 0 && isTauriRuntime()) {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
       await getCurrentWindow().startDragging();
     }
   };
@@ -82,15 +83,15 @@ export function Widget() {
   const handlePauseResume = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (timerState.status === 'running') {
-      await emit('timer-command', { action: 'pause' });
+      await safeEmit('timer-command', { action: 'pause' });
     } else if (timerState.status === 'paused') {
-      await emit('timer-command', { action: 'resume' });
+      await safeEmit('timer-command', { action: 'resume' });
     }
   };
 
   const handleStop = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await emit('timer-command', { action: 'stop' });
+    await safeEmit('timer-command', { action: 'stop' });
   };
 
   // Determine if we should show flashing (break or idle while running)
@@ -170,6 +171,7 @@ export function Widget() {
           className='widget-button'
           onMouseUp={async (e) => {
             e.stopPropagation();
+            if (!isTauriRuntime()) return;
             // Get the main window and unminimize/focus it
             const { Window } = await import('@tauri-apps/api/window');
             const mainWindow = new Window('main');

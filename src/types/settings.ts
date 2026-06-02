@@ -10,10 +10,17 @@ export interface AppSettings {
   showFloatingWidget: boolean;
   enableNotifications: boolean;
   enableSoundFeedback: boolean;
+  launchAtLogin: boolean;
+  enableNativeUpdaterChecks: boolean;
 
   // Idle Detection
   enableIdleDetection: boolean;
   idleThresholdMinutes: number;
+
+  // Private Auto-Timeline
+  enablePrivateTimeline: boolean;
+  captureTimelineWindowTitles: boolean;
+  activityTimelineSuggestionMinMinutes: number;
 
   // Pomodoro
   pomodoroEnabled: boolean;
@@ -54,8 +61,13 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showFloatingWidget: true,
   enableNotifications: true,
   enableSoundFeedback: true,
+  launchAtLogin: false,
+  enableNativeUpdaterChecks: true,
   enableIdleDetection: true,
   idleThresholdMinutes: 5,
+  enablePrivateTimeline: false,
+  captureTimelineWindowTitles: false,
+  activityTimelineSuggestionMinMinutes: 5,
   pomodoroEnabled: true,
   pomodoroWorkMinutes: 25,
   pomodoroBreakMinutes: 5,

@@ -22,12 +22,23 @@ function formatCurrencyAmount(amount: number, currency: string): string {
   return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function mergeCurrencyAmounts(amounts: CurrencyAmount[]): CurrencyAmount[] {
+  const buckets = new Map<string, number>();
+  amounts.forEach(({ currency, amount }) => {
+    buckets.set(currency, (buckets.get(currency) ?? 0) + amount);
+  });
+  return Array.from(buckets, ([currency, amount]) => ({ currency, amount }));
+}
+
 export function QuickStats({
   unbilledAmounts,
   billedAmounts,
   weeklySeconds,
   totalSeconds,
 }: QuickStatsProps) {
+  const mergedUnbilledAmounts = mergeCurrencyAmounts(unbilledAmounts);
+  const mergedBilledAmounts = mergeCurrencyAmounts(billedAmounts);
+
   return (
     <Card className='p-4'>
       <h3 className='font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-3'>
@@ -36,8 +47,8 @@ export function QuickStats({
 
       <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
         {/* Unbilled amounts by currency */}
-        {unbilledAmounts.length > 0 ? (
-          unbilledAmounts.map(({ currency, amount }) => (
+        {mergedUnbilledAmounts.length > 0 ? (
+          mergedUnbilledAmounts.map(({ currency, amount }) => (
             <div key={currency} className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
               <div className='rounded-md border border-primary/25 bg-primary/10 p-2'>
                 <Wallet className='w-5 h-5 text-primary' />
@@ -62,8 +73,8 @@ export function QuickStats({
           </div>
         )}
         {/* Billed amounts by currency */}
-        {billedAmounts.length > 0 ? (
-          billedAmounts.map(({ currency, amount }) => (
+        {mergedBilledAmounts.length > 0 ? (
+          mergedBilledAmounts.map(({ currency, amount }) => (
             <div key={`billed-${currency}`} className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
               <div className='rounded-md border border-accent/30 bg-accent/10 p-2'>
                 <Wallet className='w-5 h-5 text-accent' />

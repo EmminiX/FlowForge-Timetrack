@@ -27,6 +27,7 @@ import {
   Eye,
   Globe,
   QrCode,
+  Shield,
 } from 'lucide-react';
 import type { AppSettings, Theme, FontSize, Density } from '../types';
 import { FONT_SIZE_OPTIONS, DENSITY_OPTIONS, DEFAULT_SETTINGS } from '../types';
@@ -45,8 +46,9 @@ import {
 } from '../components/ui';
 import clsx from 'clsx';
 
-import { emit } from '@tauri-apps/api/event';
 import { uiLogger } from '../lib/logger';
+import { safeEmit } from '../lib/tauriRuntime';
+import { DesktopProSettings } from './DesktopProSettings';
 
 type TabId = 'general' | 'appearance' | 'accessibility' | 'business' | 'guide';
 
@@ -86,7 +88,7 @@ export function Settings() {
     if (key === 'animationPreference') applyAnimations(value as AppSettings['animationPreference']);
 
     // Broadcast preview to other windows
-    emit('setting-preview', { key, value });
+    safeEmit('setting-preview', { key, value });
   };
 
   // Persist setting to database (Auto-Save)
@@ -98,7 +100,7 @@ export function Settings() {
     try {
       await persistSetting(key, value);
       // Notify other windows to reload settings
-      await emit('settings-sync');
+      await safeEmit('settings-sync');
     } catch (error) {
       uiLogger.error(`Failed to auto-save ${key}:`, error);
     }
@@ -292,6 +294,57 @@ export function Settings() {
               )}
             </CardContent>
           </Card>
+
+          <Card>
+            <CardContent className='space-y-4'>
+              <ToggleSetting
+                label='Private Auto-Timeline'
+                description='Capture local app activity and idle gaps for suggested time entries'
+                checked={localSettings.enablePrivateTimeline}
+                onChange={(v) => handleAutoSave('enablePrivateTimeline', v)}
+                icon={<Shield className='w-5 h-5' />}
+              />
+
+              {localSettings.enablePrivateTimeline && (
+                <div className='space-y-4 border-t border-border pt-4'>
+                  <ToggleSetting
+                    label='Capture Window Titles'
+                    description='More useful suggestions, but can include sensitive document or page names'
+                    checked={localSettings.captureTimelineWindowTitles}
+                    onChange={(v) => handleAutoSave('captureTimelineWindowTitles', v)}
+                    icon={<Eye className='w-5 h-5' />}
+                  />
+
+                  <div>
+                    <label className='block text-sm font-medium mb-2'>Suggestion minimum</label>
+                    <p className='text-sm text-muted-foreground mb-3'>
+                      Ignore short app switches below this focused duration
+                    </p>
+                    <div className='flex flex-wrap gap-2'>
+                      {[5, 10, 15, 30].map((minutes) => (
+                        <button
+                          key={minutes}
+                          type='button'
+                          aria-pressed={localSettings.activityTimelineSuggestionMinMinutes === minutes}
+                          onClick={() => handleAutoSave('activityTimelineSuggestionMinMinutes', minutes)}
+                          className={clsx(
+                            'min-h-11 px-4 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
+                            localSettings.activityTimelineSuggestionMinMinutes === minutes
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'border-border hover:bg-muted',
+                          )}
+                        >
+                          {minutes}m
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <DesktopProSettings />
         </div>
       )}
 

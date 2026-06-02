@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Download, X, Radio } from 'lucide-react';
-import { openUrl } from '@tauri-apps/plugin-opener';
 
 import { updateService, type UpdateCheckResult } from '../services/updateService';
+import { isTauriRuntime } from '../lib/platform';
 
 export function UpdateBanner() {
   const [updateInfo, setUpdateInfo] = useState<UpdateCheckResult | null>(null);
@@ -26,12 +26,17 @@ export function UpdateBanner() {
   }
 
   const handleOpenRelease = async () => {
-    try {
-      await openUrl(updateInfo.releaseUrl);
-    } catch {
-      // Fallback for non-Tauri environments (dev mode in browser)
-      window.open(updateInfo.releaseUrl, '_blank');
+    if (isTauriRuntime()) {
+      try {
+        const { openUrl } = await import('@tauri-apps/plugin-opener');
+        await openUrl(updateInfo.releaseUrl);
+        return;
+      } catch {
+        // Fall through to browser fallback.
+      }
     }
+
+    window.open(updateInfo.releaseUrl, '_blank');
   };
 
   return (

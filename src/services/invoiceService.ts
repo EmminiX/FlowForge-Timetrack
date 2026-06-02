@@ -1,6 +1,7 @@
 // Invoice CRUD service
 
 import { getDb } from '../lib/db';
+import { shouldUseDemoMode } from '../lib/platform';
 import type {
   Invoice,
   InvoiceLineItem,
@@ -10,6 +11,7 @@ import type {
   CreateLineItemInput,
 } from '../types';
 import { calculateInvoiceTotals } from '../types';
+import { demoRepository } from './demoRepository';
 
 function generateId(): string {
   return crypto.randomUUID();
@@ -22,6 +24,10 @@ function now(): string {
 export const invoiceService = {
   // Get all invoices
   async getAll(status?: string): Promise<InvoiceWithDetails[]> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.getAll(status);
+    }
+
     const db = await getDb();
 
     let query = `
@@ -71,6 +77,10 @@ export const invoiceService = {
 
   // Get invoice by ID with full details
   async getById(id: string): Promise<InvoiceWithDetails | null> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.getById(id);
+    }
+
     const db = await getDb();
     const result = await db.select<InvoiceWithDetails[]>(
       `
@@ -115,6 +125,10 @@ export const invoiceService = {
 
   // Get line items for an invoice
   async getLineItems(invoiceId: string): Promise<InvoiceLineItem[]> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.getLineItems(invoiceId);
+    }
+
     const db = await getDb();
     return db.select<InvoiceLineItem[]>(
       `
@@ -134,6 +148,10 @@ export const invoiceService = {
 
   // Create invoice
   async create(input: CreateInvoiceInput, lineItems: CreateLineItemInput[]): Promise<Invoice> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.create(input, lineItems);
+    }
+
     const db = await getDb();
     const id = generateId();
     const timestamp = now();
@@ -183,6 +201,10 @@ export const invoiceService = {
 
   // Update invoice
   async update(id: string, input: UpdateInvoiceInput): Promise<Invoice | null> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.update(id, input);
+    }
+
     const db = await getDb();
     const existing = await db.select<Invoice[]>(
       `
@@ -243,6 +265,10 @@ export const invoiceService = {
 
   // Add line item
   async addLineItem(input: CreateLineItemInput & { invoiceId: string }): Promise<InvoiceLineItem> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.addLineItem(input);
+    }
+
     const db = await getDb();
     const id = generateId();
 
@@ -265,12 +291,20 @@ export const invoiceService = {
 
   // Delete line item
   async deleteLineItem(id: string): Promise<void> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.deleteLineItem(id);
+    }
+
     const db = await getDb();
     await db.execute('DELETE FROM invoice_line_items WHERE id = $1', [id]);
   },
 
   // Replace all line items for an invoice
   async replaceLineItems(invoiceId: string, lineItems: CreateLineItemInput[]): Promise<void> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.replaceLineItems(invoiceId, lineItems);
+    }
+
     const db = await getDb();
 
     // Delete existing
@@ -287,6 +321,10 @@ export const invoiceService = {
 
   // Delete invoice
   async delete(id: string): Promise<boolean> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.delete(id);
+    }
+
     const db = await getDb();
     // Delete line items first (in case of foreign key constraints)
     await db.execute('DELETE FROM invoice_line_items WHERE invoice_id = $1', [id]);
@@ -296,6 +334,10 @@ export const invoiceService = {
 
   // Get all invoices for generating next number
   async getAllForNumbering(): Promise<Invoice[]> {
+    if (shouldUseDemoMode()) {
+      return demoRepository.invoices.getAllForNumbering();
+    }
+
     const db = await getDb();
     return db.select<Invoice[]>(`
       SELECT 

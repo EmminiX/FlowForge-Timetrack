@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Play, Pause, Square, Coffee, AlertTriangle } from 'lucide-react';
-import { emit, listen } from '@tauri-apps/api/event';
 import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';
 import { useTimerStore } from '../../stores/timerStore';
 import { projectService, timeEntryService } from '../../services';
@@ -12,6 +11,7 @@ import { useSettings } from '../../contexts/SettingsContext';
 import { useToastStore } from '../../stores/toastStore';
 import clsx from 'clsx';
 import { timeEntryLogger } from '../../lib/logger';
+import { safeEmit, safeListen } from '../../lib/tauriRuntime';
 
 export function TimerView() {
   const {
@@ -117,14 +117,14 @@ export function TimerView() {
 
   // Emit break status to widget
   useEffect(() => {
-    emit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch((err) =>
+    safeEmit('timer-break-toggle', { active: showBreakReminder || isOnBreak }).catch((err) =>
       timeEntryLogger.error('Failed to emit break toggle:', err),
     );
   }, [showBreakReminder, isOnBreak]);
 
   // Listen for idle toggle events
   useEffect(() => {
-    const unlisten = listen<{ active: boolean }>('timer-idle-toggle', (event) => {
+    const unlisten = safeListen<{ active: boolean }>('timer-idle-toggle', (event) => {
       setIsIdlePaused(event.payload.active);
     });
     return () => {
@@ -203,7 +203,7 @@ export function TimerView() {
         const entry = await timeEntryService.create(entryData);
         // emit is informational only -- don't let event-bus failures cause a
         // persistence rollback when the DB row already exists
-        emit('time-entry-saved').catch((err) => {
+        safeEmit('time-entry-saved').catch((err) => {
           console.warn('Failed to emit time-entry-saved:', err);
         });
         return entry.id;

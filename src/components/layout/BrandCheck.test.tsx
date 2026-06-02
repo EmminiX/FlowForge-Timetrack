@@ -17,7 +17,8 @@ vi.mock('../../contexts/SettingsContext', () => ({
 vi.mock('../../services', () => ({
   clientService: { getAll: vi.fn().mockResolvedValue([]) },
   projectService: { getAll: vi.fn().mockResolvedValue([]) },
-  invoiceService: { getAll: vi.fn().mockResolvedValue([]) },
+  invoiceService: { getAll: vi.fn().mockResolvedValue([]), update: vi.fn().mockResolvedValue(null) },
+  exportInvoicePdfById: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('Brand Verification', () => {
@@ -43,21 +44,21 @@ describe('Brand Verification', () => {
     expect(screen.getByText('TimeSage')).toBeInTheDocument();
   });
 
-  it('search opens as an accessible dialog with listbox results', async () => {
+  it('command center opens as an accessible dialog with listbox results', async () => {
     render(
       <BrowserRouter>
         <Header />
       </BrowserRouter>,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /open search/i }));
+    fireEvent.click(screen.getByRole('button', { name: /open command center/i }));
     await act(async () => {
       await Promise.resolve();
     });
 
-    expect(screen.getByRole('dialog', { name: /global search/i })).toBeInTheDocument();
-    expect(screen.getByRole('searchbox', { name: /search/i })).toBeInTheDocument();
-    expect(screen.getByRole('listbox', { name: /search results/i })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: /command center/i })).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: /command/i })).toBeInTheDocument();
+    expect(screen.getByRole('listbox', { name: /command center results/i })).toBeInTheDocument();
   });
 
   it('toasts expose status semantics for assistive technology', () => {

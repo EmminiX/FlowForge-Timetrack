@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Search,
   Trash2,
@@ -8,8 +9,9 @@ import {
   XCircle,
   Pencil,
   Download,
+  Plus,
 } from 'lucide-react';
-import type { TimeEntryWithProject, TimeEntry } from '../../types';
+import type { TimeEntryWithProject, TimeEntry, CreateTimeEntryInput } from '../../types';
 import { formatDurationShort, calculateDuration } from '../../types';
 import { timeEntryService, projectService, clientService } from '../../services';
 import type { Project, Client } from '../../types';
@@ -31,6 +33,8 @@ import {
 } from '../../components/ui';
 
 export function TimeEntriesList() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [entries, setEntries] = useState<TimeEntryWithProject[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -50,6 +54,7 @@ export function TimeEntriesList() {
 
   // Edit modal state
   const [editingEntry, setEditingEntry] = useState<TimeEntryWithProject | null>(null);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
 
   // Billed section visibility
   const [showBilledSection, setShowBilledSection] = useState(true);
@@ -81,6 +86,21 @@ export function TimeEntriesList() {
     }, 0);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('quick-add') !== '1') return;
+
+    setShowQuickAdd(true);
+    params.delete('quick-add');
+    navigate(
+      {
+        pathname: location.pathname,
+        search: params.toString() ? `?${params.toString()}` : '',
+      },
+      { replace: true },
+    );
+  }, [location.pathname, location.search, navigate]);
 
   // Apply filters
   const filteredEntries = useMemo(() => {
@@ -290,6 +310,20 @@ export function TimeEntriesList() {
     }
   };
 
+  const handleQuickAdd = async (input: CreateTimeEntryInput) => {
+    setSubmitting(true);
+    try {
+      await timeEntryService.create(input);
+      await loadData();
+      setShowQuickAdd(false);
+    } catch (error) {
+      timeEntryLogger.error('Failed to quick-add time entry', error);
+      throw error;
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Check if any selected entries are billed (to show Unbill button)
   const hasSelectedBilledEntries = useMemo(() => {
     return filteredEntries.some((e) => selectedIds.has(e.id) && e.isBilled);
@@ -324,6 +358,15 @@ export function TimeEntriesList() {
           >
             <Download className='w-4 h-4' />
             Export CSV
+          </Button>
+          <Button
+            variant='secondary'
+            size='sm'
+            onClick={() => setShowQuickAdd(true)}
+            disabled={projects.length === 0}
+          >
+            <Plus className='w-4 h-4' />
+            Quick Add
           </Button>
           {selectedIds.size > 0 && (
             <div className='flex items-center gap-2'>
@@ -485,6 +528,15 @@ export function TimeEntriesList() {
             await loadData();
             setEditingEntry(null);
           }}
+        />
+      )}
+
+      {showQuickAdd && (
+        <QuickAddTimeEntryModal
+          projects={projects}
+          onClose={() => setShowQuickAdd(false)}
+          onSave={handleQuickAdd}
+          loading={submitting}
         />
       )}
     </div>
@@ -711,6 +763,143 @@ const TimeEntryCard = ({
   );
 };
 
+const toLocalDatetime = (iso: string) => {
+  const date = new Date(iso);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+};
+
+const QuickAddTimeEntryModal = ({
+  projects,
+  onClose,
+  onSave,
+  loading,
+}: {
+  projects: Project[];
+  onClose: () => void;
+  onSave: (input: CreateTimeEntryInput) => Promise<void>;
+  loading: boolean;
+}) => {
+  const now = new Date();
+  const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+  const [projectId, setProjectId] = useState(projects[0]?.id || '');
+  const [startTime, setStartTime] = useState(toLocalDatetime(oneHourAgo.toISOString()));
+  const [endTime, setEndTime] = useState(toLocalDatetime(now.toISOString()));
+  const [notes, setNotes] = useState('');
+  const [isBillable, setIsBillable] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const durationSeconds = useMemo(() => {
+    if (!startTime || !endTime) return 0;
+    const start = new Date(startTime).getTime();
+    const end = new Date(endTime).getTime();
+    return Math.max(0, (end - start) / 1000);
+  }, [startTime, endTime]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+
+    if (!projectId) {
+      setError('Choose a project first.');
+      return;
+    }
+
+    if (!startTime || !endTime || new Date(endTime) <= new Date(startTime)) {
+      setError('End time must be after start time.');
+      return;
+    }
+
+    try {
+      await onSave({
+        projectId,
+        startTime: new Date(startTime).toISOString(),
+        endTime: new Date(endTime).toISOString(),
+        pauseDuration: 0,
+        notes,
+        isBillable,
+        isBilled: false,
+      });
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : 'Failed to save time entry.');
+    }
+  };
+
+  return (
+    <Modal isOpen={true} onClose={onClose} title='Quick-Add Time' size='lg'>
+      <form onSubmit={handleSubmit} className='space-y-4'>
+        {error && (
+          <div className='rounded-md border border-destructive bg-destructive/10 p-3 text-sm text-destructive'>
+            {error}
+          </div>
+        )}
+
+        <Select
+          label='Project *'
+          value={projectId}
+          onChange={(e) => setProjectId(e.target.value)}
+          options={projects.map((project) => ({ value: project.id, label: project.name }))}
+          placeholder={projects.length === 0 ? 'Create a project first' : 'Choose a project'}
+          disabled={projects.length === 0}
+        />
+
+        <div className='grid gap-4 sm:grid-cols-2'>
+          <Input
+            label='Start Time'
+            type='datetime-local'
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            required
+          />
+          <Input
+            label='End Time'
+            type='datetime-local'
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            required
+          />
+        </div>
+
+        {durationSeconds > 0 && (
+          <div className='rounded-md bg-muted p-3 text-center'>
+            <span className='text-sm text-muted-foreground'>Duration: </span>
+            <span className='font-mono font-medium'>{formatDurationShort(durationSeconds)}</span>
+          </div>
+        )}
+
+        <Textarea
+          label='Notes'
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder='What did you work on?'
+          rows={2}
+        />
+
+        <div className='flex items-center gap-2'>
+          <input
+            type='checkbox'
+            id='quick-add-billable'
+            checked={isBillable}
+            onChange={(e) => setIsBillable(e.target.checked)}
+            className='rounded border-border'
+          />
+          <label htmlFor='quick-add-billable' className='text-sm'>
+            This time is billable
+          </label>
+        </div>
+
+        <ModalFooter>
+          <Button type='button' variant='outline' onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button type='submit' loading={loading} disabled={projects.length === 0}>
+            Save Time
+          </Button>
+        </ModalFooter>
+      </form>
+    </Modal>
+  );
+};
+
 // Edit Time Entry Modal
 const EditTimeEntryModal = ({
   entry,
@@ -722,12 +911,6 @@ const EditTimeEntryModal = ({
   onSave: (updates: Partial<TimeEntry>) => Promise<void>;
 }) => {
   const [saving, setSaving] = useState(false);
-
-  // Convert ISO to datetime-local format
-  const toLocalDatetime = (iso: string) => {
-    const date = new Date(iso);
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  };
 
   const [startTime, setStartTime] = useState(toLocalDatetime(entry.startTime));
   const [endTime, setEndTime] = useState(entry.endTime ? toLocalDatetime(entry.endTime) : '');

@@ -259,3 +259,19 @@ export const downPaymentLogger = {
   error: (msg: string, err?: Error | unknown, data?: unknown) =>
     logger.error('DownPayment', msg, err, data),
 };
+
+export const expenseLogger = {
+  debug: (msg: string, data?: unknown) => logger.debug('Expense', msg, data),
+  info: (msg: string, data?: unknown) => logger.info('Expense', msg, data),
+  warn: (msg: string, data?: unknown) => logger.warn('Expense', msg, data),
+  error: (msg: string, err?: Error | unknown, data?: unknown) =>
+    logger.error('Expense', msg, err, data),
+};
+
+export const activityTimelineLogger = {
+  debug: (msg: string, data?: unknown) => logger.debug('ActivityTimeline', msg, data),
+  info: (msg: string, data?: unknown) => logger.info('ActivityTimeline', msg, data),
+  warn: (msg: string, data?: unknown) => logger.warn('ActivityTimeline', msg, data),
+  error: (msg: string, err?: Error | unknown, data?: unknown) =>
+    logger.error('ActivityTimeline', msg, err, data),
+};

@@ -2,12 +2,15 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { DebugPanel } from './components/debug/DebugPanel';
 import { IdleMonitor } from './components/IdleMonitor';
+import { ActivityTimelineMonitor } from './components/ActivityTimelineMonitor';
 import { WhatsNewModal } from './components/WhatsNewModal';
 import { Dashboard } from './pages/Dashboard';
 import { Clients } from './pages/Clients';
 import { Projects } from './pages/Projects';
 import { TimeEntries } from './pages/TimeEntries';
 import { Invoices } from './pages/Invoices';
+import { Expenses } from './pages/Expenses';
+import { Timeline } from './pages/Timeline';
 import { Products } from './pages/Products';
 import { Settings } from './pages/Settings';
 import { Widget } from './pages/Widget';
@@ -45,6 +48,7 @@ function AppContent() {
     <>
       {/* Idle detection monitor */}
       <IdleMonitor />
+      <ActivityTimelineMonitor />
       <WhatsNewModal />
 
       <BrowserRouter>
@@ -58,7 +62,10 @@ function AppContent() {
             <Route path='clients' element={<Clients />} />
             <Route path='projects' element={<Projects />} />
             <Route path='time-entries' element={<TimeEntries />} />
+            <Route path='time-entries/calendar' element={<TimeEntries />} />
             <Route path='invoices' element={<Invoices />} />
+            <Route path='expenses' element={<Expenses />} />
+            <Route path='timeline' element={<Timeline />} />
             <Route path='products' element={<Products />} />
             <Route path='settings' element={<Settings />} />
           </Route>

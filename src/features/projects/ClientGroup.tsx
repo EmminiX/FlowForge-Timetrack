@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Pencil, Trash2 } from 'lucide-react';
 import { Button, Card } from '../../components/ui';
-import type { ProjectWithStats, ProjectStatus } from '../../types';
+import type { ProjectWithStats, ProjectStatus, ProjectBudgetStatus } from '../../types';
 import { PROJECT_STATUS_OPTIONS } from '../../types';
 
 interface ClientGroupProps {
@@ -31,6 +31,43 @@ export function ClientGroup({
     return `${hours.toFixed(1)}h`;
   };
 
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-IE', {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: Math.abs(amount) % 1 === 0 ? 0 : 2,
+    }).format(Math.abs(amount));
+
+  const budgetLabels: Record<ProjectBudgetStatus, string> = {
+    none: '',
+    ok: 'On track',
+    near: 'Near limit',
+    over: 'Over budget',
+  };
+
+  const budgetClassNames: Record<ProjectBudgetStatus, string> = {
+    none: '',
+    ok: 'bg-primary/12 text-primary ring-primary/25',
+    near: 'bg-accent/15 text-accent-foreground ring-accent/30 dark:text-accent',
+    over: 'bg-destructive/10 text-destructive ring-destructive/25',
+  };
+
+  const getBudgetRemainderLabel = (project: ProjectWithStats) => {
+    if (project.budgetStatus === 'none') return null;
+
+    if (project.budgetType === 'hourly' && project.budgetRemainingHours !== null) {
+      const suffix = project.budgetRemainingHours < 0 ? 'over' : 'left';
+      return `${formatHours(Math.abs(project.budgetRemainingHours))} ${suffix}`;
+    }
+
+    if (project.budgetRemainingAmount !== null) {
+      const suffix = project.budgetRemainingAmount < 0 ? 'over' : 'left';
+      return `${formatCurrency(project.budgetRemainingAmount)} ${suffix}`;
+    }
+
+    return null;
+  };
+
   return (
     <div className='border border-border rounded-lg overflow-hidden mb-4'>
       <button
@@ -52,7 +89,7 @@ export function ClientGroup({
           {projects.map((project) => (
             <Card
               key={project.id}
-              className='flex items-center gap-4 p-4 hover:bg-muted/30 transition-colors'
+              className='flex flex-col gap-4 p-4 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center'
             >
               <div
                 className='w-3 h-12 rounded-full flex-shrink-0'
@@ -90,9 +127,33 @@ export function ClientGroup({
                     {project.description}
                   </p>
                 )}
+                {project.budgetStatus !== 'none' && (
+                  <div className='mt-3 flex flex-wrap items-center gap-2 text-xs'>
+                    <span
+                      className={`inline-flex min-h-7 items-center gap-1.5 rounded-full px-2.5 font-medium ring-1 ring-inset ${
+                        budgetClassNames[project.budgetStatus]
+                      }`}
+                    >
+                      {project.budgetStatus === 'ok' ? (
+                        <CheckCircle2 className='h-3.5 w-3.5' />
+                      ) : (
+                        <AlertTriangle className='h-3.5 w-3.5' />
+                      )}
+                      {budgetLabels[project.budgetStatus]}
+                    </span>
+                    <span className='text-muted-foreground'>
+                      {Math.round(project.budgetUsedPercent)}% used
+                    </span>
+                    {getBudgetRemainderLabel(project) && (
+                      <span className='text-muted-foreground'>
+                        {getBudgetRemainderLabel(project)}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
-              <div className='flex items-center gap-6 ml-4'>
+              <div className='flex items-center gap-6 sm:ml-4'>
                 <div className='text-right'>
                   <p className='text-sm font-medium text-foreground'>
                     {formatHours(project.totalHours)}

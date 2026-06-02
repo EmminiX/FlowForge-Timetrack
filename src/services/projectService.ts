@@ -2,7 +2,10 @@
 
 import { getDb } from '../lib/db';
 import { projectLogger } from '../lib/logger';
+import { shouldUseDemoMode } from '../lib/platform';
 import type { Project, ProjectWithStats, CreateProjectInput, UpdateProjectInput } from '../types';
+import { calculateProjectBudgetStatus } from '../types';
+import { demoRepository } from './demoRepository';
 
 function generateId(): string {
   return crypto.randomUUID();
@@ -12,11 +15,24 @@ function now(): string {
   return new Date().toISOString();
 }
 
+function getBudgetValues(input: Partial<CreateProjectInput>) {
+  return {
+    budgetType: input.budgetType ?? 'none',
+    budgetHours: input.budgetHours ?? 0,
+    budgetAmount: input.budgetAmount ?? 0,
+    budgetAlertThreshold: input.budgetAlertThreshold ?? 0.8,
+  };
+}
+
 export const projectService = {
   // Get all projects
   async getAll(): Promise<Project[]> {
     projectLogger.debug('getAll called');
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getAll();
+      }
+
       const db = await getDb();
       const result = await db.select<Project[]>(`
         SELECT 
@@ -26,6 +42,10 @@ export const projectService = {
           description, 
           status, 
           color,
+          budget_type as budgetType,
+          budget_hours as budgetHours,
+          budget_amount as budgetAmount,
+          budget_alert_threshold as budgetAlertThreshold,
           created_at as createdAt,
           updated_at as updatedAt
         FROM projects
@@ -43,6 +63,10 @@ export const projectService = {
   async getAllWithStats(): Promise<ProjectWithStats[]> {
     projectLogger.debug('getAllWithStats called');
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getAllWithStats();
+      }
+
       const db = await getDb();
       const result = await db.select<ProjectWithStats[]>(`
         SELECT 
@@ -52,6 +76,10 @@ export const projectService = {
           p.description, 
           p.status, 
           p.color,
+          p.budget_type as budgetType,
+          p.budget_hours as budgetHours,
+          p.budget_amount as budgetAmount,
+          p.budget_alert_threshold as budgetAlertThreshold,
           p.created_at as createdAt,
           p.updated_at as updatedAt,
           c.name as clientName,
@@ -72,7 +100,10 @@ export const projectService = {
         ORDER BY p.name ASC
       `);
       projectLogger.info('getAllWithStats completed', { count: result.length });
-      return result;
+      return result.map((project) => ({
+        ...project,
+        ...calculateProjectBudgetStatus(project),
+      }));
     } catch (error) {
       projectLogger.error('getAllWithStats failed', error);
       throw error;
@@ -83,6 +114,10 @@ export const projectService = {
   async getByClientId(clientId: string): Promise<Project[]> {
     projectLogger.debug('getByClientId called', { clientId });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getByClientId(clientId);
+      }
+
       const db = await getDb();
       const result = await db.select<Project[]>(
         `
@@ -93,6 +128,10 @@ export const projectService = {
           description, 
           status, 
           color,
+          budget_type as budgetType,
+          budget_hours as budgetHours,
+          budget_amount as budgetAmount,
+          budget_alert_threshold as budgetAlertThreshold,
           created_at as createdAt,
           updated_at as updatedAt
         FROM projects
@@ -113,6 +152,10 @@ export const projectService = {
   async getActive(): Promise<Project[]> {
     projectLogger.debug('getActive called');
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getActive();
+      }
+
       const db = await getDb();
       const result = await db.select<Project[]>(`
         SELECT 
@@ -122,6 +165,10 @@ export const projectService = {
           description, 
           status, 
           color,
+          budget_type as budgetType,
+          budget_hours as budgetHours,
+          budget_amount as budgetAmount,
+          budget_alert_threshold as budgetAlertThreshold,
           created_at as createdAt,
           updated_at as updatedAt
         FROM projects
@@ -140,6 +187,10 @@ export const projectService = {
   async getById(id: string): Promise<Project | null> {
     projectLogger.debug('getById called', { id });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.getById(id);
+      }
+
       const db = await getDb();
       const result = await db.select<Project[]>(
         `
@@ -150,6 +201,10 @@ export const projectService = {
           description, 
           status, 
           color,
+          budget_type as budgetType,
+          budget_hours as budgetHours,
+          budget_amount as budgetAmount,
+          budget_alert_threshold as budgetAlertThreshold,
           created_at as createdAt,
           updated_at as updatedAt
         FROM projects
@@ -170,16 +225,34 @@ export const projectService = {
   async create(input: CreateProjectInput): Promise<Project> {
     projectLogger.info('create called', { input });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.create(input);
+      }
+
       const db = await getDb();
       projectLogger.debug('Got database connection');
       const id = generateId();
       const timestamp = now();
+      const budget = getBudgetValues(input);
 
       projectLogger.debug('Executing INSERT', { id, name: input.name });
       await db.execute(
         `
-      INSERT INTO projects (id, client_id, name, description, status, color, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO projects (
+        id,
+        client_id,
+        name,
+        description,
+        status,
+        color,
+        budget_type,
+        budget_hours,
+        budget_amount,
+        budget_alert_threshold,
+        created_at,
+        updated_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     `,
         [
           id,
@@ -188,6 +261,10 @@ export const projectService = {
           input.description || '',
           input.status || 'active',
           input.color || '#007AFF',
+          budget.budgetType,
+          budget.budgetHours,
+          budget.budgetAmount,
+          budget.budgetAlertThreshold,
           timestamp,
           timestamp,
         ],
@@ -201,6 +278,10 @@ export const projectService = {
         description: input.description || '',
         status: input.status || 'active',
         color: input.color || '#007AFF',
+        budgetType: budget.budgetType,
+        budgetHours: budget.budgetHours,
+        budgetAmount: budget.budgetAmount,
+        budgetAlertThreshold: budget.budgetAlertThreshold,
         createdAt: timestamp,
         updatedAt: timestamp,
       };
@@ -214,6 +295,10 @@ export const projectService = {
   async update(id: string, input: UpdateProjectInput): Promise<Project | null> {
     projectLogger.info('update called', { id, input });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.update(id, input);
+      }
+
       const db = await getDb();
       const existing = await this.getById(id);
       if (!existing) {
@@ -235,8 +320,12 @@ export const projectService = {
           description = $3,
           status = $4,
           color = $5,
-          updated_at = $6
-        WHERE id = $7
+          budget_type = $6,
+          budget_hours = $7,
+          budget_amount = $8,
+          budget_alert_threshold = $9,
+          updated_at = $10
+        WHERE id = $11
       `,
         [
           updated.clientId,
@@ -244,6 +333,10 @@ export const projectService = {
           updated.description,
           updated.status,
           updated.color,
+          updated.budgetType,
+          updated.budgetHours,
+          updated.budgetAmount,
+          updated.budgetAlertThreshold,
           updated.updatedAt,
           id,
         ],
@@ -261,6 +354,10 @@ export const projectService = {
   async delete(id: string): Promise<boolean> {
     projectLogger.info('delete called', { id });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.projects.delete(id);
+      }
+
       const db = await getDb();
       await db.execute('DELETE FROM projects WHERE id = $1', [id]);
       projectLogger.info('delete successful', { id });

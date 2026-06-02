@@ -2,8 +2,8 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { emit } from '@tauri-apps/api/event';
 import { timeEntryService } from '../services';
+import { safeEmit } from '../lib/tauriRuntime';
 
 export type TimerState = 'idle' | 'running' | 'paused';
 
@@ -254,7 +254,7 @@ export const useTimerStore = create<TimerStore>()(
             return false;
           }
           // notify UI subscribers that the persisted entries changed
-          emit('time-entry-saved').catch((err) => {
+          safeEmit('time-entry-saved').catch((err) => {
             console.warn('Failed to emit time-entry-saved after undo:', err);
           });
         }

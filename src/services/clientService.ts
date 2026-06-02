@@ -2,7 +2,9 @@
 
 import { getDb } from '../lib/db';
 import { clientLogger } from '../lib/logger';
+import { shouldUseDemoMode } from '../lib/platform';
 import type { Client, ClientWithStats, CreateClientInput, UpdateClientInput } from '../types';
+import { demoRepository } from './demoRepository';
 
 function generateId(): string {
   return crypto.randomUUID();
@@ -17,6 +19,10 @@ export const clientService = {
   async getAll(): Promise<Client[]> {
     clientLogger.debug('getAll called');
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.clients.getAll();
+      }
+
       const db = await getDb();
       const result = await db.select<Client[]>(`
         SELECT 
@@ -41,6 +47,10 @@ export const clientService = {
   async getAllWithStats(): Promise<ClientWithStats[]> {
     clientLogger.debug('getAllWithStats called');
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.clients.getAllWithStats();
+      }
+
       const db = await getDb();
       const result = await db.select<ClientWithStats[]>(`
         SELECT 
@@ -79,6 +89,10 @@ export const clientService = {
   async getById(id: string): Promise<Client | null> {
     clientLogger.debug('getById called', { id });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.clients.getById(id);
+      }
+
       const db = await getDb();
       const result = await db.select<Client[]>(
         `
@@ -107,6 +121,10 @@ export const clientService = {
   async create(input: CreateClientInput): Promise<Client> {
     clientLogger.info('create called', { input });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.clients.create(input);
+      }
+
       const db = await getDb();
       clientLogger.debug('Got database connection');
       const id = generateId();
@@ -157,6 +175,10 @@ export const clientService = {
   async update(id: string, input: UpdateClientInput): Promise<Client | null> {
     clientLogger.info('update called', { id, input });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.clients.update(id, input);
+      }
+
       const db = await getDb();
       const existing = await this.getById(id);
       if (!existing) {
@@ -210,6 +232,10 @@ export const clientService = {
   async delete(id: string): Promise<boolean> {
     clientLogger.info('delete called', { id });
     try {
+      if (shouldUseDemoMode()) {
+        return demoRepository.clients.delete(id);
+      }
+
       const db = await getDb();
       await db.execute('DELETE FROM clients WHERE id = $1', [id]);
       clientLogger.info('delete successful', { id });

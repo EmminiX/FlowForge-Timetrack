@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Search, Pencil, Trash2, Users, StickyNote, Banknote } from 'lucide-react';
 import type { ClientWithStats, CreateClientInput, UpdateClientInput } from '../../types';
 import { clientService } from '../../services';
@@ -9,6 +10,8 @@ import { clientLogger } from '../../lib/logger';
 import { useUndoableAction } from '../../hooks/useUndoableAction';
 
 export function ClientsList() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [clients, setClients] = useState<ClientWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,6 +50,21 @@ export function ClientsList() {
     }, 0);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('new') !== '1') return;
+
+    setShowForm(true);
+    params.delete('new');
+    navigate(
+      {
+        pathname: location.pathname,
+        search: params.toString() ? `?${params.toString()}` : '',
+      },
+      { replace: true },
+    );
+  }, [location.pathname, location.search, navigate]);
 
   // Filter clients by search
   const filteredClients = useMemo(() => {
