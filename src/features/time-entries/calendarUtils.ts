@@ -38,6 +38,15 @@ interface GapOptions {
 interface ResizeOptions {
   snapMinutes?: number;
   minDurationMinutes?: number;
+  dayStartMinutes?: number;
+  dayEndMinutes?: number;
+}
+
+interface MoveOptions {
+  pixelsPerHour: number;
+  snapMinutes?: number;
+  dayStartMinutes?: number;
+  dayEndMinutes?: number;
 }
 
 const DAY_MINUTES = 24 * 60;
@@ -65,6 +74,24 @@ function isoAtMinutes(dateKey: string, minutes: number): string {
   const date = new Date(`${dateKey}T00:00:00.000Z`);
   date.setUTCMinutes(minutes);
   return date.toISOString();
+}
+
+function snapDeltaMinutes(deltaMinutes: number, snapMinutes: number): number {
+  return Math.round(deltaMinutes / snapMinutes) * snapMinutes;
+}
+
+function getDayBoundsMs(
+  dateKey: string,
+  options: Pick<ResizeOptions, 'dayStartMinutes' | 'dayEndMinutes'>,
+) {
+  return {
+    start: new Date(isoAtMinutes(dateKey, options.dayStartMinutes ?? 0)).getTime(),
+    end: new Date(isoAtMinutes(dateKey, options.dayEndMinutes ?? DAY_MINUTES)).getTime(),
+  };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }
 
 export function getWeekDays(selectedDate: Date): CalendarDay[] {
@@ -106,7 +133,9 @@ function toBlock(entry: TimeEntryWithProject): CalendarBlock {
 }
 
 function assignColumns(blocks: CalendarBlock[]): CalendarBlock[] {
-  const sorted = [...blocks].sort((a, b) => a.startMinutes - b.startMinutes || a.endMinutes - b.endMinutes);
+  const sorted = [...blocks].sort(
+    (a, b) => a.startMinutes - b.startMinutes || a.endMinutes - b.endMinutes,
+  );
   const assigned: CalendarBlock[] = [];
   let index = 0;
 
@@ -208,24 +237,59 @@ export function resizeCalendarEntry(
 ): { startTime: string; endTime: string } {
   const snapMinutes = options.snapMinutes ?? 15;
   const minDurationMinutes = options.minDurationMinutes ?? 15;
-  const snappedDelta = Math.round(deltaMinutes / snapMinutes) * snapMinutes;
+  const snappedDelta = snapDeltaMinutes(deltaMinutes, snapMinutes);
   const start = new Date(entry.startTime);
   const end = entry.endTime ? new Date(entry.endTime) : new Date();
   const minDurationMs = minDurationMinutes * 60 * 1000;
+  const dateKey = getDateKey(start);
+  const dayBounds = getDayBoundsMs(dateKey, options);
 
   if (edge === 'start') {
     const candidate = new Date(start.getTime() + snappedDelta * 60 * 1000);
-    const latestStart = new Date(end.getTime() - minDurationMs);
+    const latestStart = new Date(
+      Math.min(end.getTime() - minDurationMs, dayBounds.end - minDurationMs),
+    );
     return {
-      startTime: new Date(Math.min(candidate.getTime(), latestStart.getTime())).toISOString(),
+      startTime: new Date(
+        clamp(candidate.getTime(), dayBounds.start, latestStart.getTime()),
+      ).toISOString(),
       endTime: end.toISOString(),
     };
   }
 
   const candidate = new Date(end.getTime() + snappedDelta * 60 * 1000);
-  const earliestEnd = new Date(start.getTime() + minDurationMs);
+  const earliestEnd = new Date(
+    Math.max(start.getTime() + minDurationMs, dayBounds.start + minDurationMs),
+  );
   return {
     startTime: start.toISOString(),
-    endTime: new Date(Math.max(candidate.getTime(), earliestEnd.getTime())).toISOString(),
+    endTime: new Date(
+      clamp(candidate.getTime(), earliestEnd.getTime(), dayBounds.end),
+    ).toISOString(),
+  };
+}
+
+export function moveCalendarEntry(
+  entry: Pick<TimeEntryWithProject, 'startTime' | 'endTime'>,
+  deltaPixels: number,
+  options: MoveOptions,
+): { startTime: string; endTime: string } {
+  const snapMinutes = options.snapMinutes ?? 15;
+  const deltaMinutes = (deltaPixels / options.pixelsPerHour) * 60;
+  const snappedDelta = snapDeltaMinutes(deltaMinutes, snapMinutes);
+  const start = new Date(entry.startTime);
+  const end = entry.endTime ? new Date(entry.endTime) : new Date();
+  const durationMs = Math.max(0, end.getTime() - start.getTime());
+  const dayBounds = getDayBoundsMs(getDateKey(start), options);
+  const latestStart = Math.max(dayBounds.start, dayBounds.end - durationMs);
+  const nextStartMs = clamp(
+    start.getTime() + snappedDelta * 60 * 1000,
+    dayBounds.start,
+    latestStart,
+  );
+
+  return {
+    startTime: new Date(nextStartMs).toISOString(),
+    endTime: new Date(nextStartMs + durationMs).toISOString(),
   };
 }

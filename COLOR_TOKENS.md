@@ -5,6 +5,7 @@ This document describes the OKLCH-based color token system implemented in FlowFo
 ## Overview
 
 All color tokens have been migrated from hex values to **OKLCH color space** for:
+
 - **Perceptually uniform lightness** - Equal lightness values appear equally bright
 - **Warmer neutrals** - Subtle chroma tilt toward warm hues reduces cold, clinical feel
 - **Calmer accents** - Reduced saturation on primary colors prevents neon fatigue
@@ -13,6 +14,7 @@ All color tokens have been migrated from hex values to **OKLCH color space** for
 ## OKLCH Format
 
 OKLCH uses three components:
+
 - **L** (Lightness): 0-100% - Perceptually uniform brightness
 - **C** (Chroma): 0-0.4+ - Color intensity (0 = grayscale)
 - **H** (Hue): 0-360° - Color angle (250° = blue, 60° = warm, 25° = red)
@@ -22,29 +24,32 @@ Example: `oklch(58% 0.18 250)` = medium lightness, moderate chroma, blue hue
 ## Light Theme
 
 ### Neutrals (Warm Gray Base)
+
 ```css
---background: oklch(99% 0.005 60);     /* Nearly white with warm tint */
---foreground: oklch(20% 0.015 250);    /* Deep blue-gray (14.5:1 contrast) */
---secondary: oklch(95% 0.01 45);       /* Very light warm gray */
+--background: oklch(99% 0.005 60); /* Nearly white with warm tint */
+--foreground: oklch(20% 0.015 250); /* Deep blue-gray (14.5:1 contrast) */
+--secondary: oklch(95% 0.01 45); /* Very light warm gray */
 --muted: oklch(95% 0.01 45);
---muted-foreground: oklch(55% 0.025 250);  /* Mid-tone warm gray */
---border: oklch(90% 0.012 45);         /* Subtle warm border */
+--muted-foreground: oklch(55% 0.025 250); /* Mid-tone warm gray */
+--border: oklch(90% 0.012 45); /* Subtle warm border */
 ```
 
 **Design choice**: Chroma values 0.005-0.025 add warmth without coloring the UI. Hue 45-60° provides brown/tan undertones.
 
 ### Primary (Calmer Blue)
+
 ```css
---primary: oklch(58% 0.18 250);            /* Less saturated than #2563eb */
+--primary: oklch(58% 0.18 250); /* Less saturated than #2563eb */
 --primary-foreground: oklch(99% 0.005 250);
---ring: oklch(58% 0.18 250);               /* Focus rings match primary */
+--ring: oklch(58% 0.18 250); /* Focus rings match primary */
 ```
 
 **Design choice**: Chroma reduced from ~0.24 (original blue-600) to 0.18 for calmer appearance. Hue 250° maintains blue identity.
 
 ### Destructive (Warm Red)
+
 ```css
---destructive: oklch(60% 0.22 25);          /* Warm red at L=60% for WCAG AA */
+--destructive: oklch(60% 0.22 25); /* Warm red at L=60% for WCAG AA */
 --destructive-foreground: oklch(99% 0.005 25);
 ```
 
@@ -53,20 +58,22 @@ Example: `oklch(58% 0.18 250)` = medium lightness, moderate chroma, blue hue
 ## Dark Theme
 
 ### Neutrals (Warm Dark)
+
 ```css
---background: oklch(12% 0.015 250);    /* Deep blue-black with warmth */
---foreground: oklch(96% 0.008 60);     /* Slightly warm white (14.8:1) */
---secondary: oklch(22% 0.018 250);     /* Dark surface with subtle warmth */
+--background: oklch(12% 0.015 250); /* Deep blue-black with warmth */
+--foreground: oklch(96% 0.008 60); /* Slightly warm white (14.8:1) */
+--secondary: oklch(22% 0.018 250); /* Dark surface with subtle warmth */
 --muted: oklch(22% 0.018 250);
---muted-foreground: oklch(62% 0.025 250);  /* Lighter for better readability */
+--muted-foreground: oklch(62% 0.025 250); /* Lighter for better readability */
 --border: oklch(22% 0.018 250);
 ```
 
 **Design choice**: Background at L=12% with chroma 0.015 adds warmth instead of pure #020617 (L=7%). Higher muted-foreground lightness (62% vs 55%) improves readability in dark mode.
 
 ### Primary (Calmer Blue)
+
 ```css
---primary: oklch(65% 0.16 250);            /* Less neon than #3b82f6 */
+--primary: oklch(65% 0.16 250); /* Less neon than #3b82f6 */
 --primary-foreground: oklch(99% 0.005 250);
 --ring: oklch(65% 0.16 250);
 ```
@@ -74,8 +81,9 @@ Example: `oklch(58% 0.18 250)` = medium lightness, moderate chroma, blue hue
 **Design choice**: Chroma reduced from ~0.22 (original blue-500) to 0.16. Lightness 65% provides 6.2:1 contrast on dark background.
 
 ### Destructive (Darker Red)
+
 ```css
---destructive: oklch(40% 0.18 25);          /* Less intense for dark mode */
+--destructive: oklch(40% 0.18 25); /* Less intense for dark mode */
 --destructive-foreground: oklch(96% 0.008 25);
 ```
 
@@ -84,12 +92,13 @@ Example: `oklch(58% 0.18 250)` = medium lightness, moderate chroma, blue hue
 ## High-Contrast Theme
 
 ### Refined for Accessibility
+
 ```css
---background: oklch(0% 0 0);               /* Pure black */
---foreground: oklch(100% 0 0);             /* Pure white */
---primary: oklch(85% 0.18 100);            /* Bright warm yellow-green */
---accent: oklch(80% 0.20 200);             /* Bright cyan-blue */
---destructive: oklch(65% 0.28 25);         /* Bright red */
+--background: oklch(0% 0 0); /* Pure black */
+--foreground: oklch(100% 0 0); /* Pure white */
+--primary: oklch(85% 0.18 100); /* Bright warm yellow-green */
+--accent: oklch(80% 0.2 200); /* Bright cyan-blue */
+--destructive: oklch(65% 0.28 25); /* Bright red */
 ```
 
 **Design choice**: Replaced harsh pure yellow (#ffff00) with warmer yellow-green (hue 100°). Replaced pure cyan with calmer cyan-blue (hue 200°). All maintain WCAG AAA contrast while being less eye-straining.
@@ -99,6 +108,7 @@ Example: `oklch(58% 0.18 250)` = medium lightness, moderate chroma, blue hue
 All token pairs meet **WCAG AA** (4.5:1 minimum for body text, 3:1 for large text):
 
 ### Light Theme
+
 - foreground/background: ~14.5:1 ✓ AAA
 - primary/background: ~4.8:1 ✓ AA Large
 - primary-foreground/primary: ~4.8:1 ✓ AA Large
@@ -106,6 +116,7 @@ All token pairs meet **WCAG AA** (4.5:1 minimum for body text, 3:1 for large tex
 - secondary-foreground/secondary: ~11.5:1 ✓ AAA
 
 ### Dark Theme
+
 - foreground/background: ~14.8:1 ✓ AAA
 - primary/background: ~6.2:1 ✓ AA
 - primary-foreground/primary: ~4.6:1 ✓ AA Large
@@ -114,6 +125,7 @@ All token pairs meet **WCAG AA** (4.5:1 minimum for body text, 3:1 for large tex
 ## Browser Support
 
 OKLCH is supported in:
+
 - Chrome/Edge 111+ (March 2023)
 - Safari 15.4+ (March 2022)
 - Firefox 113+ (May 2023)

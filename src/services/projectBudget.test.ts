@@ -30,7 +30,9 @@ function project(overrides: Partial<ProjectWithStats>): ProjectWithStats {
 describe('project budget status', () => {
   it('reports hourly budgets as ok, near, or over based on tracked hours', () => {
     expect(
-      calculateProjectBudgetStatus(project({ budgetType: 'hourly', budgetHours: 10, totalHours: 6 })),
+      calculateProjectBudgetStatus(
+        project({ budgetType: 'hourly', budgetHours: 10, totalHours: 6 }),
+      ),
     ).toEqual(
       expect.objectContaining({
         budgetStatus: 'ok',
@@ -40,11 +42,15 @@ describe('project budget status', () => {
     );
 
     expect(
-      calculateProjectBudgetStatus(project({ budgetType: 'hourly', budgetHours: 10, totalHours: 8 })),
+      calculateProjectBudgetStatus(
+        project({ budgetType: 'hourly', budgetHours: 10, totalHours: 8 }),
+      ),
     ).toEqual(expect.objectContaining({ budgetStatus: 'near', budgetUsedPercent: 80 }));
 
     expect(
-      calculateProjectBudgetStatus(project({ budgetType: 'hourly', budgetHours: 10, totalHours: 11 })),
+      calculateProjectBudgetStatus(
+        project({ budgetType: 'hourly', budgetHours: 10, totalHours: 11 }),
+      ),
     ).toEqual(
       expect.objectContaining({
         budgetStatus: 'over',
@@ -81,7 +87,9 @@ describe('project budget status', () => {
   });
 
   it('keeps budget status empty when no budget is configured', () => {
-    expect(calculateProjectBudgetStatus(project({ totalHours: 100, totalBillable: 10000 }))).toEqual(
+    expect(
+      calculateProjectBudgetStatus(project({ totalHours: 100, totalBillable: 10000 })),
+    ).toEqual(
       expect.objectContaining({
         budgetStatus: 'none',
         budgetUsedPercent: 0,

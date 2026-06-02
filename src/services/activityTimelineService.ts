@@ -20,10 +20,15 @@ function now(): string {
 }
 
 function durationSeconds(startedAt: string, endedAt: string): number {
-  return Math.max(0, Math.round((new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 1000));
+  return Math.max(
+    0,
+    Math.round((new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 1000),
+  );
 }
 
-function normalizeEvent<T extends ActivityTimelineEventWithProject | ActivityTimelineEvent>(event: T): T {
+function normalizeEvent<T extends ActivityTimelineEventWithProject | ActivityTimelineEvent>(
+  event: T,
+): T {
   return {
     ...event,
     isDismissed: Boolean(event.isDismissed),
@@ -59,15 +64,14 @@ export const activityTimelineService = {
       WHERE 1=1
     `;
     const params: (string | number)[] = [];
-    let paramIndex = 1;
 
     if (filters?.startDate) {
-      query += ` AND atl.started_at >= $${paramIndex++}`;
+      query += ` AND atl.started_at >= $${params.length + 1}`;
       params.push(filters.startDate);
     }
 
     if (filters?.endDate) {
-      query += ` AND atl.started_at <= $${paramIndex++}`;
+      query += ` AND atl.started_at <= $${params.length + 1}`;
       params.push(filters.endDate);
     }
 
@@ -147,7 +151,10 @@ export const activityTimelineService = {
     }
   },
 
-  async recordIdleGap(input: { startedAt: string; endedAt: string }): Promise<ActivityTimelineEvent> {
+  async recordIdleGap(input: {
+    startedAt: string;
+    endedAt: string;
+  }): Promise<ActivityTimelineEvent> {
     return this.recordEvent({
       eventType: 'idle',
       appName: 'Idle',

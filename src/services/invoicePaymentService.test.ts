@@ -49,9 +49,9 @@ describe('invoicePaymentService', () => {
     expect(dbMocks.execute.mock.calls[1][1]).toEqual(
       expect.arrayContaining(['invoice-1', 'partial_payment']),
     );
-    expect(dbMocks.execute.mock.calls.some((call) => String(call[0]).includes("status = 'paid'"))).toBe(
-      false,
-    );
+    expect(
+      dbMocks.execute.mock.calls.some((call) => String(call[0]).includes("status = 'paid'")),
+    ).toBe(false);
     expect(payment).toEqual(
       expect.objectContaining({
         id: '00000000-0000-4000-8000-000000000301',

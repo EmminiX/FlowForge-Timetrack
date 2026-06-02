@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { timeEntryService } from '../services';
+import { timeEntryLogger } from '../lib/logger';
 import { safeEmit } from '../lib/tauriRuntime';
 
 export type TimerState = 'idle' | 'running' | 'paused';
@@ -250,12 +251,12 @@ export const useTimerStore = create<TimerStore>()(
           try {
             await timeEntryService.delete(lastStoppedState.timeEntryId);
           } catch (err) {
-            console.warn('Failed to delete time entry during undo:', err);
+            timeEntryLogger.warn('Failed to delete time entry during undo', { err });
             return false;
           }
           // notify UI subscribers that the persisted entries changed
           safeEmit('time-entry-saved').catch((err) => {
-            console.warn('Failed to emit time-entry-saved after undo:', err);
+            timeEntryLogger.warn('Failed to emit time-entry-saved after undo', { err });
           });
         }
 

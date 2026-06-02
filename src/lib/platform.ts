@@ -19,7 +19,9 @@ export function shouldUseDemoMode(
   targetWindow: RuntimeWindow = window as RuntimeWindow,
   env: RuntimeEnv = import.meta.env,
 ): boolean {
-  return env.VITE_DEMO_MODE === 'true' || env.VITE_DEMO_MODE === true || !isTauriRuntime(targetWindow);
+  return (
+    env.VITE_DEMO_MODE === 'true' || env.VITE_DEMO_MODE === true || !isTauriRuntime(targetWindow)
+  );
 }
 
 /**

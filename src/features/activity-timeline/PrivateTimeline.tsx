@@ -111,9 +111,7 @@ export function PrivateTimeline() {
       <div className='space-y-6'>
         <div>
           <h1 className='text-2xl font-bold text-foreground'>Private Auto-Timeline</h1>
-          <p className='text-sm text-muted-foreground'>
-            Off until you enable it
-          </p>
+          <p className='text-sm text-muted-foreground'>Off until you enable it</p>
         </div>
 
         <Card>
@@ -124,7 +122,9 @@ export function PrivateTimeline() {
               </div>
               <div className='space-y-2'>
                 <div>
-                  <h2 className='text-lg font-semibold text-foreground'>Local-only and user-approved</h2>
+                  <h2 className='text-lg font-semibold text-foreground'>
+                    Local-only and user-approved
+                  </h2>
                   <p className='max-w-2xl text-sm text-muted-foreground'>
                     Timeline capture is disabled by default. It stores activity on this device only,
                     and suggestions become time entries only after you approve them.
@@ -181,7 +181,9 @@ export function PrivateTimeline() {
           <div className='flex items-center justify-between gap-3'>
             <div>
               <h2 className='text-lg font-semibold text-foreground'>Suggested entries</h2>
-              <p className='text-sm text-muted-foreground'>Review before anything becomes billable time.</p>
+              <p className='text-sm text-muted-foreground'>
+                Review before anything becomes billable time.
+              </p>
             </div>
             <Select
               label='Project'
@@ -195,7 +197,9 @@ export function PrivateTimeline() {
 
           {loading ? (
             <Card>
-              <CardContent className='text-sm text-muted-foreground'>Loading timeline...</CardContent>
+              <CardContent className='text-sm text-muted-foreground'>
+                Loading timeline...
+              </CardContent>
             </Card>
           ) : suggestions.length === 0 ? (
             <EmptyState
@@ -264,7 +268,9 @@ export function PrivateTimeline() {
                           <p className='truncate text-sm font-medium text-foreground'>
                             {event.eventType === 'idle' ? 'Idle gap' : event.appName}
                           </p>
-                          <p className='truncate text-sm text-muted-foreground'>{eventLabel(event)}</p>
+                          <p className='truncate text-sm text-muted-foreground'>
+                            {eventLabel(event)}
+                          </p>
                         </div>
                         {event.eventType === 'idle' ? (
                           <PauseCircle className='h-4 w-4 shrink-0 text-muted-foreground' />

@@ -81,6 +81,7 @@ const CHANGELOG: Record<string, ChangelogSection[]> = {
 
 export function WhatsNewModal() {
   const { settings, updateSetting, loading } = useSettings();
+  const [dismissedVersion, setDismissedVersion] = useState<string | null>(null);
 
   // Derive shouldShow from props/settings instead of using effect
   const currentVersion = updateService.getCurrentVersion();
@@ -89,7 +90,8 @@ export function WhatsNewModal() {
     window.location.pathname !== '/widget' &&
     currentVersion &&
     currentVersion !== '0.0.0' &&
-    settings.seenChangelogVersion !== currentVersion;
+    settings.seenChangelogVersion !== currentVersion &&
+    dismissedVersion !== currentVersion;
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -103,6 +105,7 @@ export function WhatsNewModal() {
   }, [shouldShow, isOpen]);
 
   const handleDismiss = async () => {
+    setDismissedVersion(currentVersion);
     setIsOpen(false);
     await updateSetting('seenChangelogVersion', currentVersion);
   };

@@ -38,14 +38,14 @@ export function WeeklyChart({
             {formatDuration(totalSeconds)} total
           </span>
           {onRangeChange && (
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => onRangeChange(range === 'week' ? 'month' : 'week')}
-                className='min-h-11 min-w-11 p-0 hover:bg-muted'
-                aria-label={range === 'week' ? 'Show last 30 days' : 'Show this week'}
-                title={range === 'week' ? 'Show last 30 days' : 'Show this week'}
-              >
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={() => onRangeChange(range === 'week' ? 'month' : 'week')}
+              className='min-h-11 min-w-11 p-0 hover:bg-muted'
+              aria-label={range === 'week' ? 'Show last 30 days' : 'Show this week'}
+              title={range === 'week' ? 'Show last 30 days' : 'Show this week'}
+            >
               {range === 'week' ? (
                 <Maximize2 className='w-4 h-4 text-muted-foreground' />
               ) : (

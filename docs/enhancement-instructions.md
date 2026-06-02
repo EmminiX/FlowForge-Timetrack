@@ -19,6 +19,7 @@ pnpm build && pnpm test
 **Tech stack reference:** React 19, TypeScript 5.8 (strict), Tailwind CSS 4, jsPDF 4.0, Zustand 5, Tauri 2, SQLite, Vite 7, Vitest.
 
 **Important rules:**
+
 - Run `pnpm build` after every task. Fix any TypeScript errors before moving on.
 - Do NOT add `console.log` statements. Use the logger system in `src/lib/logger.ts`.
 - Do NOT add `@ts-ignore` comments. Fix type issues properly.
@@ -36,6 +37,7 @@ pnpm build && pnpm test
 **File to modify:** `src/features/invoices/InvoicesList.tsx`
 
 **Current code structure (lines 765-1046):**
+
 - Line 773: `const doc = new jsPDF()` — creates single page
 - Line 774: `const pageWidth = doc.internal.pageSize.getWidth()`
 - Line 775: `let y = 20`
@@ -91,6 +93,7 @@ const drawTableHeader = (atY: number): number => {
 **Step 3:** Add page break checks before each section. Insert `y = checkPageBreak(y, <height>)` before every content block:
 
 Before the Bill To section (around line 852):
+
 ```typescript
 y = checkPageBreak(y, 40); // Bill To needs ~40pt minimum
 ```
@@ -125,12 +128,9 @@ invoice.lineItems.forEach((item) => {
   doc.text(`${currencySymbol}${item.unitPrice.toFixed(2)}`, pageWidth - 50, y, {
     align: 'right',
   });
-  doc.text(
-    `${currencySymbol}${(item.quantity * item.unitPrice).toFixed(2)}`,
-    pageWidth - 17,
-    y,
-    { align: 'right' },
-  );
+  doc.text(`${currencySymbol}${(item.quantity * item.unitPrice).toFixed(2)}`, pageWidth - 17, y, {
+    align: 'right',
+  });
   y += 6;
 });
 ```
@@ -138,11 +138,13 @@ invoice.lineItems.forEach((item) => {
 **Step 6:** Add page break checks before totals, notes, payment terms, and payment links:
 
 Before totals (line 912):
+
 ```typescript
 y = checkPageBreak(y, 30); // Totals need ~30pt
 ```
 
 Before notes (line 937):
+
 ```typescript
 if (invoice.notes) {
   const noteLines = doc.splitTextToSize(invoice.notes, pageWidth - 30);
@@ -153,6 +155,7 @@ if (invoice.notes) {
 ```
 
 Before payment terms (line 951):
+
 ```typescript
 if (settings?.paymentTerms) {
   const termLines = doc.splitTextToSize(settings.paymentTerms, pageWidth - 30);
@@ -163,6 +166,7 @@ if (settings?.paymentTerms) {
 ```
 
 Inside `drawLink` function (line 964), add at the start:
+
 ```typescript
 const drawLink = (label: string, url: string) => {
   y = checkPageBreak(y, 20); // Each link needs ~20pt
@@ -189,6 +193,7 @@ for (let i = 1; i <= totalPages; i++) {
 **Remove** the old `const pageHeight = doc.internal.pageSize.getHeight();` at line 989 (now defined at top).
 
 **Acceptance criteria:**
+
 - [ ] Invoice with 5 line items exports as single-page PDF (no regression)
 - [ ] Invoice with 25+ line items exports as multi-page PDF
 - [ ] Table header (Description/Qty/Price/Amount) redraws on each new page
@@ -205,6 +210,7 @@ for (let i = 1; i <= totalPages; i++) {
 **File to modify:** `src/components/ui/Modal.tsx`
 
 **Current code (line 80-108):**
+
 ```tsx
 <div
   ref={contentRef}
@@ -217,9 +223,7 @@ for (let i = 1; i <= totalPages; i++) {
 >
   {/* Header */}
   {(title || showCloseButton) && (
-    <div className='flex items-center justify-between px-6 py-4 border-b border-border'>
-      ...
-    </div>
+    <div className='flex items-center justify-between px-6 py-4 border-b border-border'>...</div>
   )}
 
   {/* Content */}
@@ -264,11 +268,13 @@ for (let i = 1; i <= totalPages; i++) {
 ```
 
 **Key changes:**
+
 1. Added `max-h-[90vh] flex flex-col` to outer container
 2. Added `shrink-0` to header div (header stays fixed)
 3. Changed content div to `overflow-y-auto flex-1 min-h-0` (content scrolls)
 
 **Acceptance criteria:**
+
 - [ ] Short modals (e.g., ConfirmDialog) render normally with no visible scrollbar
 - [ ] Invoice preview modal with many line items shows scrollbar and all content is accessible
 - [ ] Create Invoice modal (3 steps) scrolls properly on each step
@@ -279,11 +285,13 @@ for (let i = 1; i <= totalPages; i++) {
 ---
 
 **Phase 1 Gate:**
+
 ```bash
 pnpm build && pnpm test
 ```
 
 **Commit:**
+
 ```bash
 git add src/features/invoices/InvoicesList.tsx src/components/ui/Modal.tsx
 git commit -m "fix: PDF multi-page pagination and modal scroll overflow"
@@ -298,6 +306,7 @@ git commit -m "fix: PDF multi-page pagination and modal scroll overflow"
 **Problem:** 40+ `console.log` statements across production code. The app has a proper logger system at `src/lib/logger.ts` with category loggers.
 
 **Available loggers (from `src/lib/logger.ts`):**
+
 - `dbLogger` — Database operations
 - `clientLogger` — Client operations
 - `projectLogger` — Project operations
@@ -327,29 +336,30 @@ export const backupLogger = {
 
 **Then replace console.log/console.error in each file:**
 
-| File | Replace | With | Import |
-|------|---------|------|--------|
-| `src/components/IdleMonitor.tsx` | `console.log('[IdleMonitor] ...')` | `uiLogger.debug('...')` | `import { uiLogger } from '../lib/logger'` |
-| `src/components/IdleDialog.tsx` | All `console.log('[IdleDialog] ...')` | `uiLogger.debug('...')` | `import { uiLogger } from '../lib/logger'` |
-| `src/features/clients/ClientsList.tsx` | `console.log(...)` and `console.error(...)` | `clientLogger.debug(...)` / `clientLogger.error(...)` | `import { clientLogger } from '../../lib/logger'` |
-| `src/features/projects/ProjectsList.tsx` | `console.log(...)` and `console.error(...)` | `projectLogger.debug(...)` / `projectLogger.error(...)` | `import { projectLogger } from '../../lib/logger'` |
-| `src/features/timer/TimerSync.tsx` | `console.log(...)` | `uiLogger.debug(...)` | `import { uiLogger } from '../../lib/logger'` |
-| `src/features/timer/TimerView.tsx` | `console.log(...)` | `timeEntryLogger.debug(...)` | `import { timeEntryLogger } from '../../lib/logger'` |
-| `src/features/time-entries/TimeEntriesList.tsx` | `console.error('Failed to load data:', err)` | `timeEntryLogger.error('Failed to load data', err)` | `import { timeEntryLogger } from '../../lib/logger'` |
-| `src/features/invoices/InvoicesList.tsx` | remaining `console.error(...)` calls (lines 75, 93, 104, 540, 1041) | `invoiceLogger.error(...)` | Already imported |
-| `src/pages/Settings.tsx` | `console.log(...)` / `console.error(...)` | `uiLogger.debug(...)` / `uiLogger.error(...)` | `import { uiLogger } from '../lib/logger'` |
-| `src/services/shortcutService.ts` | `console.log(...)` / `console.error(...)` | `shortcutLogger.debug(...)` / `shortcutLogger.error(...)` | `import { shortcutLogger } from '../lib/logger'` |
-| `src/services/backupService.ts` | `console.log(...)` / `console.error(...)` | `backupLogger.debug(...)` / `backupLogger.error(...)` | `import { backupLogger } from '../lib/logger'` |
-| `src/lib/widgetWindow.ts` | `console.log(...)` | `uiLogger.debug(...)` | `import { uiLogger } from './logger'` |
-| `src/lib/migrations.ts` | `console.log(...)` | `dbLogger.info(...)` | `import { dbLogger } from './logger'` |
-| `src/main.tsx` | `console.log(...)` | `dbLogger.info(...)` | `import { dbLogger } from './lib/logger'` |
-| `src/features/dashboard/DashboardSummary.tsx` | `console.error(...)` | `uiLogger.error(...)` | `import { uiLogger } from '../../lib/logger'` |
+| File                                            | Replace                                                             | With                                                      | Import                                               |
+| ----------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------- |
+| `src/components/IdleMonitor.tsx`                | `console.log('[IdleMonitor] ...')`                                  | `uiLogger.debug('...')`                                   | `import { uiLogger } from '../lib/logger'`           |
+| `src/components/IdleDialog.tsx`                 | All `console.log('[IdleDialog] ...')`                               | `uiLogger.debug('...')`                                   | `import { uiLogger } from '../lib/logger'`           |
+| `src/features/clients/ClientsList.tsx`          | `console.log(...)` and `console.error(...)`                         | `clientLogger.debug(...)` / `clientLogger.error(...)`     | `import { clientLogger } from '../../lib/logger'`    |
+| `src/features/projects/ProjectsList.tsx`        | `console.log(...)` and `console.error(...)`                         | `projectLogger.debug(...)` / `projectLogger.error(...)`   | `import { projectLogger } from '../../lib/logger'`   |
+| `src/features/timer/TimerSync.tsx`              | `console.log(...)`                                                  | `uiLogger.debug(...)`                                     | `import { uiLogger } from '../../lib/logger'`        |
+| `src/features/timer/TimerView.tsx`              | `console.log(...)`                                                  | `timeEntryLogger.debug(...)`                              | `import { timeEntryLogger } from '../../lib/logger'` |
+| `src/features/time-entries/TimeEntriesList.tsx` | `console.error('Failed to load data:', err)`                        | `timeEntryLogger.error('Failed to load data', err)`       | `import { timeEntryLogger } from '../../lib/logger'` |
+| `src/features/invoices/InvoicesList.tsx`        | remaining `console.error(...)` calls (lines 75, 93, 104, 540, 1041) | `invoiceLogger.error(...)`                                | Already imported                                     |
+| `src/pages/Settings.tsx`                        | `console.log(...)` / `console.error(...)`                           | `uiLogger.debug(...)` / `uiLogger.error(...)`             | `import { uiLogger } from '../lib/logger'`           |
+| `src/services/shortcutService.ts`               | `console.log(...)` / `console.error(...)`                           | `shortcutLogger.debug(...)` / `shortcutLogger.error(...)` | `import { shortcutLogger } from '../lib/logger'`     |
+| `src/services/backupService.ts`                 | `console.log(...)` / `console.error(...)`                           | `backupLogger.debug(...)` / `backupLogger.error(...)`     | `import { backupLogger } from '../lib/logger'`       |
+| `src/lib/widgetWindow.ts`                       | `console.log(...)`                                                  | `uiLogger.debug(...)`                                     | `import { uiLogger } from './logger'`                |
+| `src/lib/migrations.ts`                         | `console.log(...)`                                                  | `dbLogger.info(...)`                                      | `import { dbLogger } from './logger'`                |
+| `src/main.tsx`                                  | `console.log(...)`                                                  | `dbLogger.info(...)`                                      | `import { dbLogger } from './lib/logger'`            |
+| `src/features/dashboard/DashboardSummary.tsx`   | `console.error(...)`                                                | `uiLogger.error(...)`                                     | `import { uiLogger } from '../../lib/logger'`        |
 
 **Note:** Keep `console.error` calls inside `ErrorBoundary.tsx` line 17 — that's a React lifecycle method where the logger might not be available.
 
 **Also:** The commented-out `// console.log(...)` in IdleMonitor.tsx line 38 — just remove the comment entirely.
 
 **Acceptance criteria:**
+
 - [ ] `grep -r "console\.log" src/ --include="*.tsx" --include="*.ts" | grep -v "logger.ts" | grep -v "node_modules" | grep -v "ErrorBoundary"` returns zero results
 - [ ] Logger still outputs to browser console during development (enableConsole: true by default)
 - [ ] `pnpm build` passes
@@ -359,10 +369,12 @@ export const backupLogger = {
 ### Task 2.2: @ts-ignore Removal
 
 **Files to modify:**
+
 - `src/features/clients/ClientForm.tsx` (lines 38-40)
 - `src/features/projects/ProjectForm.tsx` (line 51)
 
 In both files, look for patterns like:
+
 ```typescript
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — deliberate reset pattern
@@ -370,6 +382,7 @@ setFormData({ ... });
 ```
 
 **Remove** the `@ts-ignore` comment and the `@typescript-eslint/ban-ts-comment` disable comment. Keep only the eslint-disable if needed:
+
 ```typescript
 // eslint-disable-next-line react-hooks/set-state-in-effect
 setFormData({ ... });
@@ -378,6 +391,7 @@ setFormData({ ... });
 If the ESLint rule doesn't exist in the config, just remove all the suppression comments entirely.
 
 **Acceptance criteria:**
+
 - [ ] No `@ts-ignore` comments in either file
 - [ ] `pnpm build` passes (no TypeScript errors introduced)
 
@@ -428,6 +442,7 @@ return (
 **All business logic (refs, store manipulation, event emission) stays exactly the same.** Only the JSX wrapper changes from raw div+Card to Modal.
 
 **Acceptance criteria:**
+
 - [ ] IdleDialog uses `<Modal>` component
 - [ ] `Card` import removed from IdleDialog.tsx
 - [ ] Idle detection still works: timer pauses after 5 minutes idle, dialog shows on return
@@ -444,11 +459,13 @@ return (
 **File to modify:** `src/components/layout/Layout.tsx`
 
 **Step 1:** Add import at top:
+
 ```typescript
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 ```
 
 **Step 2:** Wrap `<Outlet />` in ErrorBoundary. Change:
+
 ```tsx
 <main className='flex-1 overflow-auto p-8'>
   <div className='page-enter'>
@@ -458,6 +475,7 @@ import { ErrorBoundary } from '../ui/ErrorBoundary';
 ```
 
 To:
+
 ```tsx
 <main className='flex-1 overflow-auto p-8'>
   <ErrorBoundary name='page-content'>
@@ -480,6 +498,7 @@ To:
 ```
 
 **Acceptance criteria:**
+
 - [ ] Layout.tsx imports and wraps Outlet in ErrorBoundary
 - [ ] ErrorBoundary has a "Try Again" button that resets the error state
 - [ ] If a page component throws, the error boundary catches it (not a white screen)
@@ -488,11 +507,13 @@ To:
 ---
 
 **Phase 2 Gate:**
+
 ```bash
 pnpm build && pnpm test
 ```
 
 **Commit:**
+
 ```bash
 git add -A
 git commit -m "refactor: console.log cleanup, ts-ignore removal, IdleDialog modal, ErrorBoundary"
@@ -515,6 +536,7 @@ import { useEffect, useRef, useId, type ReactNode } from 'react';
 ```
 
 Inside the Modal function, add:
+
 ```typescript
 const modalTitleId = useId();
 const previouslyFocusedRef = useRef<HTMLElement | null>(null);
@@ -541,7 +563,13 @@ const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 **Step 3:** Add `id` to the title element:
 
 ```tsx
-{title && <h2 id={modalTitleId} className='text-lg font-semibold text-foreground'>{title}</h2>}
+{
+  title && (
+    <h2 id={modalTitleId} className='text-lg font-semibold text-foreground'>
+      {title}
+    </h2>
+  );
+}
 ```
 
 **Step 4:** Replace the existing focus effect (lines 59-63) with focus trap + focus restoration:
@@ -595,6 +623,7 @@ useEffect(() => {
 ```
 
 **Acceptance criteria:**
+
 - [ ] Modal has `role="dialog"` and `aria-modal="true"`
 - [ ] Modal has `aria-labelledby` pointing to the title when title is provided
 - [ ] Tab key cycles within modal focusable elements (doesn't escape to background)
@@ -606,11 +635,13 @@ useEffect(() => {
 ---
 
 **Phase 3 Gate:**
+
 ```bash
 pnpm build && pnpm test
 ```
 
 **Commit:**
+
 ```bash
 git add src/components/ui/Modal.tsx
 git commit -m "feat: full ARIA compliance for Modal (focus trap, roles, restoration)"
@@ -677,6 +708,7 @@ export async function downloadCSV(filename: string, csvContent: string): Promise
 **Modify:** `src/features/time-entries/TimeEntriesList.tsx`
 
 Add import:
+
 ```typescript
 import { Download } from 'lucide-react';
 import { generateCSV, downloadCSV } from '../../lib/exportUtils';
@@ -684,17 +716,32 @@ import { uiLogger } from '../../lib/logger';
 ```
 
 Add export handler inside the component:
+
 ```typescript
 const handleExportCSV = async () => {
   try {
-    const headers = ['Date', 'Project', 'Client', 'Start', 'End', 'Duration', 'Billable', 'Billed', 'Notes'];
+    const headers = [
+      'Date',
+      'Project',
+      'Client',
+      'Start',
+      'End',
+      'Duration',
+      'Billable',
+      'Billed',
+      'Notes',
+    ];
     const rows = filteredEntries.map((entry) => [
       new Date(entry.startTime).toLocaleDateString(),
       entry.projectName || '',
       entry.clientName || '',
       new Date(entry.startTime).toLocaleTimeString(),
       entry.endTime ? new Date(entry.endTime).toLocaleTimeString() : '',
-      entry.endTime ? formatDurationShort(calculateDuration(entry.startTime, entry.endTime, entry.pauseDuration)) : '',
+      entry.endTime
+        ? formatDurationShort(
+            calculateDuration(entry.startTime, entry.endTime, entry.pauseDuration),
+          )
+        : '',
       entry.isBillable ? 'Yes' : 'No',
       entry.isBilled ? 'Yes' : 'No',
       entry.notes || '',
@@ -709,8 +756,14 @@ const handleExportCSV = async () => {
 ```
 
 Add an "Export CSV" button next to the filter area in the header:
+
 ```tsx
-<Button variant='outline' size='sm' onClick={handleExportCSV} disabled={filteredEntries.length === 0}>
+<Button
+  variant='outline'
+  size='sm'
+  onClick={handleExportCSV}
+  disabled={filteredEntries.length === 0}
+>
   <Download className='w-4 h-4' />
   Export CSV
 </Button>
@@ -719,10 +772,20 @@ Add an "Export CSV" button next to the filter area in the header:
 **Similarly for `src/features/invoices/InvoicesList.tsx`:**
 
 Add the same imports and a handler:
+
 ```typescript
 const handleExportCSV = async () => {
   try {
-    const headers = ['Invoice #', 'Client', 'Issue Date', 'Due Date', 'Status', 'Subtotal', 'Tax', 'Total'];
+    const headers = [
+      'Invoice #',
+      'Client',
+      'Issue Date',
+      'Due Date',
+      'Status',
+      'Subtotal',
+      'Tax',
+      'Total',
+    ];
     const rows = invoices.map((inv) => [
       inv.invoiceNumber,
       inv.clientName,
@@ -743,6 +806,7 @@ const handleExportCSV = async () => {
 ```
 
 Add button in the header area (next to "New Invoice"):
+
 ```tsx
 <Button variant='outline' size='sm' onClick={handleExportCSV} disabled={invoices.length === 0}>
   <Download className='w-4 h-4' />
@@ -751,6 +815,7 @@ Add button in the header area (next to "New Invoice"):
 ```
 
 **Acceptance criteria:**
+
 - [ ] "Export CSV" button visible in Time Entries and Invoices pages
 - [ ] Clicking export opens save dialog (Tauri) or downloads file (browser)
 - [ ] CSV content is properly escaped (commas, quotes, newlines in data)
@@ -831,7 +896,12 @@ function ToastItem({
   toast,
   onDismiss,
 }: {
-  toast: { id: string; message: string; action?: { label: string; onClick: () => void }; duration?: number };
+  toast: {
+    id: string;
+    message: string;
+    action?: { label: string; onClick: () => void };
+    duration?: number;
+  };
   onDismiss: () => void;
 }) {
   useEffect(() => {
@@ -853,7 +923,11 @@ function ToastItem({
           {toast.action.label}
         </button>
       )}
-      <button onClick={onDismiss} className='opacity-60 hover:opacity-100 shrink-0' aria-label='Dismiss'>
+      <button
+        onClick={onDismiss}
+        className='opacity-60 hover:opacity-100 shrink-0'
+        aria-label='Dismiss'
+      >
         <X className='w-4 h-4' />
       </button>
     </div>
@@ -862,11 +936,12 @@ function ToastItem({
 ```
 
 **Export from barrel:** Add to `src/components/ui/index.ts`:
+
 ```typescript
 export { ToastContainer } from './Toast';
 ```
 
-**Mount ToastContainer globally.** In `src/App.tsx`, inside `AppContent` component, add before `</>`  closing fragment:
+**Mount ToastContainer globally.** In `src/App.tsx`, inside `AppContent` component, add before `</>` closing fragment:
 
 ```tsx
 import { ToastContainer } from './components/ui/Toast';
@@ -874,16 +949,15 @@ import { ToastContainer } from './components/ui/Toast';
 // Inside AppContent return:
 <>
   <IdleMonitor />
-  <BrowserRouter>
-    ...
-  </BrowserRouter>
+  <BrowserRouter>...</BrowserRouter>
   <ToastContainer />
-</>
+</>;
 ```
 
 **Now implement Undo Last Stop.** Modify `src/stores/timerStore.ts`:
 
 Add to the interface:
+
 ```typescript
 interface TimerStore {
   // ... existing fields ...
@@ -945,6 +1019,7 @@ stop: () => {
 ```
 
 Add the new actions:
+
 ```typescript
 undoStop: () => {
   const { lastStoppedState } = get();
@@ -1001,6 +1076,7 @@ addToast({
 **Also clear lastStoppedState when a new timer starts.** In the `start` action of timerStore, add `lastStoppedState: null` to the set() call.
 
 **Acceptance criteria:**
+
 - [ ] Toast notification appears at bottom-right when timer is stopped
 - [ ] Toast shows "Timer stopped" with "Undo" button
 - [ ] Clicking "Undo" restores the timer to running state with correct elapsed time
@@ -1109,38 +1185,46 @@ const handleBulkBilled = async (isBilled: boolean) => {
 **Step 3:** Add "Select All" checkbox and bulk action bar in the UI. Add this before the entries list rendering:
 
 ```tsx
-{/* Bulk action bar */}
-{filteredEntries.length > 0 && (
-  <div className='flex items-center gap-3'>
-    <label className='flex items-center gap-2 text-sm cursor-pointer'>
-      <input
-        type='checkbox'
-        checked={selectedIds.size === filteredEntries.length && filteredEntries.length > 0}
-        onChange={toggleSelectAll}
-        className='rounded border-border'
-      />
-      Select All
-    </label>
-    {selectedIds.size > 0 && (
-      <div className='flex items-center gap-2 ml-4'>
-        <Badge>{selectedIds.size} selected</Badge>
-        <Button variant='outline' size='sm' onClick={() => handleBulkBillable(true)}>
-          Mark Billable
-        </Button>
-        <Button variant='outline' size='sm' onClick={() => handleBulkBillable(false)}>
-          Mark Non-Billable
-        </Button>
-        <Button variant='outline' size='sm' onClick={() => handleBulkBilled(true)}>
-          Mark Billed
-        </Button>
-        <Button variant='destructive' size='sm' onClick={() => setDeletingEntries(filteredEntries.filter((e) => selectedIds.has(e.id)))}>
-          <Trash2 className='w-4 h-4' />
-          Delete ({selectedIds.size})
-        </Button>
-      </div>
-    )}
-  </div>
-)}
+{
+  /* Bulk action bar */
+}
+{
+  filteredEntries.length > 0 && (
+    <div className='flex items-center gap-3'>
+      <label className='flex items-center gap-2 text-sm cursor-pointer'>
+        <input
+          type='checkbox'
+          checked={selectedIds.size === filteredEntries.length && filteredEntries.length > 0}
+          onChange={toggleSelectAll}
+          className='rounded border-border'
+        />
+        Select All
+      </label>
+      {selectedIds.size > 0 && (
+        <div className='flex items-center gap-2 ml-4'>
+          <Badge>{selectedIds.size} selected</Badge>
+          <Button variant='outline' size='sm' onClick={() => handleBulkBillable(true)}>
+            Mark Billable
+          </Button>
+          <Button variant='outline' size='sm' onClick={() => handleBulkBillable(false)}>
+            Mark Non-Billable
+          </Button>
+          <Button variant='outline' size='sm' onClick={() => handleBulkBilled(true)}>
+            Mark Billed
+          </Button>
+          <Button
+            variant='destructive'
+            size='sm'
+            onClick={() => setDeletingEntries(filteredEntries.filter((e) => selectedIds.has(e.id)))}
+          >
+            <Trash2 className='w-4 h-4' />
+            Delete ({selectedIds.size})
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
 ```
 
 **Step 4:** Add checkbox to each entry card. Inside each entry's Card component, add at the start:
@@ -1184,6 +1268,7 @@ const handleBulkBilled = async (isBilled: boolean) => {
 ```
 
 **Acceptance criteria:**
+
 - [ ] "Select All" checkbox toggles all visible entries
 - [ ] Individual checkboxes toggle entry selection
 - [ ] Bulk action bar appears when entries are selected
@@ -1196,11 +1281,13 @@ const handleBulkBilled = async (isBilled: boolean) => {
 ---
 
 **Phase 4 Gate:**
+
 ```bash
 pnpm build && pnpm test
 ```
 
 **Commit:**
+
 ```bash
 git add -A
 git commit -m "feat: CSV export, undo last stop with toast, time entry bulk actions"
@@ -1243,6 +1330,7 @@ export function ListSkeleton({ count = 5 }: { count?: number }) {
 ```
 
 **Export from barrel:** Add to `src/components/ui/index.ts`:
+
 ```typescript
 export { Skeleton, CardSkeleton, ListSkeleton } from './Skeleton';
 ```
@@ -1250,6 +1338,7 @@ export { Skeleton, CardSkeleton, ListSkeleton } from './Skeleton';
 **Replace spinner loading states in these files:**
 
 Pattern to find:
+
 ```tsx
 if (loading) {
   return (
@@ -1261,6 +1350,7 @@ if (loading) {
 ```
 
 Replace with:
+
 ```tsx
 import { ListSkeleton } from '../../components/ui';
 
@@ -1270,6 +1360,7 @@ if (loading) {
 ```
 
 **Files to update:**
+
 - `src/features/invoices/InvoicesList.tsx` (lines 128-134)
 - `src/features/clients/ClientsList.tsx` (find the loading spinner)
 - `src/features/projects/ProjectsList.tsx` (find the loading spinner)
@@ -1277,6 +1368,7 @@ if (loading) {
 - `src/features/dashboard/DashboardSummary.tsx` (find the loading spinner)
 
 **Acceptance criteria:**
+
 - [ ] All list pages show shimmer skeletons instead of spinners while loading
 - [ ] Shimmer animation is smooth and visible
 - [ ] Skeleton layout roughly matches the actual content layout
@@ -1348,7 +1440,9 @@ export function KeyboardShortcutsDialog({ isOpen, onClose }: KeyboardShortcutsDi
                         <kbd className='px-2 py-1 text-xs font-mono bg-secondary border border-border rounded-md'>
                           {key}
                         </kbd>
-                        {i < shortcut.keys.length - 1 && <span className='mx-0.5 text-muted-foreground'>+</span>}
+                        {i < shortcut.keys.length - 1 && (
+                          <span className='mx-0.5 text-muted-foreground'>+</span>
+                        )}
                       </span>
                     ))}
                   </div>
@@ -1364,6 +1458,7 @@ export function KeyboardShortcutsDialog({ isOpen, onClose }: KeyboardShortcutsDi
 ```
 
 **Export from barrel:** Add to `src/components/ui/index.ts`:
+
 ```typescript
 export { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog';
 ```
@@ -1395,6 +1490,7 @@ useEffect(() => {
 Add `useState` to the existing React import if not already there.
 
 **Acceptance criteria:**
+
 - [ ] Pressing `?` key opens the shortcuts dialog
 - [ ] Pressing `?` while typing in an input field does NOT open the dialog
 - [ ] All shortcuts are displayed with correct key combinations
@@ -1426,26 +1522,28 @@ export function useGlobalSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [invoices, setInvoices] = useState<{ id: string; invoiceNumber: string; clientName: string; status: string }[]>([]);
+  const [invoices, setInvoices] = useState<
+    { id: string; invoiceNumber: string; clientName: string; status: string }[]
+  >([]);
 
   // Load all data once when search opens
   useEffect(() => {
     if (!isOpen) return;
 
-    Promise.all([
-      clientService.getAll(),
-      projectService.getAll(),
-      invoiceService.getAll(),
-    ]).then(([c, p, i]) => {
-      setClients(c);
-      setProjects(p);
-      setInvoices(i.map((inv) => ({
-        id: inv.id,
-        invoiceNumber: inv.invoiceNumber,
-        clientName: inv.clientName,
-        status: inv.status,
-      })));
-    });
+    Promise.all([clientService.getAll(), projectService.getAll(), invoiceService.getAll()]).then(
+      ([c, p, i]) => {
+        setClients(c);
+        setProjects(p);
+        setInvoices(
+          i.map((inv) => ({
+            id: inv.id,
+            invoiceNumber: inv.invoiceNumber,
+            clientName: inv.clientName,
+            status: inv.status,
+          })),
+        );
+      },
+    );
   }, [isOpen]);
 
   const results = useMemo((): SearchResult[] => {
@@ -1603,7 +1701,10 @@ export function Header() {
                     className='flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground'
                   />
                   {query && (
-                    <button onClick={() => setQuery('')} className='text-muted-foreground hover:text-foreground'>
+                    <button
+                      onClick={() => setQuery('')}
+                      className='text-muted-foreground hover:text-foreground'
+                    >
                       <X className='w-4 h-4' />
                     </button>
                   )}
@@ -1631,7 +1732,9 @@ export function Header() {
                             <div className='flex-1 min-w-0'>
                               <p className='text-sm font-medium truncate'>{result.title}</p>
                               {result.subtitle && (
-                                <p className='text-xs text-muted-foreground truncate'>{result.subtitle}</p>
+                                <p className='text-xs text-muted-foreground truncate'>
+                                  {result.subtitle}
+                                </p>
                               )}
                             </div>
                             <span className='text-xs text-muted-foreground capitalize shrink-0'>
@@ -1646,9 +1749,15 @@ export function Header() {
 
                 {/* Footer */}
                 <div className='px-4 py-2 border-t border-border flex items-center gap-4 text-xs text-muted-foreground'>
-                  <span><kbd className='px-1 bg-secondary rounded'>↑↓</kbd> Navigate</span>
-                  <span><kbd className='px-1 bg-secondary rounded'>↵</kbd> Select</span>
-                  <span><kbd className='px-1 bg-secondary rounded'>Esc</kbd> Close</span>
+                  <span>
+                    <kbd className='px-1 bg-secondary rounded'>↑↓</kbd> Navigate
+                  </span>
+                  <span>
+                    <kbd className='px-1 bg-secondary rounded'>↵</kbd> Select
+                  </span>
+                  <span>
+                    <kbd className='px-1 bg-secondary rounded'>Esc</kbd> Close
+                  </span>
                 </div>
               </div>
             </div>
@@ -1661,6 +1770,7 @@ export function Header() {
 ```
 
 **Acceptance criteria:**
+
 - [ ] Cmd+K (Mac) / Ctrl+K (Windows/Linux) opens the search overlay
 - [ ] Typing filters results across clients, projects, and invoices
 - [ ] Arrow keys navigate results, Enter selects
@@ -1764,11 +1874,13 @@ const handleDeleteClient = () => {
 ```
 
 Apply the same pattern to:
+
 - `src/features/projects/ProjectsList.tsx` — project deletes
 - `src/features/invoices/InvoicesList.tsx` — invoice deletes
 - `src/features/time-entries/TimeEntriesList.tsx` — single entry deletes (bulk already has confirm)
 
 **Acceptance criteria:**
+
 - [ ] Deleting a client shows "Deleted client 'X'" toast with Undo button
 - [ ] Clicking Undo before 10s restores the item (reloads from DB)
 - [ ] After 10s, the item is actually deleted from the database
@@ -1778,11 +1890,13 @@ Apply the same pattern to:
 ---
 
 **Phase 5 Gate:**
+
 ```bash
 pnpm build && pnpm test
 ```
 
 **Commit:**
+
 ```bash
 git add -A
 git commit -m "feat: loading skeletons, keyboard shortcuts help, global search, undo actions"
@@ -1811,6 +1925,7 @@ grep -r "@ts-ignore" src/ --include="*.tsx" --include="*.ts" | wc -l
 ```
 
 **Manual verification (if running the app):**
+
 - [ ] Create an invoice with 25+ line items, export PDF — should span multiple pages
 - [ ] Open invoice preview with many items — modal scrolls, header stays fixed
 - [ ] Press `?` — keyboard shortcuts dialog opens
@@ -1826,10 +1941,10 @@ grep -r "@ts-ignore" src/ --include="*.tsx" --include="*.ts" | wc -l
 
 ## Summary
 
-| Phase | Tasks | Type | Commit Message |
-|-------|-------|------|----------------|
-| 1 | 1.1, 1.2 | Bug fixes | `fix: PDF multi-page pagination and modal scroll overflow` |
-| 2 | 2.1-2.4 | Audit fixes | `refactor: console.log cleanup, ts-ignore removal, IdleDialog modal, ErrorBoundary` |
-| 3 | 3.1 | Accessibility | `feat: full ARIA compliance for Modal (focus trap, roles, restoration)` |
-| 4 | 4.1-4.3 | Features | `feat: CSV export, undo last stop with toast, time entry bulk actions` |
-| 5 | 5.1-5.4 | UX | `feat: loading skeletons, keyboard shortcuts help, global search, undo actions` |
+| Phase | Tasks    | Type          | Commit Message                                                                      |
+| ----- | -------- | ------------- | ----------------------------------------------------------------------------------- |
+| 1     | 1.1, 1.2 | Bug fixes     | `fix: PDF multi-page pagination and modal scroll overflow`                          |
+| 2     | 2.1-2.4  | Audit fixes   | `refactor: console.log cleanup, ts-ignore removal, IdleDialog modal, ErrorBoundary` |
+| 3     | 3.1      | Accessibility | `feat: full ARIA compliance for Modal (focus trap, roles, restoration)`             |
+| 4     | 4.1-4.3  | Features      | `feat: CSV export, undo last stop with toast, time entry bulk actions`              |
+| 5     | 5.1-5.4  | UX            | `feat: loading skeletons, keyboard shortcuts help, global search, undo actions`     |

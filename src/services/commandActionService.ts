@@ -4,7 +4,11 @@ import { exportInvoicePdfById } from './invoicePdfService';
 
 interface CommandActionDependencies {
   navigate: (route: string) => void;
-  startTimer?: (projectId: string, projectName: string, projectColor: string) => Promise<void> | void;
+  startTimer?: (
+    projectId: string,
+    projectName: string,
+    projectColor: string,
+  ) => Promise<void> | void;
   markInvoicePaid?: (invoiceId: string) => Promise<void> | void;
   exportInvoicePdf?: (invoiceId: string) => Promise<void> | void;
 }

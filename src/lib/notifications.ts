@@ -1,6 +1,8 @@
 // Notification utilities
 // Uses Tauri notification API when available, falls back to browser Notification API
 
+import { uiLogger } from './logger';
+
 export async function requestNotificationPermission(): Promise<boolean> {
   // Check if we're in Tauri
   const isTauri = '__TAURI__' in window || '__TAURI_INTERNALS__' in window;
@@ -42,7 +44,7 @@ export async function showNotification(title: string, body: string): Promise<voi
         return;
       }
     } catch (error) {
-      console.warn('Tauri notification plugin not available, falling back to browser:', error);
+      uiLogger.warn('Tauri notification plugin not available, falling back to browser', { error });
     }
   }
 

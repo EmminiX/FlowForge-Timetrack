@@ -325,8 +325,12 @@ export function Settings() {
                         <button
                           key={minutes}
                           type='button'
-                          aria-pressed={localSettings.activityTimelineSuggestionMinMinutes === minutes}
-                          onClick={() => handleAutoSave('activityTimelineSuggestionMinMinutes', minutes)}
+                          aria-pressed={
+                            localSettings.activityTimelineSuggestionMinMinutes === minutes
+                          }
+                          onClick={() =>
+                            handleAutoSave('activityTimelineSuggestionMinMinutes', minutes)
+                          }
                           className={clsx(
                             'min-h-11 px-4 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                             localSettings.activityTimelineSuggestionMinMinutes === minutes

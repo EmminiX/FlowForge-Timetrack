@@ -1,6 +1,7 @@
 // Settings service - persists app settings to database
 
 import { getDb } from '../lib/db';
+import { uiLogger } from '../lib/logger';
 import { shouldUseDemoMode } from '../lib/platform';
 import type { AppSettings } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
@@ -27,7 +28,7 @@ export const settingsService = {
           (settings as Record<string, unknown>)[row.key] = value;
         }
       } catch (e) {
-        console.error(`Failed to parse setting ${row.key}:`, e);
+        uiLogger.error(`Failed to parse setting ${row.key}`, e);
       }
     }
 

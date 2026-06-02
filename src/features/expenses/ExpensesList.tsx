@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Paperclip, Pencil, Plus, Receipt, Search, Trash2 } from 'lucide-react';
 import type { Client, CreateExpenseInput, ExpenseWithDetails, Project } from '../../types';
 import { clientService, expenseService, projectService } from '../../services';
+import { expenseLogger } from '../../lib/logger';
 import { isTauriRuntime } from '../../lib/platform';
 import {
   Badge,
@@ -74,7 +75,7 @@ export function ExpensesList() {
       setClients(clientData);
       setProjects(projectData);
     } catch (error) {
-      console.error('Failed to load expenses:', error);
+      expenseLogger.error('Failed to load expenses', error);
     } finally {
       setLoading(false);
     }

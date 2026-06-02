@@ -5,6 +5,7 @@ import { useTimerStore } from '../stores/timerStore';
 import { useSettings } from '../contexts/SettingsContext';
 import { toggleWidget } from '../lib/widgetWindow';
 import { timeEntryService } from '../services';
+import { shortcutLogger } from '../lib/logger';
 import { isTauriRuntime } from '../lib/platform';
 import { safeEmit } from '../lib/tauriRuntime';
 
@@ -64,7 +65,7 @@ export function useShortcuts() {
                 // emit is informational only -- don't let event-bus failures cause a
                 // persistence rollback when the DB row already exists
                 safeEmit('time-entry-saved').catch((err) => {
-                  console.warn('Failed to emit time-entry-saved:', err);
+                  shortcutLogger.warn('Failed to emit time-entry-saved', { err });
                 });
                 return entry.id;
               });
@@ -72,7 +73,7 @@ export function useShortcuts() {
                 await showNotification('Timer Stopped', 'Time entry has been saved');
               }
             } catch (err) {
-              console.error('Failed to save time entry via shortcut:', err);
+              shortcutLogger.error('Failed to save time entry via shortcut', err);
               await showNotification('Error', 'Failed to save time entry');
             }
           }
@@ -116,7 +117,7 @@ export function useShortcuts() {
         }
       })
       .catch((error) => {
-        console.error('Failed to subscribe to shortcuts:', error);
+        shortcutLogger.error('Failed to subscribe to shortcuts', error);
       });
 
     return () => {
@@ -132,15 +133,14 @@ async function showNotification(title: string, body: string) {
   }
 
   try {
-    const { isPermissionGranted, sendNotification } = await import(
-      '@tauri-apps/plugin-notification'
-    );
+    const { isPermissionGranted, sendNotification } =
+      await import('@tauri-apps/plugin-notification');
     const permitted = await isPermissionGranted();
     if (permitted) {
       sendNotification({ title, body });
     }
   } catch (error) {
     // Notifications not available, silently fail
-    console.debug('Notification not sent:', error);
+    shortcutLogger.debug('Notification not sent', { error });
   }
 }

@@ -7,6 +7,7 @@ import type { StopResult } from '../stores/timerStore';
 import { settingsService } from '../services';
 import { playStartSound, playPauseSound, playResumeSound, playStopSound } from '../lib/sounds';
 import { notifyTimerStarted, notifyTimerStopped } from '../lib/notifications';
+import { uiLogger } from '../lib/logger';
 import { formatDuration } from '../types';
 
 export function useTimerWithEffects() {
@@ -23,7 +24,9 @@ export function useTimerWithEffects() {
       }
 
       if (settings.enableNotifications) {
-        notifyTimerStarted(projectName).catch(console.warn);
+        notifyTimerStarted(projectName).catch((error) => {
+          uiLogger.warn('Failed to send timer-start notification', { error });
+        });
       }
     },
     [timerStore],
@@ -66,7 +69,9 @@ export function useTimerWithEffects() {
     }
 
     if (settings.enableNotifications && projectName) {
-      notifyTimerStopped(projectName, formatDuration(elapsedSeconds)).catch(console.warn);
+      notifyTimerStopped(projectName, formatDuration(elapsedSeconds)).catch((error) => {
+        uiLogger.warn('Failed to send timer-stop notification', { error });
+      });
     }
 
     return result;
@@ -90,7 +95,9 @@ export function useTimerWithEffects() {
           playStopSound();
         }
         if (settings.enableNotifications && projectName) {
-          notifyTimerStopped(projectName, formatDuration(elapsedSeconds)).catch(console.warn);
+          notifyTimerStopped(projectName, formatDuration(elapsedSeconds)).catch((error) => {
+            uiLogger.warn('Failed to send timer-stop notification', { error });
+          });
         }
       }
 
