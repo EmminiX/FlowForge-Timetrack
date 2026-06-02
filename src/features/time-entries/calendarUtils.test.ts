@@ -4,6 +4,7 @@ import {
   buildCalendarBlocks,
   findCalendarGaps,
   getWeekDays,
+  moveCalendarEntry,
   resizeCalendarEntry,
 } from './calendarUtils';
 
@@ -126,6 +127,88 @@ describe('calendarUtils', () => {
     ).toEqual({
       startTime: '2026-06-02T09:30:00.000Z',
       endTime: '2026-06-02T10:00:00.000Z',
+    });
+  });
+
+  it('resizes entries inside working-hour clamps', () => {
+    expect(
+      resizeCalendarEntry(
+        {
+          startTime: '2026-06-02T08:15:00.000Z',
+          endTime: '2026-06-02T09:00:00.000Z',
+        },
+        'start',
+        -30,
+        {
+          snapMinutes: 15,
+          minDurationMinutes: 30,
+          dayStartMinutes: 8 * 60,
+          dayEndMinutes: 18 * 60,
+        },
+      ),
+    ).toEqual({
+      startTime: '2026-06-02T08:00:00.000Z',
+      endTime: '2026-06-02T09:00:00.000Z',
+    });
+
+    expect(
+      resizeCalendarEntry(
+        {
+          startTime: '2026-06-02T17:00:00.000Z',
+          endTime: '2026-06-02T17:45:00.000Z',
+        },
+        'end',
+        30,
+        {
+          snapMinutes: 15,
+          minDurationMinutes: 30,
+          dayStartMinutes: 8 * 60,
+          dayEndMinutes: 18 * 60,
+        },
+      ),
+    ).toEqual({
+      startTime: '2026-06-02T17:00:00.000Z',
+      endTime: '2026-06-02T18:00:00.000Z',
+    });
+  });
+
+  it('moves entries in snapped increments while preserving duration and working-hour bounds', () => {
+    expect(
+      moveCalendarEntry(
+        {
+          startTime: '2026-06-02T09:00:00.000Z',
+          endTime: '2026-06-02T10:00:00.000Z',
+        },
+        28,
+        {
+          pixelsPerHour: 56,
+          snapMinutes: 15,
+          dayStartMinutes: 8 * 60,
+          dayEndMinutes: 18 * 60,
+        },
+      ),
+    ).toEqual({
+      startTime: '2026-06-02T09:30:00.000Z',
+      endTime: '2026-06-02T10:30:00.000Z',
+    });
+
+    expect(
+      moveCalendarEntry(
+        {
+          startTime: '2026-06-02T08:15:00.000Z',
+          endTime: '2026-06-02T08:45:00.000Z',
+        },
+        -60,
+        {
+          pixelsPerHour: 56,
+          snapMinutes: 15,
+          dayStartMinutes: 8 * 60,
+          dayEndMinutes: 18 * 60,
+        },
+      ),
+    ).toEqual({
+      startTime: '2026-06-02T08:00:00.000Z',
+      endTime: '2026-06-02T08:30:00.000Z',
     });
   });
 });

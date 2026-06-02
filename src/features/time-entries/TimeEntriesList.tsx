@@ -17,6 +17,11 @@ import { timeEntryService, projectService, clientService } from '../../services'
 import type { Project, Client } from '../../types';
 import { timeEntryLogger } from '../../lib/logger';
 import { generateCSV, downloadCSV } from '../../lib/exportUtils';
+import {
+  datetimeInputValueToIso,
+  getDurationSecondsFromLocalInputs,
+  toLocalDatetimeInputValue,
+} from '../../lib/dateTimeInput';
 import { ListSkeleton } from '../../components/ui';
 import { useUndoableAction } from '../../hooks/useUndoableAction';
 import {
@@ -91,15 +96,19 @@ export function TimeEntriesList() {
     const params = new URLSearchParams(location.search);
     if (params.get('quick-add') !== '1') return;
 
-    setShowQuickAdd(true);
-    params.delete('quick-add');
-    navigate(
-      {
-        pathname: location.pathname,
-        search: params.toString() ? `?${params.toString()}` : '',
-      },
-      { replace: true },
-    );
+    const timer = setTimeout(() => {
+      setShowQuickAdd(true);
+      params.delete('quick-add');
+      navigate(
+        {
+          pathname: location.pathname,
+          search: params.toString() ? `?${params.toString()}` : '',
+        },
+        { replace: true },
+      );
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [location.pathname, location.search, navigate]);
 
   // Apply filters
@@ -763,11 +772,6 @@ const TimeEntryCard = ({
   );
 };
 
-const toLocalDatetime = (iso: string) => {
-  const date = new Date(iso);
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-};
-
 const QuickAddTimeEntryModal = ({
   projects,
   onClose,
@@ -782,17 +786,14 @@ const QuickAddTimeEntryModal = ({
   const now = new Date();
   const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
   const [projectId, setProjectId] = useState(projects[0]?.id || '');
-  const [startTime, setStartTime] = useState(toLocalDatetime(oneHourAgo.toISOString()));
-  const [endTime, setEndTime] = useState(toLocalDatetime(now.toISOString()));
+  const [startTime, setStartTime] = useState(toLocalDatetimeInputValue(oneHourAgo.toISOString()));
+  const [endTime, setEndTime] = useState(toLocalDatetimeInputValue(now.toISOString()));
   const [notes, setNotes] = useState('');
   const [isBillable, setIsBillable] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const durationSeconds = useMemo(() => {
-    if (!startTime || !endTime) return 0;
-    const start = new Date(startTime).getTime();
-    const end = new Date(endTime).getTime();
-    return Math.max(0, (end - start) / 1000);
+    return getDurationSecondsFromLocalInputs(startTime, endTime);
   }, [startTime, endTime]);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -812,8 +813,8 @@ const QuickAddTimeEntryModal = ({
     try {
       await onSave({
         projectId,
-        startTime: new Date(startTime).toISOString(),
-        endTime: new Date(endTime).toISOString(),
+        startTime: datetimeInputValueToIso(startTime),
+        endTime: datetimeInputValueToIso(endTime),
         pauseDuration: 0,
         notes,
         isBillable,
@@ -912,8 +913,8 @@ const EditTimeEntryModal = ({
 }) => {
   const [saving, setSaving] = useState(false);
 
-  const [startTime, setStartTime] = useState(toLocalDatetime(entry.startTime));
-  const [endTime, setEndTime] = useState(entry.endTime ? toLocalDatetime(entry.endTime) : '');
+  const [startTime, setStartTime] = useState(toLocalDatetimeInputValue(entry.startTime));
+  const [endTime, setEndTime] = useState(toLocalDatetimeInputValue(entry.endTime));
   const [notes, setNotes] = useState(entry.notes || '');
   const [isBillable, setIsBillable] = useState(entry.isBillable);
 
@@ -922,8 +923,8 @@ const EditTimeEntryModal = ({
     setSaving(true);
     try {
       await onSave({
-        startTime: new Date(startTime).toISOString(),
-        endTime: endTime ? new Date(endTime).toISOString() : null,
+        startTime: datetimeInputValueToIso(startTime),
+        endTime: endTime ? datetimeInputValueToIso(endTime) : null,
         notes,
         isBillable,
       });
@@ -936,10 +937,7 @@ const EditTimeEntryModal = ({
 
   // Calculate duration for display
   const durationSeconds = useMemo(() => {
-    if (!startTime || !endTime) return 0;
-    const start = new Date(startTime).getTime();
-    const end = new Date(endTime).getTime();
-    return Math.max(0, (end - start) / 1000 - (entry.pauseDuration || 0));
+    return getDurationSecondsFromLocalInputs(startTime, endTime, entry.pauseDuration || 0);
   }, [startTime, endTime, entry.pauseDuration]);
 
   return (
