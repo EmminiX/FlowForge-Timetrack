@@ -149,8 +149,6 @@ function validateTimeFields({
     errors.endTime = 'Enter a valid end time.';
   } else if (!Number.isNaN(start) && end <= start) {
     errors.endTime = 'End must be after start.';
-  } else if (!Number.isNaN(start) && end - start < MIN_DURATION_MINUTES * 60 * 1000) {
-    errors.endTime = `Use at least ${MIN_DURATION_MINUTES} minutes.`;
   }
 
   return errors;
