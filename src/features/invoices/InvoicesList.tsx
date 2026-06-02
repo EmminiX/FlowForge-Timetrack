@@ -19,6 +19,7 @@ import {
   productService,
   downPaymentService,
   expenseService,
+  invoicePaymentService,
 } from '../../services';
 import { invoiceLogger } from '../../lib/logger';
 import { generateCSV, downloadCSV } from '../../lib/exportUtils';
@@ -38,6 +39,7 @@ import {
   Textarea,
 } from '../../components/ui';
 import { QuerySelect } from './QuerySelect';
+import { InvoicePaymentHub } from './InvoicePaymentHub';
 
 // Currency formatting helpers
 const CURRENCY_SYMBOLS: Record<Currency, string> = {
@@ -171,6 +173,14 @@ export function InvoicesList() {
   const handleStatusChange = async (invoiceId: string, newStatus: InvoiceStatus) => {
     try {
       await invoiceService.update(invoiceId, { status: newStatus });
+      if (newStatus === 'sent' || newStatus === 'paid') {
+        await invoicePaymentService.recordEvent({
+          invoiceId,
+          eventType: newStatus,
+          eventDate: new Date().toISOString(),
+          message: newStatus === 'sent' ? 'Invoice sent' : 'Invoice marked paid',
+        });
+      }
       await loadData();
     } catch (error) {
       invoiceLogger.error('Failed to update invoice status:', error);
@@ -364,6 +374,7 @@ export function InvoicesList() {
           invoice={viewingInvoice}
           onClose={() => setViewingInvoice(null)}
           clients={clients}
+          onChanged={loadData}
         />
       )}
 
@@ -927,9 +938,10 @@ interface InvoicePreviewProps {
   invoice: InvoiceWithDetails;
   onClose: () => void;
   clients: Client[];
+  onChanged?: () => void;
 }
 
-function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
+function InvoicePreview({ invoice, onClose, clients, onChanged }: InvoicePreviewProps) {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [exporting, setExporting] = useState(false);
 
@@ -1622,6 +1634,12 @@ function InvoicePreview({ invoice, onClose, clients }: InvoicePreviewProps) {
             </a>
           </div>
         )}
+
+        <InvoicePaymentHub
+          invoice={invoice}
+          currency={clients.find((c) => c.id === invoice.clientId)?.currency || 'EUR'}
+          onChanged={onChanged}
+        />
       </div>
 
       <ModalFooter>

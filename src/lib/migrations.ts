@@ -236,6 +236,47 @@ export async function runMigrations(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_activity_timeline_time_entry_id ON activity_timeline_events(time_entry_id)
   `);
 
+  // Create invoice payment hub tables
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS invoice_payments (
+      id TEXT PRIMARY KEY,
+      invoice_id TEXT NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+      amount REAL NOT NULL,
+      payment_date TEXT NOT NULL,
+      method TEXT DEFAULT 'bank_transfer',
+      reference TEXT DEFAULT '',
+      notes TEXT DEFAULT '',
+      created_at TEXT NOT NULL
+    )
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_invoice_payments_invoice_id ON invoice_payments(invoice_id)
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_invoice_payments_payment_date ON invoice_payments(payment_date)
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS invoice_events (
+      id TEXT PRIMARY KEY,
+      invoice_id TEXT NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+      event_type TEXT NOT NULL,
+      event_date TEXT NOT NULL,
+      message TEXT DEFAULT '',
+      created_at TEXT NOT NULL
+    )
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_invoice_events_invoice_id ON invoice_events(invoice_id)
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_invoice_events_event_date ON invoice_events(event_date)
+  `);
+
   const projectBudgetColumns = [
     `ALTER TABLE projects ADD COLUMN budget_type TEXT DEFAULT 'none'`,
     `ALTER TABLE projects ADD COLUMN budget_hours REAL DEFAULT 0`,

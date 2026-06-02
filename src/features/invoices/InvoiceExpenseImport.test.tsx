@@ -20,6 +20,7 @@ const serviceMocks = vi.hoisted(() => ({
   downPaymentGetTotalByClientId: vi.fn(),
   expenseGetUnbilledByClientId: vi.fn(),
   expenseMarkAsBilled: vi.fn(),
+  invoicePaymentRecordEvent: vi.fn(),
 }));
 
 vi.mock('../../services', () => ({
@@ -53,6 +54,9 @@ vi.mock('../../services', () => ({
   expenseService: {
     getUnbilledByClientId: serviceMocks.expenseGetUnbilledByClientId,
     markAsBilled: serviceMocks.expenseMarkAsBilled,
+  },
+  invoicePaymentService: {
+    recordEvent: serviceMocks.invoicePaymentRecordEvent,
   },
 }));
 
@@ -117,6 +121,7 @@ describe('invoice expense import', () => {
       },
     ]);
     serviceMocks.expenseMarkAsBilled.mockResolvedValue(undefined);
+    serviceMocks.invoicePaymentRecordEvent.mockResolvedValue({ id: 'event-1' });
   });
 
   it('imports unbilled expenses into a new invoice and marks them billed', async () => {
@@ -157,6 +162,54 @@ describe('invoice expense import', () => {
         ]),
       );
       expect(serviceMocks.expenseMarkAsBilled).toHaveBeenCalledWith(['expense-1'], 'invoice-1');
+    });
+  });
+
+  it('records a sent timeline event when invoice status changes to sent', async () => {
+    serviceMocks.invoiceGetAll.mockResolvedValue([
+      {
+        id: 'invoice-1',
+        clientId: 'client-1',
+        invoiceNumber: 'INV-2026-0001',
+        issueDate: '2026-06-02',
+        dueDate: '2026-07-02',
+        status: 'draft',
+        notes: '',
+        taxRate: 0.23,
+        downPayment: 0,
+        createdAt: '2026-06-02T00:00:00.000Z',
+        updatedAt: '2026-06-02T00:00:00.000Z',
+        clientName: 'Acme Studio',
+        clientEmail: '',
+        clientPhone: '',
+        clientAddress: '',
+        clientVatNumber: '',
+        lineItems: [],
+        subtotal: 0,
+        taxAmount: 0,
+        total: 0,
+      },
+    ]);
+
+    render(
+      <MemoryRouter initialEntries={['/invoices']}>
+        <InvoicesList />
+      </MemoryRouter>,
+    );
+
+    fireEvent.change(await screen.findByLabelText('Change status for invoice INV-2026-0001'), {
+      target: { value: 'sent' },
+    });
+
+    await waitFor(() => {
+      expect(serviceMocks.invoiceUpdate).toHaveBeenCalledWith('invoice-1', { status: 'sent' });
+      expect(serviceMocks.invoicePaymentRecordEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          invoiceId: 'invoice-1',
+          eventType: 'sent',
+          message: 'Invoice sent',
+        }),
+      );
     });
   });
 });

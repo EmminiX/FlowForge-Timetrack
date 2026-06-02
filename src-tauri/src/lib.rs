@@ -247,6 +247,34 @@ pub fn run() {
             CREATE INDEX IF NOT EXISTS idx_activity_timeline_time_entry_id ON activity_timeline_events(time_entry_id);",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 11,
+            description: "create_invoice_payment_hub_tables",
+            sql: "CREATE TABLE IF NOT EXISTS invoice_payments (
+                id TEXT PRIMARY KEY,
+                invoice_id TEXT NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+                amount REAL NOT NULL,
+                payment_date TEXT NOT NULL,
+                method TEXT DEFAULT 'bank_transfer',
+                reference TEXT DEFAULT '',
+                notes TEXT DEFAULT '',
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_invoice_payments_invoice_id ON invoice_payments(invoice_id);
+            CREATE INDEX IF NOT EXISTS idx_invoice_payments_payment_date ON invoice_payments(payment_date);
+
+            CREATE TABLE IF NOT EXISTS invoice_events (
+                id TEXT PRIMARY KEY,
+                invoice_id TEXT NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+                event_type TEXT NOT NULL,
+                event_date TEXT NOT NULL,
+                message TEXT DEFAULT '',
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_invoice_events_invoice_id ON invoice_events(invoice_id);
+            CREATE INDEX IF NOT EXISTS idx_invoice_events_event_date ON invoice_events(event_date);",
+            kind: MigrationKind::Up,
+        },
     ];
 
     let mut builder = tauri::Builder::default()

@@ -22,9 +22,14 @@ import type {
 } from '../types/expense';
 import type {
   CreateInvoiceInput,
+  CreateInvoiceEventInput,
+  CreateInvoicePaymentInput,
   CreateLineItemInput,
   Invoice,
+  InvoiceEvent,
   InvoiceLineItem,
+  InvoicePayment,
+  InvoicePaymentSummary,
   InvoiceStatus,
   InvoiceWithDetails,
   UpdateInvoiceInput,
@@ -633,6 +638,85 @@ export function createDemoRepository(seed = createDemoSeedData()) {
       },
       async getAllForNumbering(): Promise<Invoice[]> {
         return clone(state.invoices);
+      },
+    },
+
+    invoicePayments: {
+      async getPayments(invoiceId: string): Promise<InvoicePayment[]> {
+        return clone(
+          state.invoicePayments
+            .filter((payment) => payment.invoiceId === invoiceId)
+            .sort((a, b) => b.paymentDate.localeCompare(a.paymentDate) || b.createdAt.localeCompare(a.createdAt)),
+        );
+      },
+      async getEvents(invoiceId: string): Promise<InvoiceEvent[]> {
+        return clone(
+          state.invoiceEvents
+            .filter((event) => event.invoiceId === invoiceId)
+            .sort((a, b) => b.eventDate.localeCompare(a.eventDate) || b.createdAt.localeCompare(a.createdAt)),
+        );
+      },
+      async getSummary(invoiceId: string, invoiceTotal: number): Promise<InvoicePaymentSummary> {
+        const payments = await this.getPayments(invoiceId);
+        const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+        const balanceDue = Math.max(0, invoiceTotal - totalPaid);
+        return {
+          payments,
+          totalPaid,
+          balanceDue,
+          isPaid: balanceDue <= 0,
+        };
+      },
+      async recordEvent(input: CreateInvoiceEventInput): Promise<InvoiceEvent> {
+        const event: InvoiceEvent = {
+          id: createId('demo-invoice-event'),
+          ...input,
+          message: input.message ?? '',
+          createdAt: now(),
+        };
+        state.invoiceEvents.push(event);
+        return clone(event);
+      },
+      async sendReminder(invoiceId: string): Promise<InvoiceEvent> {
+        return this.recordEvent({
+          invoiceId,
+          eventType: 'reminder',
+          eventDate: now(),
+          message: 'Reminder sent',
+        });
+      },
+      async recordPayment(
+        input: CreateInvoicePaymentInput,
+        invoiceTotal: number,
+      ): Promise<InvoicePayment> {
+        const payment: InvoicePayment = {
+          id: createId('demo-payment'),
+          ...input,
+          reference: input.reference ?? '',
+          notes: input.notes ?? '',
+          createdAt: now(),
+        };
+        state.invoicePayments.push(payment);
+
+        const totalPaid = state.invoicePayments
+          .filter((item) => item.invoiceId === input.invoiceId)
+          .reduce((sum, item) => sum + item.amount, 0);
+        const paidInFull = totalPaid >= invoiceTotal;
+
+        await this.recordEvent({
+          invoiceId: input.invoiceId,
+          eventType: paidInFull ? 'paid' : 'partial_payment',
+          eventDate: now(),
+          message: paidInFull ? 'Invoice paid' : `Payment recorded: ${input.amount.toFixed(2)}`,
+        });
+
+        if (paidInFull) {
+          state.invoices = state.invoices.map((invoice) =>
+            invoice.id === input.invoiceId ? { ...invoice, status: 'paid', updatedAt: now() } : invoice,
+          );
+        }
+
+        return clone(payment);
       },
     },
 

@@ -3,7 +3,7 @@ import type { ActivityTimelineEvent } from '../types/activityTimeline';
 import type { Client } from '../types/client';
 import type { DownPayment } from '../types/downPayment';
 import type { Expense } from '../types/expense';
-import type { Invoice, InvoiceLineItem } from '../types/invoice';
+import type { Invoice, InvoiceEvent, InvoiceLineItem, InvoicePayment } from '../types/invoice';
 import type { Product } from '../types/product';
 import type { Project } from '../types/project';
 import type { TimeEntry } from '../types/timeEntry';
@@ -33,6 +33,8 @@ export interface DemoSeedData {
   downPayments: DownPayment[];
   invoices: Invoice[];
   invoiceLineItems: InvoiceLineItem[];
+  invoicePayments: InvoicePayment[];
+  invoiceEvents: InvoiceEvent[];
   products: Product[];
   settings: AppSettings;
 }
@@ -267,6 +269,38 @@ export function createDemoSeedData(now = new Date()): DemoSeedData {
     },
   ];
 
+  const invoicePayments: InvoicePayment[] = [
+    {
+      id: 'demo-payment-1',
+      invoiceId: 'demo-invoice-1',
+      amount: 250,
+      paymentDate: isoDate(yesterday),
+      method: 'bank_transfer',
+      reference: 'DEMO-DEP',
+      notes: 'Deposit applied.',
+      createdAt: atTime(yesterday, 9, 20),
+    },
+  ];
+
+  const invoiceEvents: InvoiceEvent[] = [
+    {
+      id: 'demo-event-sent',
+      invoiceId: 'demo-invoice-1',
+      eventType: 'sent',
+      eventDate: atTime(yesterday, 16, 5),
+      message: 'Invoice sent',
+      createdAt: atTime(yesterday, 16, 5),
+    },
+    {
+      id: 'demo-event-partial-payment',
+      invoiceId: 'demo-invoice-1',
+      eventType: 'partial_payment',
+      eventDate: atTime(yesterday, 16, 10),
+      message: 'Payment recorded: 250.00',
+      createdAt: atTime(yesterday, 16, 10),
+    },
+  ];
+
   const products: Product[] = [
     {
       id: 'demo-product-audit',
@@ -297,6 +331,8 @@ export function createDemoSeedData(now = new Date()): DemoSeedData {
     downPayments,
     invoices,
     invoiceLineItems,
+    invoicePayments,
+    invoiceEvents,
     products,
     settings: {
       ...DEFAULT_SETTINGS,

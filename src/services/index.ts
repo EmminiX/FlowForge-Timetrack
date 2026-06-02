@@ -4,6 +4,7 @@ export { clientService } from './clientService';
 export { projectService } from './projectService';
 export { timeEntryService } from './timeEntryService';
 export { invoiceService } from './invoiceService';
+export { invoicePaymentService } from './invoicePaymentService';
 export { settingsService } from './settingsService';
 export { productService } from './productService';
 export { dashboardService } from './dashboardService';
