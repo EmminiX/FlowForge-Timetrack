@@ -58,6 +58,7 @@ function AppContent() {
             <Route path='clients' element={<Clients />} />
             <Route path='projects' element={<Projects />} />
             <Route path='time-entries' element={<TimeEntries />} />
+            <Route path='time-entries/calendar' element={<TimeEntries />} />
             <Route path='invoices' element={<Invoices />} />
             <Route path='products' element={<Products />} />
             <Route path='settings' element={<Settings />} />
