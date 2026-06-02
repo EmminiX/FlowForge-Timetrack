@@ -4,6 +4,7 @@ import { getDb } from '../lib/db';
 import { projectLogger } from '../lib/logger';
 import { shouldUseDemoMode } from '../lib/platform';
 import type { Project, ProjectWithStats, CreateProjectInput, UpdateProjectInput } from '../types';
+import { calculateProjectBudgetStatus } from '../types';
 import { demoRepository } from './demoRepository';
 
 function generateId(): string {
@@ -12,6 +13,15 @@ function generateId(): string {
 
 function now(): string {
   return new Date().toISOString();
+}
+
+function getBudgetValues(input: Partial<CreateProjectInput>) {
+  return {
+    budgetType: input.budgetType ?? 'none',
+    budgetHours: input.budgetHours ?? 0,
+    budgetAmount: input.budgetAmount ?? 0,
+    budgetAlertThreshold: input.budgetAlertThreshold ?? 0.8,
+  };
 }
 
 export const projectService = {
@@ -32,6 +42,10 @@ export const projectService = {
           description, 
           status, 
           color,
+          budget_type as budgetType,
+          budget_hours as budgetHours,
+          budget_amount as budgetAmount,
+          budget_alert_threshold as budgetAlertThreshold,
           created_at as createdAt,
           updated_at as updatedAt
         FROM projects
@@ -62,6 +76,10 @@ export const projectService = {
           p.description, 
           p.status, 
           p.color,
+          p.budget_type as budgetType,
+          p.budget_hours as budgetHours,
+          p.budget_amount as budgetAmount,
+          p.budget_alert_threshold as budgetAlertThreshold,
           p.created_at as createdAt,
           p.updated_at as updatedAt,
           c.name as clientName,
@@ -82,7 +100,10 @@ export const projectService = {
         ORDER BY p.name ASC
       `);
       projectLogger.info('getAllWithStats completed', { count: result.length });
-      return result;
+      return result.map((project) => ({
+        ...project,
+        ...calculateProjectBudgetStatus(project),
+      }));
     } catch (error) {
       projectLogger.error('getAllWithStats failed', error);
       throw error;
@@ -107,6 +128,10 @@ export const projectService = {
           description, 
           status, 
           color,
+          budget_type as budgetType,
+          budget_hours as budgetHours,
+          budget_amount as budgetAmount,
+          budget_alert_threshold as budgetAlertThreshold,
           created_at as createdAt,
           updated_at as updatedAt
         FROM projects
@@ -140,6 +165,10 @@ export const projectService = {
           description, 
           status, 
           color,
+          budget_type as budgetType,
+          budget_hours as budgetHours,
+          budget_amount as budgetAmount,
+          budget_alert_threshold as budgetAlertThreshold,
           created_at as createdAt,
           updated_at as updatedAt
         FROM projects
@@ -172,6 +201,10 @@ export const projectService = {
           description, 
           status, 
           color,
+          budget_type as budgetType,
+          budget_hours as budgetHours,
+          budget_amount as budgetAmount,
+          budget_alert_threshold as budgetAlertThreshold,
           created_at as createdAt,
           updated_at as updatedAt
         FROM projects
@@ -200,12 +233,26 @@ export const projectService = {
       projectLogger.debug('Got database connection');
       const id = generateId();
       const timestamp = now();
+      const budget = getBudgetValues(input);
 
       projectLogger.debug('Executing INSERT', { id, name: input.name });
       await db.execute(
         `
-      INSERT INTO projects (id, client_id, name, description, status, color, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO projects (
+        id,
+        client_id,
+        name,
+        description,
+        status,
+        color,
+        budget_type,
+        budget_hours,
+        budget_amount,
+        budget_alert_threshold,
+        created_at,
+        updated_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     `,
         [
           id,
@@ -214,6 +261,10 @@ export const projectService = {
           input.description || '',
           input.status || 'active',
           input.color || '#007AFF',
+          budget.budgetType,
+          budget.budgetHours,
+          budget.budgetAmount,
+          budget.budgetAlertThreshold,
           timestamp,
           timestamp,
         ],
@@ -227,6 +278,10 @@ export const projectService = {
         description: input.description || '',
         status: input.status || 'active',
         color: input.color || '#007AFF',
+        budgetType: budget.budgetType,
+        budgetHours: budget.budgetHours,
+        budgetAmount: budget.budgetAmount,
+        budgetAlertThreshold: budget.budgetAlertThreshold,
         createdAt: timestamp,
         updatedAt: timestamp,
       };
@@ -265,8 +320,12 @@ export const projectService = {
           description = $3,
           status = $4,
           color = $5,
-          updated_at = $6
-        WHERE id = $7
+          budget_type = $6,
+          budget_hours = $7,
+          budget_amount = $8,
+          budget_alert_threshold = $9,
+          updated_at = $10
+        WHERE id = $11
       `,
         [
           updated.clientId,
@@ -274,6 +333,10 @@ export const projectService = {
           updated.description,
           updated.status,
           updated.color,
+          updated.budgetType,
+          updated.budgetHours,
+          updated.budgetAmount,
+          updated.budgetAlertThreshold,
           updated.updatedAt,
           id,
         ],

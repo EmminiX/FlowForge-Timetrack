@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
-import type { Project, CreateProjectInput, Client, ProjectStatus } from '../../types';
-import { PROJECT_STATUS_OPTIONS, DEFAULT_PROJECT_COLORS } from '../../types';
+import type {
+  Project,
+  CreateProjectInput,
+  Client,
+  ProjectStatus,
+  ProjectBudgetType,
+} from '../../types';
+import {
+  PROJECT_STATUS_OPTIONS,
+  PROJECT_BUDGET_TYPE_OPTIONS,
+  DEFAULT_PROJECT_COLORS,
+} from '../../types';
 import { clientService } from '../../services';
 import {
   Button,
@@ -34,6 +44,10 @@ export function ProjectForm({
     clientId: null,
     status: 'active',
     color: DEFAULT_PROJECT_COLORS[0],
+    budgetType: 'none',
+    budgetHours: 0,
+    budgetAmount: 0,
+    budgetAlertThreshold: 0.8,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -55,6 +69,10 @@ export function ProjectForm({
           clientId: initialData?.clientId || null,
           status: initialData?.status || 'active',
           color: initialData?.color || DEFAULT_PROJECT_COLORS[0],
+          budgetType: initialData?.budgetType || 'none',
+          budgetHours: initialData?.budgetHours || 0,
+          budgetAmount: initialData?.budgetAmount || 0,
+          budgetAlertThreshold: initialData?.budgetAlertThreshold || 0.8,
         });
         setErrors({});
         setSubmitError(null);
@@ -63,12 +81,26 @@ export function ProjectForm({
     }
   }, [isOpen, initialData]);
 
-  const handleChange = (field: keyof CreateProjectInput, value: string | null) => {
+  const handleChange = (field: keyof CreateProjectInput, value: string | number | null) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }));
     }
     setSubmitError(null);
+  };
+
+  const handleBudgetTypeChange = (budgetType: ProjectBudgetType) => {
+    setFormData((prev) => ({
+      ...prev,
+      budgetType,
+      budgetHours: budgetType === 'hourly' ? prev.budgetHours : 0,
+      budgetAmount: budgetType === 'fixed' || budgetType === 'retainer' ? prev.budgetAmount : 0,
+    }));
+    setSubmitError(null);
+  };
+
+  const handleNumberChange = (field: keyof CreateProjectInput, value: string) => {
+    handleChange(field, Number(value) || 0);
   };
 
   const validate = (): boolean => {
@@ -108,6 +140,11 @@ export function ProjectForm({
   const statusOptions = PROJECT_STATUS_OPTIONS.map((s) => ({
     value: s.value,
     label: s.label,
+  }));
+
+  const budgetTypeOptions = PROJECT_BUDGET_TYPE_OPTIONS.map((option) => ({
+    value: option.value,
+    label: option.label,
   }));
 
   return (
@@ -164,6 +201,51 @@ export function ProjectForm({
             onChange={(color) => handleChange('color', color)}
             colors={DEFAULT_PROJECT_COLORS}
           />
+        </div>
+
+        <div className='space-y-4 rounded-md border border-border bg-muted/20 p-4'>
+          <Select
+            label='Budget type'
+            value={formData.budgetType}
+            onChange={(e) => handleBudgetTypeChange(e.target.value as ProjectBudgetType)}
+            options={budgetTypeOptions}
+          />
+
+          {formData.budgetType !== 'none' && (
+            <div className='grid grid-cols-2 gap-4'>
+              {formData.budgetType === 'hourly' ? (
+                <Input
+                  label='Hour budget'
+                  type='number'
+                  min='0'
+                  step='0.25'
+                  value={formData.budgetHours}
+                  onChange={(e) => handleNumberChange('budgetHours', e.target.value)}
+                />
+              ) : (
+                <Input
+                  label='Budget amount'
+                  type='number'
+                  min='0'
+                  step='0.01'
+                  value={formData.budgetAmount}
+                  onChange={(e) => handleNumberChange('budgetAmount', e.target.value)}
+                />
+              )}
+
+              <Input
+                label='Alert at'
+                type='number'
+                min='1'
+                max='100'
+                step='1'
+                value={Math.round(formData.budgetAlertThreshold * 100)}
+                onChange={(e) =>
+                  handleChange('budgetAlertThreshold', (Number(e.target.value) || 0) / 100)
+                }
+              />
+            </div>
+          )}
         </div>
 
         <ModalFooter>

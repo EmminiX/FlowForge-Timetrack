@@ -38,6 +38,10 @@ export async function runMigrations(): Promise<void> {
       description TEXT DEFAULT '',
       status TEXT DEFAULT 'active',
       color TEXT DEFAULT '#007AFF',
+      budget_type TEXT DEFAULT 'none',
+      budget_hours REAL DEFAULT 0,
+      budget_amount REAL DEFAULT 0,
+      budget_alert_threshold REAL DEFAULT 0.8,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )
@@ -165,6 +169,21 @@ export async function runMigrations(): Promise<void> {
   await db.execute(`
     CREATE INDEX IF NOT EXISTS idx_down_payments_payment_date ON down_payments(payment_date)
   `);
+
+  const projectBudgetColumns = [
+    `ALTER TABLE projects ADD COLUMN budget_type TEXT DEFAULT 'none'`,
+    `ALTER TABLE projects ADD COLUMN budget_hours REAL DEFAULT 0`,
+    `ALTER TABLE projects ADD COLUMN budget_amount REAL DEFAULT 0`,
+    `ALTER TABLE projects ADD COLUMN budget_alert_threshold REAL DEFAULT 0.8`,
+  ];
+
+  for (const statement of projectBudgetColumns) {
+    try {
+      await db.execute(statement);
+    } catch {
+      // Column already exists, ignore error
+    }
+  }
 
   dbLogger.info('Database migrations completed successfully');
 }

@@ -40,6 +40,14 @@ describe('demo repository', () => {
     expect(dashboard.clientBreakdown[0]).toEqual(
       expect.objectContaining({ clientId: 'demo-client-acme' }),
     );
+    expect(dashboard.projectBreakdown).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          projectId: 'demo-project-brand',
+          budgetStatus: 'near',
+        }),
+      ]),
+    );
   });
 
   it('filters time entries by project, client, and billed state', async () => {

@@ -1,9 +1,17 @@
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import type { ProjectBreakdownItem } from '../../services/dashboardService';
 
 function formatHours(seconds: number): string {
   const hours = seconds / 3600;
   return hours < 1 ? `${Math.round(hours * 60)}m` : `${hours.toFixed(1)}h`;
 }
+
+const budgetLabels = {
+  none: '',
+  ok: 'On track',
+  near: 'Near limit',
+  over: 'Over budget',
+} as const;
 
 interface ProjectBreakdownProps {
   projects: ProjectBreakdownItem[];
@@ -42,6 +50,27 @@ export function ProjectBreakdown({ projects }: ProjectBreakdownProps) {
                   }}
                 />
               </div>
+              {project.budgetStatus !== 'none' && (
+                <div className='flex flex-wrap items-center gap-2 text-xs text-muted-foreground'>
+                  <span
+                    className={`inline-flex min-h-6 items-center gap-1 rounded-full px-2 font-medium ${
+                      project.budgetStatus === 'over'
+                        ? 'bg-destructive/10 text-destructive'
+                        : project.budgetStatus === 'near'
+                          ? 'bg-accent/15 text-accent-foreground dark:text-accent'
+                          : 'bg-primary/12 text-primary'
+                    }`}
+                  >
+                    {project.budgetStatus === 'ok' ? (
+                      <CheckCircle2 className='h-3 w-3' />
+                    ) : (
+                      <AlertTriangle className='h-3 w-3' />
+                    )}
+                    {budgetLabels[project.budgetStatus]}
+                  </span>
+                  <span>{Math.round(project.budgetUsedPercent)}% used</span>
+                </div>
+              )}
             </div>
           );
         })}

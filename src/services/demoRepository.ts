@@ -23,6 +23,7 @@ import type {
   ProjectWithStats,
   UpdateProjectInput,
 } from '../types/project';
+import { calculateProjectBudgetStatus } from '../types/project';
 import type {
   CreateTimeEntryInput,
   TimeEntry,
@@ -142,11 +143,16 @@ export function createDemoRepository(seed = createDemoSeedData()) {
       .filter((entry) => entry.isBillable)
       .reduce((sum, entry) => sum + (durationSeconds(entry) / 3600) * (client?.hourlyRate ?? 0), 0);
 
-    return {
+    const baseStats = {
       ...project,
       clientName: client?.name ?? null,
       totalHours: totalSeconds / 3600,
       totalBillable,
+    };
+
+    return {
+      ...baseStats,
+      ...calculateProjectBudgetStatus(baseStats),
     };
   }
 
@@ -220,6 +226,10 @@ export function createDemoRepository(seed = createDemoSeedData()) {
           id: createId('demo-project'),
           ...input,
           clientId: input.clientId ?? null,
+          budgetType: input.budgetType ?? 'none',
+          budgetHours: input.budgetHours ?? 0,
+          budgetAmount: input.budgetAmount ?? 0,
+          budgetAlertThreshold: input.budgetAlertThreshold ?? 0.8,
           createdAt: timestamp,
           updatedAt: timestamp,
         };
@@ -563,12 +573,18 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         const projectBreakdown = state.projects
           .map((project) => {
             const seconds = projectTotals.get(project.id) ?? 0;
+            const stats = projectStats(project);
             return {
               projectId: project.id,
               projectName: project.name,
               projectColor: project.color,
               totalSeconds: seconds,
               percentOfTotal: totalSeconds > 0 ? (seconds / totalSeconds) * 100 : 0,
+              budgetType: stats.budgetType,
+              budgetStatus: stats.budgetStatus,
+              budgetUsedPercent: stats.budgetUsedPercent,
+              budgetRemainingHours: stats.budgetRemainingHours,
+              budgetRemainingAmount: stats.budgetRemainingAmount,
             };
           })
           .filter((project) => project.totalSeconds > 0);

@@ -2,6 +2,8 @@
 
 import { getDb } from '../lib/db';
 import { shouldUseDemoMode } from '../lib/platform';
+import type { ProjectBudgetStatus, ProjectBudgetType } from '../types';
+import { calculateProjectBudgetStatus } from '../types';
 import { demoRepository } from './demoRepository';
 
 export interface ProjectSummary {
@@ -48,6 +50,11 @@ export interface ProjectBreakdownItem {
   projectColor: string;
   totalSeconds: number;
   percentOfTotal: number;
+  budgetType: ProjectBudgetType;
+  budgetStatus: ProjectBudgetStatus;
+  budgetUsedPercent: number;
+  budgetRemainingHours: number | null;
+  budgetRemainingAmount: number | null;
 }
 
 export interface DashboardData {
@@ -473,12 +480,21 @@ export const dashboardService = {
         project_name: string;
         color: string;
         total_seconds: number;
+        total_billable: number;
+        budget_type: ProjectBudgetType;
+        budget_hours: number;
+        budget_amount: number;
+        budget_alert_threshold: number;
       }>
     >(
       `SELECT
         p.id as project_id,
         p.name as project_name,
         p.color,
+        p.budget_type as budget_type,
+        p.budget_hours as budget_hours,
+        p.budget_amount as budget_amount,
+        p.budget_alert_threshold as budget_alert_threshold,
         SUM(
           CASE
             WHEN te.end_time IS NULL THEN
@@ -486,22 +502,52 @@ export const dashboardService = {
             ELSE
               (strftime('%s', te.end_time) - strftime('%s', te.start_time) - COALESCE(te.pause_duration, 0))
           END
-        ) as total_seconds
+        ) as total_seconds,
+        SUM(
+          CASE
+            WHEN te.is_billable = 1 THEN
+              (
+                CASE
+                  WHEN te.end_time IS NULL THEN
+                    (strftime('%s', 'now') - strftime('%s', te.start_time) - COALESCE(te.pause_duration, 0))
+                  ELSE
+                    (strftime('%s', te.end_time) - strftime('%s', te.start_time) - COALESCE(te.pause_duration, 0))
+                END
+              ) / 3600.0 * COALESCE(c.hourly_rate, 0)
+            ELSE 0
+          END
+        ) as total_billable
       FROM time_entries te
       JOIN projects p ON te.project_id = p.id
+      LEFT JOIN clients c ON c.id = p.client_id
       GROUP BY p.id
       ORDER BY total_seconds DESC`,
     );
 
     const grandTotal = result.reduce((sum, r) => sum + (r.total_seconds || 0), 0);
 
-    return result.map((r) => ({
-      projectId: r.project_id,
-      projectName: r.project_name,
-      projectColor: r.color || '#6366f1',
-      totalSeconds: r.total_seconds || 0,
-      percentOfTotal: grandTotal > 0 ? ((r.total_seconds || 0) / grandTotal) * 100 : 0,
-    }));
+    return result.map((r) => {
+      const totalSeconds = r.total_seconds || 0;
+      const budgetType = r.budget_type || 'none';
+      const budgetStatus = calculateProjectBudgetStatus({
+        budgetType,
+        budgetHours: r.budget_hours || 0,
+        budgetAmount: r.budget_amount || 0,
+        budgetAlertThreshold: r.budget_alert_threshold || 0.8,
+        totalHours: totalSeconds / 3600,
+        totalBillable: r.total_billable || 0,
+      });
+
+      return {
+        projectId: r.project_id,
+        projectName: r.project_name,
+        projectColor: r.color || '#6366f1',
+        totalSeconds,
+        percentOfTotal: grandTotal > 0 ? (totalSeconds / grandTotal) * 100 : 0,
+        budgetType,
+        ...budgetStatus,
+      };
+    });
   },
 
   async getAllTimeTotal(): Promise<{ totalSeconds: number }> {

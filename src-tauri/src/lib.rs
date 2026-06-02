@@ -154,6 +154,17 @@ pub fn run() {
             CREATE INDEX IF NOT EXISTS idx_down_payments_payment_date ON down_payments(payment_date);",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 8,
+            description: "add_project_budget_columns",
+            sql: "
+                ALTER TABLE projects ADD COLUMN budget_type TEXT DEFAULT 'none';
+                ALTER TABLE projects ADD COLUMN budget_hours REAL DEFAULT 0;
+                ALTER TABLE projects ADD COLUMN budget_amount REAL DEFAULT 0;
+                ALTER TABLE projects ADD COLUMN budget_alert_threshold REAL DEFAULT 0.8;
+            ",
+            kind: MigrationKind::Up,
+        },
     ];
 
     let mut builder = tauri::Builder::default()
