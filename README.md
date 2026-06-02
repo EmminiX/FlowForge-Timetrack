@@ -53,6 +53,19 @@ For the TimeSage setup guide, read the **[TimeSage User Guide](https://timesage.
 - **Keyboard Navigation** — Full keyboard shortcuts dialog (`?` key) and keyboard-friendly UI
 - **Error Boundaries** — Graceful error handling prevents full-app crashes
 
+## 🗺️ Roadmap
+
+These are planned ideas for future TimeSage releases. The goal is to keep the app privacy-first, focused, and useful for freelancers and small teams.
+
+- **Command Center 2.0** — Upgrade `Cmd+K` / `Ctrl+K` from search into actions: start timer, create invoice, add client, mark paid, export PDF, and quick-add time.
+- **Calendar Time View** — Add a day/week calendar for time entries, with drag-to-resize blocks, visible gaps, and fast missed-time entry. This follows strong patterns from [Toggl](https://toggl.com/track/features/) and [Clockify](https://clockify.me/features/).
+- **Private Auto-Timeline** — Add an optional, local-only activity timeline for apps/windows used, idle gaps, and suggested time entries. This must stay privacy-first and user-approved.
+- **Project Budgets + Scope Alerts** — Add hourly budgets, fixed fees, retainers, and near-limit warnings that connect naturally to projects and dashboard analytics.
+- **Invoice Payment Hub** — Add invoice payment history, partial payments, reminders, and a `sent` / `viewed` / `paid` timeline. Later, add Stripe payment links or hosted checkout using [Stripe Invoicing](https://stripe.com/invoicing).
+- **Expense + Receipt Tracking** — Track billable expenses, attach receipts, and pull those costs into invoices. This fits TimeSage's invoicing flow and local file-first architecture.
+- **Desktop Pro Mode** — Add system tray controls, autostart, saved window/widget position, and a native updater using Tauri's [tray](https://v2.tauri.app/learn/system-tray/), [autostart](https://v2.tauri.app/plugin/autostart/), [window state](https://v2.tauri.app/plugin/window-state/), and [updater](https://v2.tauri.app/plugin/updater/) support.
+- **Demo / Web-Safe Mode** — Add a safe demo mode with sample data and mocked Tauri APIs so browser development, screenshots, documentation, and onboarding do not show desktop-only API errors.
+
 ## 🛡️ Data Protection
 
 TimeSage includes built-in protection against accidental data loss:
