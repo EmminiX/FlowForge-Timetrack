@@ -2,6 +2,7 @@ use serde::Serialize;
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::Manager;
+#[cfg(target_os = "macos")]
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_sql::{Migration, MigrationKind};
 use user_idle::UserIdle;
@@ -80,8 +81,13 @@ fn toggle_widget_window(app: &tauri::AppHandle) {
 
 fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
     let show_main = MenuItem::with_id(app, "show_main", "Show TimeSage", true, None::<&str>)?;
-    let toggle_widget =
-        MenuItem::with_id(app, "toggle_widget", "Toggle Timer Widget", true, None::<&str>)?;
+    let toggle_widget = MenuItem::with_id(
+        app,
+        "toggle_widget",
+        "Toggle Timer Widget",
+        true,
+        None::<&str>,
+    )?;
     let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show_main, &toggle_widget, &quit])?;
 
@@ -334,6 +340,10 @@ pub fn run() {
         },
     ];
 
+    let autostart_builder = tauri_plugin_autostart::Builder::new().app_name("TimeSage");
+    #[cfg(target_os = "macos")]
+    let autostart_builder = autostart_builder.macos_launcher(MacosLauncher::LaunchAgent);
+
     let mut builder = tauri::Builder::default()
         .plugin(
             tauri_plugin_sql::Builder::new()
@@ -344,12 +354,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_notification::init())
-        .plugin(
-            tauri_plugin_autostart::Builder::new()
-                .app_name("TimeSage")
-                .macos_launcher(MacosLauncher::LaunchAgent)
-                .build(),
-        )
+        .plugin(autostart_builder.build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_updater::Builder::new().build());
 
