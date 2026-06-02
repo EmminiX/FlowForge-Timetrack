@@ -343,8 +343,8 @@ export function CalendarTimeView({ initialDate }: CalendarTimeViewProps) {
       if (!interaction || event.pointerId !== interaction.pointerId) return;
 
       interactionRef.current = null;
-      setActiveInteractionId(null);
-
+      // Delay clearing so a drag doesn't also trigger the block's click handler.
+      setTimeout(() => setActiveInteractionId(null), 0);
       const deltaPixels = event.clientY - interaction.startY;
       if (!interaction.moved || Math.abs(deltaPixels) < 4) return;
 
