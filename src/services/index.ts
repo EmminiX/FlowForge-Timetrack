@@ -10,8 +10,6 @@ export { productService } from './productService';
 export { dashboardService } from './dashboardService';
 export { updateService } from './updateService';
 export { desktopProService } from './desktopProService';
-export { backupService } from './backupService';
 export { downPaymentService } from './downPaymentService';
 export { expenseService } from './expenseService';
 export { activityTimelineService } from './activityTimelineService';
-export { exportInvoicePdfById } from './invoicePdfService';

@@ -19,7 +19,9 @@ function permissionIdentifier(permission: CapabilityPermission): string {
 }
 
 function scopedPaths(identifier: string): string[] {
-  const permission = permissions.find((candidate) => permissionIdentifier(candidate) === identifier);
+  const permission = permissions.find(
+    (candidate) => permissionIdentifier(candidate) === identifier,
+  );
 
   if (!permission || typeof permission === 'string') {
     return [];

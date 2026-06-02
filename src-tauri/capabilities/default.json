@@ -2,10 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window and widget",
-  "windows": [
-    "main",
-    "widget"
-  ],
+  "windows": ["main", "widget"],
   "permissions": [
     "core:default",
     "core:window:default",

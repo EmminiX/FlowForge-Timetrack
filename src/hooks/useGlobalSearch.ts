@@ -64,7 +64,15 @@ function hasAnyToken(query: string, tokens: string[]): boolean {
 function addWorkflowActions(query: string): ActionResult[] {
   if (!query) return [];
 
-  const actionIntent = hasAnyToken(query, ['add', 'create', 'new', 'quick', 'time', 'invoice', 'client']);
+  const actionIntent = hasAnyToken(query, [
+    'add',
+    'create',
+    'new',
+    'quick',
+    'time',
+    'invoice',
+    'client',
+  ]);
   if (!actionIntent) return [];
 
   return [

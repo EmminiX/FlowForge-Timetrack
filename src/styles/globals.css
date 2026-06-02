@@ -118,7 +118,7 @@
     --muted: oklch(10% 0 0);
     --muted-foreground: oklch(80% 0 0);
 
-    --accent: oklch(80% 0.20 200);
+    --accent: oklch(80% 0.2 200);
     /* Bright cyan-blue for accents - calmer than pure cyan */
     --accent-foreground: oklch(0% 0 0);
 

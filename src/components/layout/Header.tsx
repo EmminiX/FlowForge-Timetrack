@@ -13,10 +13,15 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { useGlobalSearch, type CommandCenterItem, type CommandAction } from '../../hooks/useGlobalSearch';
+import {
+  useGlobalSearch,
+  type CommandCenterItem,
+  type CommandAction,
+} from '../../hooks/useGlobalSearch';
 import { useTimerWithEffects } from '../../hooks/useTimerWithEffects';
 import { executeCommandCenterItem } from '../../services/commandActionService';
-import { exportInvoicePdfById, invoiceService } from '../../services';
+import { invoiceService } from '../../services';
+import { uiLogger } from '../../lib/logger';
 
 const TYPE_ICONS: Record<string, LucideIcon> = {
   client: Users,
@@ -111,11 +116,14 @@ export function Header() {
         markInvoicePaid: async (invoiceId) => {
           await invoiceService.update(invoiceId, { status: 'paid' });
         },
-        exportInvoicePdf: exportInvoicePdfById,
+        exportInvoicePdf: async (invoiceId) => {
+          const { exportInvoicePdfById } = await import('../../services/invoicePdfService');
+          await exportInvoicePdfById(invoiceId);
+        },
       });
       close();
     } catch (error) {
-      console.error('Command center action failed', error);
+      uiLogger.error('Command center action failed', error);
     }
   };
 
@@ -147,7 +155,10 @@ export function Header() {
   };
 
   return (
-    <header className='h-16 border-b border-border flex items-center gap-4 bg-[var(--surface)] shrink-0' style={{ paddingInline: 'var(--shell-header-px)' }}>
+    <header
+      className='h-16 border-b border-border flex items-center gap-4 bg-[var(--surface)] shrink-0'
+      style={{ paddingInline: 'var(--shell-header-px)' }}
+    >
       <div className='flex items-center gap-3 min-w-0'>
         <div className='grid h-9 w-9 place-items-center rounded-md border border-primary/35 bg-primary/10 text-sm font-bold text-primary'>
           TS

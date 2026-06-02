@@ -21,6 +21,7 @@ import {
   ModalFooter,
   ColorPicker,
 } from '../../components/ui';
+import { projectLogger } from '../../lib/logger';
 
 export interface ProjectFormProps {
   isOpen: boolean;
@@ -55,7 +56,10 @@ export function ProjectForm({
 
   // Load clients for dropdown
   useEffect(() => {
-    clientService.getAll().then(setClients).catch(console.error);
+    clientService
+      .getAll()
+      .then(setClients)
+      .catch((error) => projectLogger.error('Failed to load clients for project form', error));
   }, []);
 
   // Reset form when modal opens with new data
@@ -123,7 +127,7 @@ export function ProjectForm({
       await onSubmit(formData);
       // Don't call onClose here - parent handles closing on success
     } catch (err) {
-      console.error('Failed to save project:', err);
+      projectLogger.error('Failed to save project', err);
       setSubmitError(
         err instanceof Error ? err.message : 'Failed to save project. Please try again.',
       );

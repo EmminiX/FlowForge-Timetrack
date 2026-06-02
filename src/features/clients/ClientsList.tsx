@@ -55,15 +55,19 @@ export function ClientsList() {
     const params = new URLSearchParams(location.search);
     if (params.get('new') !== '1') return;
 
-    setShowForm(true);
-    params.delete('new');
-    navigate(
-      {
-        pathname: location.pathname,
-        search: params.toString() ? `?${params.toString()}` : '',
-      },
-      { replace: true },
-    );
+    const timer = setTimeout(() => {
+      setShowForm(true);
+      params.delete('new');
+      navigate(
+        {
+          pathname: location.pathname,
+          search: params.toString() ? `?${params.toString()}` : '',
+        },
+        { replace: true },
+      );
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [location.pathname, location.search, navigate]);
 
   // Filter clients by search

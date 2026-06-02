@@ -1,6 +1,8 @@
 // Update check service - checks for new app versions
 // Privacy-focused: only fetches a static JSON file, no user data transmitted
 
+import { uiLogger } from '../lib/logger';
+
 const UPDATE_CHECK_URL =
   'https://raw.githubusercontent.com/EmminiX/FlowForge-Timetrack/main/latest.json';
 
@@ -62,7 +64,7 @@ export const updateService = {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.warn('Update check failed:', response.status);
+        uiLogger.warn('Update check failed', { status: response.status });
         return null;
       }
 
@@ -78,9 +80,9 @@ export const updateService = {
     } catch (error) {
       // Silent fail on timeout or network errors - don't interrupt user experience
       if (error instanceof Error && error.name === 'AbortError') {
-        console.warn('Update check timed out after 10 seconds');
+        uiLogger.warn('Update check timed out after 10 seconds');
       } else {
-        console.warn('Update check failed:', error);
+        uiLogger.warn('Update check failed', { error });
       }
       return null;
     }

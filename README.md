@@ -16,11 +16,11 @@ For the TimeSage setup guide, read the **[TimeSage User Guide](https://timesage.
 
 ## 📥 Download
 
-| Platform | Download | Notes |
-|----------|----------|-------|
-| **macOS** | [Download .dmg](https://github.com/EmminiX/FlowForge-Timetrack/releases/latest) | macOS 10.15+ |
-| **Windows** | [Download .exe](https://github.com/EmminiX/FlowForge-Timetrack/releases/latest) | Windows 10+ |
-| **Linux** | [Download .AppImage](https://github.com/EmminiX/FlowForge-Timetrack/releases/latest) | Most distros |
+| Platform    | Download                                                                             | Notes        |
+| ----------- | ------------------------------------------------------------------------------------ | ------------ |
+| **macOS**   | [Download .dmg](https://github.com/EmminiX/FlowForge-Timetrack/releases/latest)      | macOS 10.15+ |
+| **Windows** | [Download .exe](https://github.com/EmminiX/FlowForge-Timetrack/releases/latest)      | Windows 10+  |
+| **Linux**   | [Download .AppImage](https://github.com/EmminiX/FlowForge-Timetrack/releases/latest) | Most distros |
 
 > **Note:** The app is not code-signed yet. See [Installation Guide](#-installation-guide) below for how to open it.
 
@@ -81,12 +81,13 @@ Data is stored locally in a SQLite database file named `flowforge.db` within you
 
 - **macOS**: `~/Library/Application Support/com.emmi.flowforge/flowforge.db`
 - **Windows**: `C:\Users\{username}\AppData\Local\com.emmi.flowforge\flowforge.db`
-- **Linux**: `~/.local/share/com.emmi.flowforge/flowforge.db` *(Standard XDG data path)*
+- **Linux**: `~/.local/share/com.emmi.flowforge/flowforge.db` _(Standard XDG data path)_
 
 **What are the storage limits?**
 There are no artificial limits imposed by the application. Storage is only limited by the available disk space on your computer.
 
 **How is data storage controlled?**
+
 - **Control**: You have full ownership of the local database file.
 - **Access**: The app manages data internally, but you can manually back up, copy, or delete the `flowforge.db` file if needed.
 - **Security**: Access is controlled by your operating system's user permissions.
@@ -188,6 +189,7 @@ src-tauri/             # Rust backend
 This software is licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html). You are free to use, modify, and distribute it under the terms of the AGPL-3.0.
 
 **What this means:**
+
 - Use it freely for any purpose (personal, educational, commercial)
 - Modify and share it — but derivatives must also be AGPL-3.0
 - If you run a modified version as a network service, you must share the source
@@ -209,10 +211,11 @@ Contributions are welcome! Please feel free to submit a Pull Request. By contrib
 TimeSage was born from the need for a simple, privacy-focused time tracking tool that doesn't require subscriptions, cloud accounts, or complex setup. It's built to respect your data and your workflow.
 
 **Connect:**
+
 - 🌐 Website: [emmi.zone](https://emmi.zone)
 - 📝 Blog: [blog.emmi.zone](https://blog.emmi.zone)
 - 💼 LinkedIn: [linkedin.com/in/emmic](https://www.linkedin.com/in/emmic/)
 
 ---
 
-*This project is open source under AGPL-3.0. If you find it valuable, consider sharing it with others who might benefit from it.*
+_This project is open source under AGPL-3.0. If you find it valuable, consider sharing it with others who might benefit from it._

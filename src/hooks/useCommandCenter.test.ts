@@ -35,10 +35,7 @@ const projects: Project[] = [
   },
 ];
 
-const invoices: Pick<
-  InvoiceWithDetails,
-  'id' | 'invoiceNumber' | 'clientName' | 'status'
->[] = [
+const invoices: Pick<InvoiceWithDetails, 'id' | 'invoiceNumber' | 'clientName' | 'status'>[] = [
   {
     id: 'invoice-1',
     invoiceNumber: 'INV-2026-0001',

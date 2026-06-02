@@ -13,6 +13,7 @@ import type { Product } from '../../types';
 import { productService } from '../../services';
 import { PRODUCT_TEMPLATES } from '../../services/productService';
 import type { ProductTemplate } from '../../services/productService';
+import { uiLogger } from '../../lib/logger';
 import {
   Button,
   Card,
@@ -44,7 +45,7 @@ export function ProductsList() {
       const data = await productService.getAll();
       setProducts(data);
     } catch (err) {
-      console.error('Failed to load products:', err);
+      uiLogger.error('Failed to load products', err);
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,7 @@ export function ProductsList() {
       await loadData();
       setDeletingProduct(null);
     } catch (error) {
-      console.error('Failed to delete product:', error);
+      uiLogger.error('Failed to delete product', error);
     } finally {
       setSubmitting(false);
     }
@@ -311,7 +312,7 @@ function CreateProductModal({
       onSaved();
       onClose();
     } catch (error) {
-      console.error('Failed to save product:', error);
+      uiLogger.error('Failed to save product', error);
     } finally {
       setSaving(false);
     }

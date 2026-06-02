@@ -6,7 +6,12 @@ import type {
   CreateActivityTimelineEventInput,
   TimelineSuggestion,
 } from '../types/activityTimeline';
-import type { Client, ClientWithStats, CreateClientInput, UpdateClientInput } from '../types/client';
+import type {
+  Client,
+  ClientWithStats,
+  CreateClientInput,
+  UpdateClientInput,
+} from '../types/client';
 import type {
   CreateDownPaymentInput,
   DownPayment,
@@ -113,7 +118,8 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         if (filters?.clientId && entry.clientId !== filters.clientId) return false;
         if (filters?.startDate && entry.startTime < filters.startDate) return false;
         if (filters?.endDate && entry.startTime > filters.endDate) return false;
-        if (filters?.isBillable !== undefined && entry.isBillable !== filters.isBillable) return false;
+        if (filters?.isBillable !== undefined && entry.isBillable !== filters.isBillable)
+          return false;
         if (filters?.isBilled !== undefined && entry.isBilled !== filters.isBilled) return false;
         return true;
       })
@@ -208,7 +214,8 @@ export function createDemoRepository(seed = createDemoSeedData()) {
       .filter((expense) => {
         if (filters.clientId && expense.clientId !== filters.clientId) return false;
         if (filters.projectId && expense.projectId !== filters.projectId) return false;
-        if (filters.isBillable !== undefined && expense.isBillable !== filters.isBillable) return false;
+        if (filters.isBillable !== undefined && expense.isBillable !== filters.isBillable)
+          return false;
         if (filters.isBilled !== undefined && expense.isBilled !== filters.isBilled) return false;
         return true;
       })
@@ -489,11 +496,14 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         state.expenses[index] = {
           ...state.expenses[index],
           ...input,
-          projectId: input.projectId === undefined ? state.expenses[index].projectId : input.projectId ?? null,
+          projectId:
+            input.projectId === undefined
+              ? state.expenses[index].projectId
+              : (input.projectId ?? null),
           receiptPath:
             input.receiptPath === undefined
               ? state.expenses[index].receiptPath
-              : input.receiptPath ?? null,
+              : (input.receiptPath ?? null),
           updatedAt: now(),
         };
         return clone(state.expenses[index]);
@@ -511,11 +521,17 @@ export function createDemoRepository(seed = createDemoSeedData()) {
     },
 
     activityTimeline: {
-      async getRecent(filters: ActivityTimelineFilters = {}): Promise<ActivityTimelineEventWithProject[]> {
+      async getRecent(
+        filters: ActivityTimelineFilters = {},
+      ): Promise<ActivityTimelineEventWithProject[]> {
         return clone(filteredTimelineEvents(filters));
       },
-      async getSuggestions(options?: { minDurationSeconds?: number }): Promise<TimelineSuggestion[]> {
-        return clone(buildTimelineSuggestions(filteredTimelineEvents({ includeDismissed: false }), options));
+      async getSuggestions(options?: {
+        minDurationSeconds?: number;
+      }): Promise<TimelineSuggestion[]> {
+        return clone(
+          buildTimelineSuggestions(filteredTimelineEvents({ includeDismissed: false }), options),
+        );
       },
       async recordEvent(input: CreateActivityTimelineEventInput): Promise<ActivityTimelineEvent> {
         const durationSeconds = Math.max(
@@ -542,7 +558,10 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         state.activityTimeline.push(event);
         return clone(event);
       },
-      async recordIdleGap(input: { startedAt: string; endedAt: string }): Promise<ActivityTimelineEvent> {
+      async recordIdleGap(input: {
+        startedAt: string;
+        endedAt: string;
+      }): Promise<ActivityTimelineEvent> {
         return this.recordEvent({
           eventType: 'idle',
           appName: 'Idle',
@@ -612,7 +631,9 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         };
         return clone(state.invoices[index]);
       },
-      async addLineItem(input: CreateLineItemInput & { invoiceId: string }): Promise<InvoiceLineItem> {
+      async addLineItem(
+        input: CreateLineItemInput & { invoiceId: string },
+      ): Promise<InvoiceLineItem> {
         const item: InvoiceLineItem = { id: createId('demo-line'), ...input };
         state.invoiceLineItems.push(item);
         return clone(item);
@@ -621,7 +642,9 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         state.invoiceLineItems = state.invoiceLineItems.filter((item) => item.id !== id);
       },
       async replaceLineItems(invoiceId: string, lineItems: CreateLineItemInput[]): Promise<void> {
-        state.invoiceLineItems = state.invoiceLineItems.filter((item) => item.invoiceId !== invoiceId);
+        state.invoiceLineItems = state.invoiceLineItems.filter(
+          (item) => item.invoiceId !== invoiceId,
+        );
         state.invoiceLineItems.push(
           ...lineItems.map((item) => ({
             id: createId('demo-line'),
@@ -646,14 +669,21 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         return clone(
           state.invoicePayments
             .filter((payment) => payment.invoiceId === invoiceId)
-            .sort((a, b) => b.paymentDate.localeCompare(a.paymentDate) || b.createdAt.localeCompare(a.createdAt)),
+            .sort(
+              (a, b) =>
+                b.paymentDate.localeCompare(a.paymentDate) ||
+                b.createdAt.localeCompare(a.createdAt),
+            ),
         );
       },
       async getEvents(invoiceId: string): Promise<InvoiceEvent[]> {
         return clone(
           state.invoiceEvents
             .filter((event) => event.invoiceId === invoiceId)
-            .sort((a, b) => b.eventDate.localeCompare(a.eventDate) || b.createdAt.localeCompare(a.createdAt)),
+            .sort(
+              (a, b) =>
+                b.eventDate.localeCompare(a.eventDate) || b.createdAt.localeCompare(a.createdAt),
+            ),
         );
       },
       async getSummary(invoiceId: string, invoiceTotal: number): Promise<InvoicePaymentSummary> {
@@ -712,7 +742,9 @@ export function createDemoRepository(seed = createDemoSeedData()) {
 
         if (paidInFull) {
           state.invoices = state.invoices.map((invoice) =>
-            invoice.id === input.invoiceId ? { ...invoice, status: 'paid', updatedAt: now() } : invoice,
+            invoice.id === input.invoiceId
+              ? { ...invoice, status: 'paid', updatedAt: now() }
+              : invoice,
           );
         }
 
@@ -881,7 +913,8 @@ export function createDemoRepository(seed = createDemoSeedData()) {
             month: todayDate.getMonth(),
             totalSeconds,
             daysWorked: weekDays.filter((day) => day.totalSeconds > 0).length,
-            avgSecondsPerDay: totalSeconds / Math.max(1, weekDays.filter((day) => day.totalSeconds > 0).length),
+            avgSecondsPerDay:
+              totalSeconds / Math.max(1, weekDays.filter((day) => day.totalSeconds > 0).length),
             previousMonthSeconds: 0,
             perDay: weekDays,
           },

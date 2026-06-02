@@ -49,7 +49,10 @@ export function QuickStats({
         {/* Unbilled amounts by currency */}
         {mergedUnbilledAmounts.length > 0 ? (
           mergedUnbilledAmounts.map(({ currency, amount }) => (
-            <div key={currency} className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
+            <div
+              key={currency}
+              className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'
+            >
               <div className='rounded-md border border-primary/25 bg-primary/10 p-2'>
                 <Wallet className='w-5 h-5 text-primary' />
               </div>
@@ -75,7 +78,10 @@ export function QuickStats({
         {/* Billed amounts by currency */}
         {mergedBilledAmounts.length > 0 ? (
           mergedBilledAmounts.map(({ currency, amount }) => (
-            <div key={`billed-${currency}`} className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'>
+            <div
+              key={`billed-${currency}`}
+              className='flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3'
+            >
               <div className='rounded-md border border-accent/30 bg-accent/10 p-2'>
                 <Wallet className='w-5 h-5 text-accent' />
               </div>

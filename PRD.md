@@ -11,6 +11,7 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 ### 1. Timer System
 
 **Main Timer View**
+
 - Large time display (HH:MM:SS)
 - Status indicator: Ready (gray), Tracking (green), Paused (orange)
 - Project selector dropdown (only active projects)
@@ -18,6 +19,7 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 - Current project name shown when running
 
 **Floating Timer Widget**
+
 - Always-on-top mini window (Tauri window)
 - Shows elapsed time + project name
 - Pause/Resume/Stop buttons
@@ -25,6 +27,7 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 - Toggle via settings or keyboard shortcut
 
 **Timer Behavior**
+
 - Pause accumulates `pauseDuration`
 - Stop creates a TimeEntry record
 - Active timer restored on app restart
@@ -47,6 +50,7 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 | updatedAt | ISO date | Yes |
 
 **UI Requirements**
+
 - List view with search
 - Create/Edit form (modal or page)
 - Delete with confirmation
@@ -69,6 +73,7 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 | updatedAt | ISO date | Yes |
 
 **UI Requirements**
+
 - List with color indicators and status badges
 - Filter by status
 - Create/Edit form
@@ -93,10 +98,12 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 | createdAt | ISO date | Yes |
 
 **Computed Values**
+
 - `duration` = (endTime - startTime) - pauseDuration
 - `totalHours` = duration / 3600
 
 **UI Requirements**
+
 - List view with pagination/virtual scroll
 - Filter by: date range, project, client, billable status
 - Inline editing for notes
@@ -130,6 +137,7 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 | unitPrice | number | Yes |
 
 **UI Requirements**
+
 - List with status filter and search
 - Create invoice flow:
   1. Select client
@@ -140,6 +148,7 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 - Export to PDF
 
 **PDF Export Must Include**
+
 - Business logo (from settings)
 - Business name, address, email, phone
 - "INVOICE" header with invoice number
@@ -155,21 +164,25 @@ TimeSage is a **neurodivergent-friendly time tracking and invoicing application*
 ### 6. Settings
 
 **General Tab**
+
 - Show floating timer widget (toggle)
 - Enable timer notifications (toggle)
 - Sound feedback for actions (toggle)
 
 **Appearance Tab**
+
 - Theme: Light / Dark / System
 - Font Size: Small (0.85x) / Medium (1x) / Large (1.15x) / Extra Large (1.3x)
   - **MUST scale ALL text in the entire app**
 - Density: Compact / Comfortable / Spacious
 
 **Accessibility Tab**
+
 - Animation preference: Enabled / Disabled / Follow System
 - Info section about neurodivergent-friendly design
 
 **Business Tab**
+
 - Business Name
 - Business Address (textarea)
 - Business Email

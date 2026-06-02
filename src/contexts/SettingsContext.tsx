@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import type { AppSettings, Theme, FontSize, AnimationPreference, Density } from '../types';
 import { DEFAULT_SETTINGS, FONT_SIZE_SCALE } from '../types';
 import { settingsService } from '../services';
+import { uiLogger } from '../lib/logger';
 import { toggleWidget } from '../lib/widgetWindow';
 import { safeListen } from '../lib/tauriRuntime';
 
@@ -97,10 +98,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
       // Apply Widget State
       toggleWidget(loaded.showFloatingWidget).catch((error) => {
-        console.warn('Failed to toggle widget on startup:', error);
+        uiLogger.warn('Failed to toggle widget on startup', { error });
       });
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      uiLogger.error('Failed to load settings', error);
       // Apply defaults
       applyTheme(DEFAULT_SETTINGS.theme);
       applyFontSize(DEFAULT_SETTINGS.fontSize);
@@ -119,7 +120,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         await settingsService.set(key, value);
         await loadAndApplySettings();
       } catch (error) {
-        console.error(`Failed to update setting ${key}:`, error);
+        uiLogger.error(`Failed to update setting ${key}`, error);
       }
     },
     [loadAndApplySettings],

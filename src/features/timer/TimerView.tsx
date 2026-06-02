@@ -204,7 +204,7 @@ export function TimerView() {
         // emit is informational only -- don't let event-bus failures cause a
         // persistence rollback when the DB row already exists
         safeEmit('time-entry-saved').catch((err) => {
-          console.warn('Failed to emit time-entry-saved:', err);
+          timeEntryLogger.warn('Failed to emit time-entry-saved', { err });
         });
         return entry.id;
       });
@@ -228,7 +228,9 @@ export function TimerView() {
       }
     } catch (err) {
       timeEntryLogger.error('Failed to save time entry:', err);
-      addToast({ message: 'Failed to save time entry. Timer is still running; try stopping again.' });
+      addToast({
+        message: 'Failed to save time entry. Timer is still running; try stopping again.',
+      });
     } finally {
       setSaving(false);
     }

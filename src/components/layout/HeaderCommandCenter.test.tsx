@@ -18,6 +18,9 @@ vi.mock('../../services', () => ({
     getAll: serviceMocks.invoiceGetAll,
     update: serviceMocks.invoiceUpdate,
   },
+}));
+
+vi.mock('../../services/invoicePdfService', () => ({
   exportInvoicePdfById: serviceMocks.exportInvoicePdfById,
 }));
 

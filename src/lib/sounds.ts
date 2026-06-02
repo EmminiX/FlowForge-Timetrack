@@ -1,6 +1,8 @@
 // Sound utilities using Web Audio API
 // Generates synthesized tones for timer feedback
 
+import { uiLogger } from './logger';
+
 let audioContext: AudioContext | null = null;
 
 function getAudioContext(): AudioContext {
@@ -36,7 +38,7 @@ function playTone(
     oscillator.start(ctx.currentTime);
     oscillator.stop(ctx.currentTime + duration);
   } catch (error) {
-    console.warn('Failed to play sound:', error);
+    uiLogger.warn('Failed to play sound', { error });
   }
 }
 

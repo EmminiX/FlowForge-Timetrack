@@ -10,8 +10,15 @@ function labelForEvent(event: ActivityTimelineEventWithProject): string {
   return event.appName;
 }
 
-function sameWorkContext(a: ActivityTimelineEventWithProject, b: ActivityTimelineEventWithProject): boolean {
-  return a.eventType === 'activity' && b.eventType === 'activity' && labelForEvent(a) === labelForEvent(b);
+function sameWorkContext(
+  a: ActivityTimelineEventWithProject,
+  b: ActivityTimelineEventWithProject,
+): boolean {
+  return (
+    a.eventType === 'activity' &&
+    b.eventType === 'activity' &&
+    labelForEvent(a) === labelForEvent(b)
+  );
 }
 
 function createSuggestion(group: ActivityTimelineEventWithProject[]): TimelineSuggestion {

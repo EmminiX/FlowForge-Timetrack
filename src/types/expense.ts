@@ -28,5 +28,8 @@ export interface ExpenseFilters {
   isBilled?: boolean;
 }
 
-export type CreateExpenseInput = Omit<Expense, 'id' | 'isBilled' | 'invoiceId' | 'createdAt' | 'updatedAt'>;
+export type CreateExpenseInput = Omit<
+  Expense,
+  'id' | 'isBilled' | 'invoiceId' | 'createdAt' | 'updatedAt'
+>;
 export type UpdateExpenseInput = Partial<Omit<CreateExpenseInput, 'clientId'>>;

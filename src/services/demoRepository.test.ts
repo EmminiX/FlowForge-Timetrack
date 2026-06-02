@@ -18,7 +18,9 @@ describe('demo repository', () => {
       ]);
 
     expect(clients).toEqual(
-      expect.arrayContaining([expect.objectContaining({ id: 'demo-client-acme', name: 'Acme Studio' })]),
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'demo-client-acme', name: 'Acme Studio' }),
+      ]),
     );
     expect(projects).toEqual(
       expect.arrayContaining([

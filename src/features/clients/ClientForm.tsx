@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Client, CreateClientInput, Currency } from '../../types';
 import { CURRENCY_OPTIONS } from '../../types';
 import { Button, Input, Textarea, Modal, ModalFooter, Select } from '../../components/ui';
+import { clientLogger } from '../../lib/logger';
 
 export interface ClientFormProps {
   isOpen: boolean;
@@ -88,7 +89,7 @@ export function ClientForm({
       await onSubmit(formData);
       // Don't call onClose here - parent handles closing on success
     } catch (err) {
-      console.error('Failed to save client:', err);
+      clientLogger.error('Failed to save client', err);
       setSubmitError(
         err instanceof Error ? err.message : 'Failed to save client. Please try again.',
       );

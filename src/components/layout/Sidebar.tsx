@@ -55,7 +55,10 @@ export function Sidebar({ topPadding = '0' }: SidebarProps) {
       className='flex h-screen w-64 shrink-0 flex-col border-r border-border bg-[var(--sidebar)]'
       style={asideStyle}
     >
-      <div className='flex items-center gap-3' style={{ marginBottom: 'var(--shell-brand-mb)', paddingInline: 'var(--shell-nav-item-px)' }}>
+      <div
+        className='flex items-center gap-3'
+        style={{ marginBottom: 'var(--shell-brand-mb)', paddingInline: 'var(--shell-nav-item-px)' }}
+      >
         <div className='grid h-10 w-10 place-items-center rounded-md border border-primary/35 bg-primary/10 text-sm font-bold text-primary'>
           TS
         </div>
@@ -126,7 +129,13 @@ export function Sidebar({ topPadding = '0' }: SidebarProps) {
           <Settings className='w-5 h-5' />
           <span>Settings</span>
         </NavLink>
-        <div style={{ paddingTop: 'var(--shell-nav-item-py)', paddingBottom: 'var(--spacing-xs)', paddingInline: 'var(--shell-nav-item-px)' }}>
+        <div
+          style={{
+            paddingTop: 'var(--shell-nav-item-py)',
+            paddingBottom: 'var(--spacing-xs)',
+            paddingInline: 'var(--shell-nav-item-px)',
+          }}
+        >
           <a
             href='https://timesage.emmi.zone/'
             target='_blank'

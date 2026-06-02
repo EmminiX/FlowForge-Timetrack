@@ -147,7 +147,9 @@ export function InvoicePaymentHub({ invoice, currency, onChanged }: InvoicePayme
           </div>
           <div className='rounded-md border border-border p-3'>
             <p className='text-xs text-muted-foreground'>Invoice total</p>
-            <p className='font-semibold text-foreground'>{formatCurrency(invoice.total, currency)}</p>
+            <p className='font-semibold text-foreground'>
+              {formatCurrency(invoice.total, currency)}
+            </p>
           </div>
         </div>
 
@@ -214,7 +216,9 @@ export function InvoicePaymentHub({ invoice, currency, onChanged }: InvoicePayme
                       </span>
                       <span className='text-xs text-muted-foreground'>{payment.paymentDate}</span>
                     </div>
-                    <p className='text-xs text-muted-foreground'>{payment.reference || payment.method}</p>
+                    <p className='text-xs text-muted-foreground'>
+                      {payment.reference || payment.method}
+                    </p>
                   </div>
                 ))}
               </div>

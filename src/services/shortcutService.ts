@@ -24,9 +24,8 @@ export const shortcutService: ShortcutService = {
       return () => undefined;
     }
 
-    const { register, unregister, isRegistered } = await import(
-      '@tauri-apps/plugin-global-shortcut'
-    );
+    const { register, unregister, isRegistered } =
+      await import('@tauri-apps/plugin-global-shortcut');
 
     shortcutLogger.debug('Registering global shortcuts via JS API...');
 

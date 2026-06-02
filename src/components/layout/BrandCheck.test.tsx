@@ -17,7 +17,13 @@ vi.mock('../../contexts/SettingsContext', () => ({
 vi.mock('../../services', () => ({
   clientService: { getAll: vi.fn().mockResolvedValue([]) },
   projectService: { getAll: vi.fn().mockResolvedValue([]) },
-  invoiceService: { getAll: vi.fn().mockResolvedValue([]), update: vi.fn().mockResolvedValue(null) },
+  invoiceService: {
+    getAll: vi.fn().mockResolvedValue([]),
+    update: vi.fn().mockResolvedValue(null),
+  },
+}));
+
+vi.mock('../../services/invoicePdfService', () => ({
   exportInvoicePdfById: vi.fn().mockResolvedValue(undefined),
 }));
 

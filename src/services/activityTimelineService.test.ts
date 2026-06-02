@@ -51,14 +51,7 @@ describe('activityTimelineService', () => {
 
     expect(dbMocks.execute.mock.calls[0][0]).toContain('INSERT INTO activity_timeline_events');
     expect(dbMocks.execute.mock.calls[0][1]).toEqual(
-      expect.arrayContaining([
-        'activity',
-        'Figma',
-        'Design System Audit',
-        1080,
-        'system',
-        0,
-      ]),
+      expect.arrayContaining(['activity', 'Figma', 'Design System Audit', 1080, 'system', 0]),
     );
     expect(event).toEqual(
       expect.objectContaining({

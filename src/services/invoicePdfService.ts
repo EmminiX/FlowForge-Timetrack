@@ -105,7 +105,8 @@ async function buildInvoicePdf({
   doc.setFont('helvetica', 'normal');
   invoice.lineItems.forEach((item) => {
     const amount = item.quantity * item.unitPrice;
-    const description = doc.splitTextToSize(item.description, pageWidth - 112)[0] || item.description;
+    const description =
+      doc.splitTextToSize(item.description, pageWidth - 112)[0] || item.description;
     doc.text(description, margin, y);
     doc.text(String(item.quantity), pageWidth - 72, y, { align: 'right' });
     doc.text(`${currencySymbol}${item.unitPrice.toFixed(2)}`, pageWidth - 44, y, {
@@ -191,9 +192,9 @@ export async function exportInvoicePdfById(
   invoiceId: string,
   dependencies: ExportInvoicePdfDependencies = {},
 ): Promise<void> {
-  const invoice = await (dependencies.getInvoiceById || invoiceService.getById.bind(invoiceService))(
-    invoiceId,
-  );
+  const invoice = await (
+    dependencies.getInvoiceById || invoiceService.getById.bind(invoiceService)
+  )(invoiceId);
 
   if (!invoice) {
     throw new Error('Invoice not found');
@@ -202,7 +203,9 @@ export async function exportInvoicePdfById(
   const client = await (dependencies.getClientById || clientService.getById.bind(clientService))(
     invoice.clientId,
   );
-  const settings = await (dependencies.loadSettings || settingsService.load.bind(settingsService))();
+  const settings = await (
+    dependencies.loadSettings || settingsService.load.bind(settingsService)
+  )();
   const pdfBytes = await (dependencies.buildPdf || buildInvoicePdf)({
     invoice,
     clientCurrency: client?.currency || 'EUR',
