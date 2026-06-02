@@ -98,6 +98,10 @@ export const timeEntryService = {
     }));
   },
 
+  async getByDateRange(startDate: string, endDate: string): Promise<TimeEntryWithProject[]> {
+    return this.getAll({ startDate, endDate });
+  },
+
   // Get running time entry (if any)
   async getRunning(): Promise<TimeEntryWithProject | null> {
     if (shouldUseDemoMode()) {
