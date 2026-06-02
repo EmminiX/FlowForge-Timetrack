@@ -1,4 +1,11 @@
 import type { AppSettings } from '../types/settings';
+import type {
+  ActivityTimelineEvent,
+  ActivityTimelineEventWithProject,
+  ActivityTimelineFilters,
+  CreateActivityTimelineEventInput,
+  TimelineSuggestion,
+} from '../types/activityTimeline';
 import type { Client, ClientWithStats, CreateClientInput, UpdateClientInput } from '../types/client';
 import type {
   CreateDownPaymentInput,
@@ -39,6 +46,7 @@ import type {
 } from '../types/timeEntry';
 import type { DashboardData, DaySummary } from './dashboardService';
 import type { TimeEntryFilters } from './timeEntryService';
+import { buildTimelineSuggestions } from '../features/activity-timeline/timelineUtils';
 import { createDemoSeedData } from './demoData';
 
 function clone<T>(value: T): T {
@@ -200,6 +208,32 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         return true;
       })
       .sort((a, b) => b.expenseDate.localeCompare(a.expenseDate));
+  }
+
+  function timelineDetails(event: ActivityTimelineEvent): ActivityTimelineEventWithProject {
+    const project = event.projectId
+      ? state.projects.find((item) => item.id === event.projectId)
+      : undefined;
+
+    return {
+      ...event,
+      projectName: project?.name ?? null,
+      projectColor: project?.color ?? null,
+    };
+  }
+
+  function filteredTimelineEvents(
+    filters: ActivityTimelineFilters = {},
+  ): ActivityTimelineEventWithProject[] {
+    return state.activityTimeline
+      .map(timelineDetails)
+      .filter((event) => {
+        if (filters.startDate && event.startedAt < filters.startDate) return false;
+        if (filters.endDate && event.startedAt > filters.endDate) return false;
+        if (!filters.includeDismissed && event.isDismissed) return false;
+        return true;
+      })
+      .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
   }
 
   const repository = {
@@ -468,6 +502,61 @@ export function createDemoRepository(seed = createDemoSeedData()) {
         const before = state.expenses.length;
         state.expenses = state.expenses.filter((expense) => expense.id !== id);
         return state.expenses.length !== before;
+      },
+    },
+
+    activityTimeline: {
+      async getRecent(filters: ActivityTimelineFilters = {}): Promise<ActivityTimelineEventWithProject[]> {
+        return clone(filteredTimelineEvents(filters));
+      },
+      async getSuggestions(options?: { minDurationSeconds?: number }): Promise<TimelineSuggestion[]> {
+        return clone(buildTimelineSuggestions(filteredTimelineEvents({ includeDismissed: false }), options));
+      },
+      async recordEvent(input: CreateActivityTimelineEventInput): Promise<ActivityTimelineEvent> {
+        const durationSeconds = Math.max(
+          0,
+          Math.round(
+            (new Date(input.endedAt).getTime() - new Date(input.startedAt).getTime()) / 1000,
+          ),
+        );
+        const event: ActivityTimelineEvent = {
+          id: createId('demo-timeline'),
+          eventType: input.eventType,
+          appName: input.appName,
+          windowTitle: input.windowTitle ?? null,
+          startedAt: input.startedAt,
+          endedAt: input.endedAt,
+          durationSeconds,
+          source: input.source ?? 'demo',
+          projectId: input.projectId ?? null,
+          timeEntryId: null,
+          notes: input.notes ?? '',
+          isDismissed: false,
+          createdAt: now(),
+        };
+        state.activityTimeline.push(event);
+        return clone(event);
+      },
+      async recordIdleGap(input: { startedAt: string; endedAt: string }): Promise<ActivityTimelineEvent> {
+        return this.recordEvent({
+          eventType: 'idle',
+          appName: 'Idle',
+          windowTitle: null,
+          startedAt: input.startedAt,
+          endedAt: input.endedAt,
+          source: 'demo',
+          notes: 'Idle gap detected locally',
+        });
+      },
+      async linkTimeEntry(eventIds: string[], timeEntryId: string): Promise<void> {
+        state.activityTimeline = state.activityTimeline.map((event) =>
+          eventIds.includes(event.id) ? { ...event, timeEntryId } : event,
+        );
+      },
+      async dismiss(eventIds: string[]): Promise<void> {
+        state.activityTimeline = state.activityTimeline.map((event) =>
+          eventIds.includes(event.id) ? { ...event, isDismissed: true } : event,
+        );
       },
     },
 

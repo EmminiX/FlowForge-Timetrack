@@ -27,6 +27,7 @@ tauri-plugin-dialog = "2.7.1"
 tauri-plugin-fs = "2.4.5"
 tauri-plugin-notification = "2.3.3"
 user-idle = "0.6"
+active-win-pos-rs = "0.9"
 
 [target.'cfg(any(target_os = "macos", windows, target_os = "linux"))'.dependencies]
 tauri-plugin-global-shortcut = "2"

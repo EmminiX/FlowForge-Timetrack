@@ -11,4 +11,5 @@ export { updateService } from './updateService';
 export { backupService } from './backupService';
 export { downPaymentService } from './downPaymentService';
 export { expenseService } from './expenseService';
+export { activityTimelineService } from './activityTimelineService';
 export { exportInvoicePdfById } from './invoicePdfService';

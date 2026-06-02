@@ -205,6 +205,37 @@ export async function runMigrations(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)
   `);
 
+  // Create activity timeline table for private local-only activity capture
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS activity_timeline_events (
+      id TEXT PRIMARY KEY,
+      event_type TEXT NOT NULL,
+      app_name TEXT NOT NULL,
+      window_title TEXT,
+      started_at TEXT NOT NULL,
+      ended_at TEXT NOT NULL,
+      duration_seconds INTEGER DEFAULT 0,
+      source TEXT DEFAULT 'system',
+      project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+      time_entry_id TEXT REFERENCES time_entries(id) ON DELETE SET NULL,
+      notes TEXT DEFAULT '',
+      is_dismissed INTEGER DEFAULT 0,
+      created_at TEXT NOT NULL
+    )
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_activity_timeline_started_at ON activity_timeline_events(started_at)
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_activity_timeline_project_id ON activity_timeline_events(project_id)
+  `);
+
+  await db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_activity_timeline_time_entry_id ON activity_timeline_events(time_entry_id)
+  `);
+
   const projectBudgetColumns = [
     `ALTER TABLE projects ADD COLUMN budget_type TEXT DEFAULT 'none'`,
     `ALTER TABLE projects ADD COLUMN budget_hours REAL DEFAULT 0`,

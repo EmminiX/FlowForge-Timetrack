@@ -1,6 +1,14 @@
+use serde::Serialize;
 use tauri::Manager;
 use tauri_plugin_sql::{Migration, MigrationKind};
 use user_idle::UserIdle;
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ActiveWindowSnapshot {
+    app_name: String,
+    window_title: Option<String>,
+}
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -16,6 +24,33 @@ fn get_idle_time() -> u64 {
         .unwrap_or(0);
     // println!("Rust Idle Check: {}s", time);
     time
+}
+
+#[tauri::command]
+fn get_active_window_snapshot(include_title: bool) -> Option<ActiveWindowSnapshot> {
+    #[cfg(desktop)]
+    {
+        match active_win_pos_rs::get_active_window() {
+            Ok(active_window) => {
+                let title = active_window.title.trim().to_string();
+                Some(ActiveWindowSnapshot {
+                    app_name: active_window.app_name,
+                    window_title: if include_title && !title.is_empty() {
+                        Some(title)
+                    } else {
+                        None
+                    },
+                })
+            }
+            Err(_) => None,
+        }
+    }
+
+    #[cfg(not(desktop))]
+    {
+        let _ = include_title;
+        None
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -189,6 +224,29 @@ pub fn run() {
             CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date);",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 10,
+            description: "create_activity_timeline_events_table",
+            sql: "CREATE TABLE IF NOT EXISTS activity_timeline_events (
+                id TEXT PRIMARY KEY,
+                event_type TEXT NOT NULL,
+                app_name TEXT NOT NULL,
+                window_title TEXT,
+                started_at TEXT NOT NULL,
+                ended_at TEXT NOT NULL,
+                duration_seconds INTEGER DEFAULT 0,
+                source TEXT DEFAULT 'system',
+                project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+                time_entry_id TEXT REFERENCES time_entries(id) ON DELETE SET NULL,
+                notes TEXT DEFAULT '',
+                is_dismissed INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_activity_timeline_started_at ON activity_timeline_events(started_at);
+            CREATE INDEX IF NOT EXISTS idx_activity_timeline_project_id ON activity_timeline_events(project_id);
+            CREATE INDEX IF NOT EXISTS idx_activity_timeline_time_entry_id ON activity_timeline_events(time_entry_id);",
+            kind: MigrationKind::Up,
+        },
     ];
 
     let mut builder = tauri::Builder::default()
@@ -210,7 +268,11 @@ pub fn run() {
     }
 
     builder
-        .invoke_handler(tauri::generate_handler![greet, get_idle_time])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            get_idle_time,
+            get_active_window_snapshot
+        ])
         .on_window_event(|window, event| {
             // When main window is closed, close widget and exit app
             if let tauri::WindowEvent::CloseRequested { .. } = event {

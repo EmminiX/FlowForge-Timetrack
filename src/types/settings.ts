@@ -15,6 +15,11 @@ export interface AppSettings {
   enableIdleDetection: boolean;
   idleThresholdMinutes: number;
 
+  // Private Auto-Timeline
+  enablePrivateTimeline: boolean;
+  captureTimelineWindowTitles: boolean;
+  activityTimelineSuggestionMinMinutes: number;
+
   // Pomodoro
   pomodoroEnabled: boolean;
   pomodoroWorkMinutes: number;
@@ -56,6 +61,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   enableSoundFeedback: true,
   enableIdleDetection: true,
   idleThresholdMinutes: 5,
+  enablePrivateTimeline: false,
+  captureTimelineWindowTitles: false,
+  activityTimelineSuggestionMinMinutes: 5,
   pomodoroEnabled: true,
   pomodoroWorkMinutes: 25,
   pomodoroBreakMinutes: 5,

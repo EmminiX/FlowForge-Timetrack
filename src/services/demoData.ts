@@ -1,4 +1,5 @@
 import { DEFAULT_SETTINGS, type AppSettings } from '../types/settings';
+import type { ActivityTimelineEvent } from '../types/activityTimeline';
 import type { Client } from '../types/client';
 import type { DownPayment } from '../types/downPayment';
 import type { Expense } from '../types/expense';
@@ -27,6 +28,7 @@ export interface DemoSeedData {
   clients: Client[];
   projects: Project[];
   timeEntries: TimeEntry[];
+  activityTimeline: ActivityTimelineEvent[];
   expenses: Expense[];
   downPayments: DownPayment[];
   invoices: Invoice[];
@@ -171,6 +173,54 @@ export function createDemoSeedData(now = new Date()): DemoSeedData {
     },
   ];
 
+  const activityTimeline: ActivityTimelineEvent[] = [
+    {
+      id: 'demo-timeline-figma-1',
+      eventType: 'activity',
+      appName: 'Figma',
+      windowTitle: 'Design System Audit',
+      startedAt: atTime(today, 8, 45),
+      endedAt: atTime(today, 9, 15),
+      durationSeconds: 30 * 60,
+      source: 'demo',
+      projectId: null,
+      timeEntryId: null,
+      notes: '',
+      isDismissed: false,
+      createdAt: atTime(today, 9, 15),
+    },
+    {
+      id: 'demo-timeline-figma-2',
+      eventType: 'activity',
+      appName: 'Figma',
+      windowTitle: 'Design System Audit',
+      startedAt: atTime(today, 9, 20),
+      endedAt: atTime(today, 9, 45),
+      durationSeconds: 25 * 60,
+      source: 'demo',
+      projectId: null,
+      timeEntryId: null,
+      notes: '',
+      isDismissed: false,
+      createdAt: atTime(today, 9, 45),
+    },
+    {
+      id: 'demo-timeline-idle',
+      eventType: 'idle',
+      appName: 'Idle',
+      windowTitle: null,
+      startedAt: atTime(today, 9, 45),
+      endedAt: atTime(today, 10, 0),
+      durationSeconds: 15 * 60,
+      source: 'demo',
+      projectId: null,
+      timeEntryId: null,
+      notes: 'Idle gap detected locally',
+      isDismissed: false,
+      createdAt: atTime(today, 10, 0),
+    },
+  ];
+
   const invoices: Invoice[] = [
     {
       id: 'demo-invoice-1',
@@ -242,6 +292,7 @@ export function createDemoSeedData(now = new Date()): DemoSeedData {
     clients,
     projects,
     timeEntries,
+    activityTimeline,
     expenses,
     downPayments,
     invoices,
