@@ -62,7 +62,7 @@ export function DesktopProSettings() {
           <div>
             <h2 className='text-lg font-semibold text-foreground'>Desktop Pro Mode</h2>
             <p className='mt-1 text-sm text-muted-foreground'>
-              Native controls for running TimeSage like a full desktop app.
+              Native controls for running Axomir Time like a full desktop app.
             </p>
           </div>
           <MonitorSmartphone className='h-5 w-5 shrink-0 text-muted-foreground' />
@@ -100,7 +100,7 @@ export function DesktopProSettings() {
             <div className='min-w-0'>
               <p className='font-medium text-foreground'>Launch at login</p>
               <p className='text-sm text-muted-foreground'>
-                Start TimeSage automatically when you sign in.
+                Start Axomir Time automatically when you sign in.
               </p>
               {autostartSupported === false && (
                 <p className='mt-1 text-xs text-muted-foreground'>

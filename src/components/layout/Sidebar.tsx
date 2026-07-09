@@ -60,10 +60,10 @@ export function Sidebar({ topPadding = '0' }: SidebarProps) {
         style={{ marginBottom: 'var(--shell-brand-mb)', paddingInline: 'var(--shell-nav-item-px)' }}
       >
         <div className='grid h-10 w-10 place-items-center rounded-md border border-primary/35 bg-primary/10 text-sm font-bold text-primary'>
-          TS
+          AT
         </div>
         <div className='min-w-0'>
-          <div className='truncate text-xl font-bold text-foreground'>TimeSage</div>
+          <div className='truncate text-xl font-bold text-foreground'>Axomir Time</div>
           <div className='text-xs font-medium text-muted-foreground'>Private time ledger</div>
         </div>
       </div>
@@ -137,7 +137,7 @@ export function Sidebar({ topPadding = '0' }: SidebarProps) {
           }}
         >
           <a
-            href='https://timesage.emmi.zone/'
+            href='https://emmi.zone/'
             target='_blank'
             rel='noopener noreferrer'
             className='flex min-h-11 items-center rounded-md text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'

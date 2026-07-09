@@ -25,8 +25,8 @@ export const backupService = {
 
       // Open save dialog
       const savePath = await save({
-        title: 'Export TimeSage Backup',
-        defaultPath: `timesage-backup-${new Date().toISOString().split('T')[0]}.db`,
+        title: 'Export Axomir Time Backup',
+        defaultPath: `axomir-time-backup-${new Date().toISOString().split('T')[0]}.db`,
         filters: [
           {
             name: 'SQLite Database',
@@ -79,7 +79,7 @@ export const backupService = {
       backupLogger.debug('Opening file dialog...');
       // Open file dialog
       const selectedPath = await open({
-        title: 'Import TimeSage Backup',
+        title: 'Import Axomir Time Backup',
         multiple: false,
         filters: [
           {

@@ -336,8 +336,8 @@ export function createDemoSeedData(now = new Date()): DemoSeedData {
     products,
     settings: {
       ...DEFAULT_SETTINGS,
-      businessName: 'TimeSage Demo Studio',
-      businessEmail: 'billing@timesage.example',
+      businessName: 'Axomir Time Demo Studio',
+      businessEmail: 'billing@axomirtime.example',
       businessAddress: '1 Local First Road, Dublin',
       businessPhone: '+353 1 555 0199',
       defaultTaxRate: 0.23,

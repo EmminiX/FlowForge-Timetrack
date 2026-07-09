@@ -161,9 +161,9 @@ export function Header() {
     >
       <div className='flex items-center gap-3 min-w-0'>
         <div className='grid h-9 w-9 place-items-center rounded-md border border-primary/35 bg-primary/10 text-sm font-bold text-primary'>
-          TS
+          AT
         </div>
-        <h1 className='text-xl font-semibold text-foreground'>TimeSage</h1>
+        <h1 className='text-xl font-semibold text-foreground'>Axomir Time</h1>
       </div>
 
       <div className='ml-auto relative'>

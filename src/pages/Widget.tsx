@@ -181,7 +181,7 @@ export function Widget() {
           }}
           onMouseDown={(e) => e.stopPropagation()}
           title='Open App'
-          aria-label='Open TimeSage'
+          aria-label='Open Axomir Time'
         >
           <Layout className='w-3.5 h-3.5' />
         </button>

@@ -2,17 +2,17 @@
   <img src="public/EmmiLogo-noBG.png" alt="Emmi Logo" width="100%" />
 </div>
 
-# TimeSage
+# Axomir Time
 
 A simple, focused desktop app for tracking your work time and creating invoices. Built with privacy in mind — all your data stays on your computer.
 
 Designed to be easy to use, especially for people who prefer clear interfaces and minimal distractions.
 
-![TimeSage Screenshot](docs/screenshot.png)
+![Axomir Time Screenshot](docs/screenshot.png)
 
 ## 📖 User Guide
 
-For the TimeSage setup guide, read the **[TimeSage User Guide](https://timesage.emmi.zone/guide)**.
+For the Axomir Time setup guide, read the **[Installation Guide](#-installation-guide)** below.
 
 ## 📥 Download
 
@@ -55,20 +55,20 @@ For the TimeSage setup guide, read the **[TimeSage User Guide](https://timesage.
 
 ## 🗺️ Roadmap
 
-These are planned ideas for future TimeSage releases. The goal is to keep the app privacy-first, focused, and useful for freelancers and small teams.
+These are planned ideas for future Axomir Time releases. The goal is to keep the app privacy-first, focused, and useful for freelancers and small teams.
 
 - **Command Center 2.0** — Upgrade `Cmd+K` / `Ctrl+K` from search into actions: start timer, create invoice, add client, mark paid, export PDF, and quick-add time.
 - **Calendar Time View** — Add a day/week calendar for time entries, with drag-to-resize blocks, visible gaps, and fast missed-time entry. This follows strong patterns from [Toggl](https://toggl.com/track/features/) and [Clockify](https://clockify.me/features/).
 - **Private Auto-Timeline** — Add an optional, local-only activity timeline for apps/windows used, idle gaps, and suggested time entries. This must stay privacy-first and user-approved.
 - **Project Budgets + Scope Alerts** — Add hourly budgets, fixed fees, retainers, and near-limit warnings that connect naturally to projects and dashboard analytics.
 - **Invoice Payment Hub** — Add invoice payment history, partial payments, reminders, and a `sent` / `viewed` / `paid` timeline. Later, add Stripe payment links or hosted checkout using [Stripe Invoicing](https://stripe.com/invoicing).
-- **Expense + Receipt Tracking** — Track billable expenses, attach receipts, and pull those costs into invoices. This fits TimeSage's invoicing flow and local file-first architecture.
+- **Expense + Receipt Tracking** — Track billable expenses, attach receipts, and pull those costs into invoices. This fits Axomir Time's invoicing flow and local file-first architecture.
 - **Desktop Pro Mode** — Add system tray controls, autostart, saved window/widget position, and a native updater using Tauri's [tray](https://v2.tauri.app/learn/system-tray/), [autostart](https://v2.tauri.app/plugin/autostart/), [window state](https://v2.tauri.app/plugin/window-state/), and [updater](https://v2.tauri.app/plugin/updater/) support.
 - **Demo / Web-Safe Mode** — Add a safe demo mode with sample data and mocked Tauri APIs so browser development, screenshots, documentation, and onboarding do not show desktop-only API errors.
 
 ## 🛡️ Data Protection
 
-TimeSage includes built-in protection against accidental data loss:
+Axomir Time includes built-in protection against accidental data loss:
 
 - **Cascading Delete Protection** — You cannot delete a client that has projects, or a project that has time entries
 - **Delete Order** — To remove a client completely, you must first delete their time entries, then projects, then the client
@@ -99,11 +99,11 @@ There are no artificial limits imposed by the application. Storage is only limit
 Since the app isn't code-signed yet, macOS will show a security warning:
 
 1. Download the `.dmg` file
-2. Open it and drag TimeSage to Applications
+2. Open it and drag Axomir Time to Applications
 3. **First launch:** Right-click the app → Select "Open" → Click "Open" in the dialog
 4. Grant Accessibility permissions for keyboard shortcuts:
    - System Settings → Privacy & Security → Accessibility
-   - Click `+` and add TimeSage
+   - Click `+` and add Axomir Time
 
 ### Windows
 
@@ -208,7 +208,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. By contrib
 
 **Made with ❤️ by [Emmi](https://emmi.zone)** — for freelancers and small teams who value simplicity and privacy.
 
-TimeSage was born from the need for a simple, privacy-focused time tracking tool that doesn't require subscriptions, cloud accounts, or complex setup. It's built to respect your data and your workflow.
+Axomir Time was born from the need for a simple, privacy-focused time tracking tool that doesn't require subscriptions, cloud accounts, or complex setup. It's built to respect your data and your workflow.
 
 **Connect:**
 

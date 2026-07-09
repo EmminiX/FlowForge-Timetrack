@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in TimeSage, email e.covasa@me.com.
+If you discover a security vulnerability in Axomir Time, email e.covasa@me.com.
 
 Do not report security vulnerabilities through public GitHub issues.
 
@@ -14,7 +14,7 @@ Do not report security vulnerabilities through public GitHub issues.
 
 ## Desktop File Access
 
-TimeSage stores its local SQLite database in the Tauri app data directory. The
+Axomir Time stores its local SQLite database in the Tauri app data directory. The
 desktop app does not request blanket filesystem write access.
 
 Supported user-selected file operations are limited to:
