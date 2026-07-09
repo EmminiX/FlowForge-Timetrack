@@ -47,7 +47,7 @@ describe('demo repository', () => {
       ]),
     );
     expect(products.length).toBeGreaterThan(0);
-    expect(settings.businessName).toBe('TimeSage Demo Studio');
+    expect(settings.businessName).toBe('Axomir Time Demo Studio');
     expect(dashboard.today.totalSeconds).toBeGreaterThan(0);
     expect(dashboard.clientBreakdown[0]).toEqual(
       expect.objectContaining({ clientId: 'demo-client-acme' }),

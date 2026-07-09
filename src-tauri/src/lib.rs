@@ -80,7 +80,7 @@ fn toggle_widget_window(app: &tauri::AppHandle) {
 }
 
 fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
-    let show_main = MenuItem::with_id(app, "show_main", "Show TimeSage", true, None::<&str>)?;
+    let show_main = MenuItem::with_id(app, "show_main", "Show Axomir Time", true, None::<&str>)?;
     let toggle_widget = MenuItem::with_id(
         app,
         "toggle_widget",
@@ -92,7 +92,7 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
     let menu = Menu::with_items(app, &[&show_main, &toggle_widget, &quit])?;
 
     TrayIconBuilder::with_id("flowforge-tray")
-        .tooltip("TimeSage")
+        .tooltip("Axomir Time")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {
@@ -340,7 +340,7 @@ pub fn run() {
         },
     ];
 
-    let autostart_builder = tauri_plugin_autostart::Builder::new().app_name("TimeSage");
+    let autostart_builder = tauri_plugin_autostart::Builder::new().app_name("Axomir Time");
     #[cfg(target_os = "macos")]
     let autostart_builder = autostart_builder.macos_launcher(MacosLauncher::LaunchAgent);
 

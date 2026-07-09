@@ -32,22 +32,22 @@ describe('Brand Verification', () => {
     useToastStore.getState().clearAll();
   });
 
-  it('Sidebar displays TimeSage', () => {
+  it('Sidebar displays Axomir Time', () => {
     render(
       <BrowserRouter>
         <Sidebar />
       </BrowserRouter>,
     );
-    expect(screen.getByText('TimeSage')).toBeInTheDocument();
+    expect(screen.getByText('Axomir Time')).toBeInTheDocument();
   });
 
-  it('Header displays TimeSage', () => {
+  it('Header displays Axomir Time', () => {
     render(
       <BrowserRouter>
         <Header />
       </BrowserRouter>,
     );
-    expect(screen.getByText('TimeSage')).toBeInTheDocument();
+    expect(screen.getByText('Axomir Time')).toBeInTheDocument();
   });
 
   it('command center opens as an accessible dialog with listbox results', async () => {

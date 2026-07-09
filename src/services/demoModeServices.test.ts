@@ -50,7 +50,7 @@ describe('demo mode services', () => {
       expect.arrayContaining([expect.objectContaining({ name: 'Technical Audit' })]),
     );
     await expect(settingsService.load()).resolves.toEqual(
-      expect.objectContaining({ businessName: 'TimeSage Demo Studio' }),
+      expect.objectContaining({ businessName: 'Axomir Time Demo Studio' }),
     );
     await expect(dashboardService.getDashboardData()).resolves.toEqual(
       expect.objectContaining({

@@ -472,7 +472,7 @@ export function Settings() {
             <CardContent>
               <CardTitle className='mb-2 text-foreground'>Neurodivergent-Friendly Design</CardTitle>
               <CardDescription className='text-muted-foreground'>
-                TimeSage was designed with neurodivergent users in mind. Features include:
+                Axomir Time was designed with neurodivergent users in mind. Features include:
                 <ul className='list-disc list-inside mt-2 space-y-1'>
                   <li>Large touch targets (minimum 44pt)</li>
                   <li>Clear labels with icons</li>
@@ -752,7 +752,7 @@ export function Settings() {
           <Card>
             <CardTitle className='px-6 pt-6 text-base'>Data Management</CardTitle>
             <CardDescription className='px-6 pb-2'>
-              Export or import your TimeSage database for backup purposes.
+              Export or import your Axomir Time database for backup purposes.
             </CardDescription>
             <CardContent className='space-y-4'>
               <div className='flex gap-4'>
@@ -801,7 +801,7 @@ export function Settings() {
                   try {
                     const { message } = await import('@tauri-apps/plugin-dialog');
                     await message('Backup imported! The app will now restart.', {
-                      title: 'TimeSage',
+                      title: 'Axomir Time',
                       kind: 'info',
                     });
                   } catch (e) {
@@ -835,10 +835,10 @@ export function Settings() {
             <CardContent className='py-6'>
               <div className='flex items-center gap-3 mb-2'>
                 <Zap className='w-6 h-6 text-primary' />
-                <CardTitle className='text-xl'>Welcome to TimeSage!</CardTitle>
+                <CardTitle className='text-xl'>Welcome to Axomir Time!</CardTitle>
               </div>
               <CardDescription className='text-base'>
-                TimeSage is your all-in-one time tracking and invoicing companion. This guide will
+                Axomir Time is your all-in-one time tracking and invoicing companion. This guide will
                 walk you through every feature step by step.
               </CardDescription>
             </CardContent>
@@ -890,7 +890,7 @@ export function Settings() {
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
                 The floating widget is a small, always-on-top window that shows your timer status
-                even when TimeSage is minimized.
+                even when Axomir Time is minimized.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Widget Features</h4>
@@ -903,7 +903,7 @@ export function Settings() {
                     • <strong>Stop button:</strong> End the current session
                   </li>
                   <li>
-                    • <strong>Open App button:</strong> Bring TimeSage to focus
+                    • <strong>Open App button:</strong> Bring Axomir Time to focus
                   </li>
                   <li>
                     • <strong>Drag handle:</strong> Move the widget anywhere on screen
@@ -1102,7 +1102,7 @@ export function Settings() {
           <GuideSection icon={<FileText className='w-5 h-5' />} title='Creating Invoices'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                TimeSage makes invoicing easy by automatically importing your unbilled time entries.
+                Axomir Time makes invoicing easy by automatically importing your unbilled time entries.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Step-by-Step Invoice Creation</h4>
@@ -1346,7 +1346,7 @@ export function Settings() {
           <GuideSection icon={<Keyboard className='w-5 h-5' />} title='Global Shortcuts'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                Control TimeSage from anywhere, even when the app is in the background.
+                Control Axomir Time from anywhere, even when the app is in the background.
               </p>
               <div>
                 <h4 className='font-medium mb-2'>Available Shortcuts</h4>
@@ -1369,7 +1369,7 @@ export function Settings() {
                 </ul>
               </div>
               <div className='rounded-md border border-primary/25 bg-primary/10 p-3 text-sm'>
-                <strong>Tip:</strong> These work globally! You don't need to have the TimeSage
+                <strong>Tip:</strong> These work globally! You don't need to have the Axomir Time
                 window focused.
               </div>
             </div>
@@ -1469,7 +1469,7 @@ export function Settings() {
               <div>
                 <h4 className='font-medium mb-2'>App Updates</h4>
                 <p className='text-sm text-muted-foreground'>
-                  TimeSage automatically checks for updates on startup. If a new version is
+                  Axomir Time automatically checks for updates on startup. If a new version is
                   available, a <strong>banner</strong> will appear at the top of the screen with a
                   link to download the latest release.
                 </p>
@@ -1477,10 +1477,10 @@ export function Settings() {
             </div>
           </GuideSection>
 
-          <GuideSection icon={<Globe className='w-5 h-5' />} title='About TimeSage'>
+          <GuideSection icon={<Globe className='w-5 h-5' />} title='About Axomir Time'>
             <div className='space-y-4'>
               <p className='text-sm text-muted-foreground'>
-                TimeSage is built by{' '}
+                Axomir Time is built by{' '}
                 <a
                   href='https://emmi.engineer'
                   target='_blank'
@@ -1498,7 +1498,7 @@ export function Settings() {
                   <li>
                     •{' '}
                     <a
-                      href='https://timesage.emmi.zone/'
+                      href='https://emmi.zone/'
                       target='_blank'
                       rel='noopener noreferrer'
                       className='text-primary hover:underline'
@@ -1531,7 +1531,7 @@ export function Settings() {
             <CardContent className='py-6'>
               <CardTitle className='mb-2 text-foreground'>You're all set</CardTitle>
               <CardDescription className='text-muted-foreground'>
-                You now know everything TimeSage can do. Start tracking your time and creating
+                You now know everything Axomir Time can do. Start tracking your time and creating
                 invoices with ease!
               </CardDescription>
             </CardContent>

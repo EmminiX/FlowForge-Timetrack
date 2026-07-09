@@ -48,7 +48,7 @@ export function UpdateBanner() {
           </div>
           <div>
             <span className='text-sm font-semibold text-foreground'>
-              TimeSage {updateInfo.latestVersion} is available.
+              Axomir Time {updateInfo.latestVersion} is available.
             </span>
             <span className='text-xs text-muted-foreground ml-2'>
               (You have {updateInfo.currentVersion})
